@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/updateSpots</url>
+    <description>Update the SPOT device positions</description>
+    <schedule>every 5 mins</schedule>
+  </cron>
+  <cron>
+    <url>/addresses/update</url>
+    <description>Update the IMC addresses</description>
+    <schedule>every 3 hours</schedule>
+  </cron>
+</cronentries>
