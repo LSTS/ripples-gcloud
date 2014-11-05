@@ -2,6 +2,7 @@ package pt.lsts.ripples.model;
 
 import java.util.Date;
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -11,6 +12,7 @@ import com.googlecode.objectify.annotation.Index;
  *
  */
 @Entity
+@Cache
 public class HubSystem {
     // "imcid":32787,"name":"manta-2","iridium":null,"created_at":"2014-03-10T20:51:19Z","updated_at":"2014-10-31T11:05:02Z","pos_error_class":"","coordinates":[41.185336,-8.705016]
 
