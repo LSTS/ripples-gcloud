@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.log.Log;
-
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
@@ -54,14 +52,14 @@ public class SystemsServlet extends HttpServlet {
 					HubSystem.class);
 			s.setUpdated_at(new Date());
 			Store.ofy().save().entity(s).now();
-			Log.debug("System " + s.getName() + " was updated.");
+			Logger.getGlobal().log(Level.FINE, "System " + s.getName() + " was updated.");
 			resp.setStatus(200);
 			resp.setContentType("application/json");
 			resp.getWriter().write(JsonUtils.getGsonInstance().toJson(s));
 			resp.getWriter().close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.warn("Error handling " + req.getPathInfo(), e);
+			Logger.getGlobal().log(Level.WARNING, "Error handling " + req.getPathInfo(), e);
 			resp.setStatus(400);
 			resp.getWriter().close();
 		}

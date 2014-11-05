@@ -2,6 +2,8 @@ package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.mortbay.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,7 +33,7 @@ public class AddressesServlet extends HttpServlet {
 				resp.setStatus(200);
 	
 			} catch (Exception e) {
-				Log.warn("Error fetching addresses", e);
+				Logger.getGlobal().log(Level.WARNING, "Error fetching addresses", e);
 				resp.setStatus(500);
 			}
 		}
@@ -78,8 +79,8 @@ public class AddressesServlet extends HttpServlet {
 			Store.ofy().save().entity(address);
 			count++;
 			if (existing == null)
-				log("Created a new address entry for " + address.name);
+				Logger.getGlobal().info("Created a new address entry for " + address.name);
 		}
-		log("Stored " + count + " addresses in the datastore.");
+		Logger.getGlobal().info("Stored " + count + " addresses in the datastore.");
 	}
 }
