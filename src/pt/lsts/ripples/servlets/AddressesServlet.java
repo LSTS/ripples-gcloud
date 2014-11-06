@@ -35,6 +35,7 @@ public class AddressesServlet extends HttpServlet {
 			} catch (Exception e) {
 				Logger.getGlobal().log(Level.WARNING, "Error fetching addresses", e);
 				resp.setStatus(500);
+				return;
 			}
 		}
 		

@@ -10,6 +10,7 @@ public class Store {
 		ObjectifyService.factory().register(HubSystem.class);
 		ObjectifyService.factory().register(HubIridiumMsg.class);
 		ObjectifyService.factory().register(Address.class);
+		ObjectifyService.factory().register(ArgosPosition.class);        
 	}
 	
 	public static Objectify ofy() {

@@ -50,6 +50,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/addresses/*</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>Update Argos</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.ArgosServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Update Argos</servlet-name>
+		<url-pattern>/argos/*</url-pattern>
+	</servlet-mapping>
 
  	<servlet>
 		<servlet-name>Iridium Servlet</servlet-name>
