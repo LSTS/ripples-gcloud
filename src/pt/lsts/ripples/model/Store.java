@@ -11,6 +11,7 @@ public class Store {
 		ObjectifyService.factory().register(HubIridiumMsg.class);
 		ObjectifyService.factory().register(Address.class);
 		ObjectifyService.factory().register(ArgosPosition.class);        
+		ObjectifyService.factory().register(Credentials.class);
 	}
 	
 	public static Objectify ofy() {
