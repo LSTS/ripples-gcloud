@@ -10,6 +10,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.SystemPosition;
 import pt.lsts.ripples.model.iridium.ActivateSubscription;
 import pt.lsts.ripples.model.iridium.DeactivateSubscription;
 import pt.lsts.ripples.model.iridium.DeviceUpdate;
@@ -87,11 +88,18 @@ public class IridiumMsgHandler {
 						.resolve((int) id));
 			sys.setCreated_at(new Date());
 		}
-		sys.setUpdated_at(new Date());
+		sys.setUpdated_at(new Date((long)(p.timestamp * 1000)));
 		sys.setCoordinates(new double[] { Math.toDegrees(p.latRads),
 				Math.toDegrees(p.lonRads) });
 
 		Store.ofy().save().entity(sys);
+		
+		SystemPosition pos = new SystemPosition();
+		pos.imc_id = sys.getImcid();
+		pos.lat = sys.getCoordinates()[0];
+		pos.lon = sys.getCoordinates()[1];
+		pos.timestamp = sys.getUpdated_at();
+		PositionsServlet.addPosition(pos);
 	}
 
 	public static void on(ActivateSubscription sub) {

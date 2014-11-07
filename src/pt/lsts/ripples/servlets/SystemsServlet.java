@@ -99,9 +99,9 @@ public class SystemsServlet extends HttpServlet {
 	 */
 	public void listActiveSystems(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
-		Date d = new Date(System.currentTimeMillis() - 1000 * 3600 * 24 * 3);
+		Date d = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
 		List<HubSystem> systems = Store.ofy().load().type(HubSystem.class)
-				.filter("updated_at >=", d).order("updated_at").list();
+				.filter("updated_at >=", d).order("-updated_at").list();
 		resp.setContentType("application/json");
 		resp.setStatus(200);
 		resp.getWriter().write(JsonUtils.getGsonInstance().toJson(systems));
@@ -114,7 +114,7 @@ public class SystemsServlet extends HttpServlet {
 	public void listSystems(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		List<HubSystem> systems = Store.ofy().load().type(HubSystem.class)
-				.list();
+				.order("-updated_at").list();
 		resp.setContentType("application/json");
 		resp.setStatus(200);
 		resp.getWriter().write(JsonUtils.getGsonInstance().toJson(systems));

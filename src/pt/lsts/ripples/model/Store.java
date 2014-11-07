@@ -12,6 +12,7 @@ public class Store {
 		ObjectifyService.factory().register(Address.class);
 		ObjectifyService.factory().register(ArgosPosition.class);        
 		ObjectifyService.factory().register(Credentials.class);
+		ObjectifyService.factory().register(SystemPosition.class);
 	}
 	
 	public static Objectify ofy() {
