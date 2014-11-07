@@ -3,6 +3,8 @@ package pt.lsts.ripples.servlets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +14,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import org.shaded.apache.http.HttpResponse;
+import org.shaded.apache.http.NameValuePair;
+import org.shaded.apache.http.client.HttpClient;
+import org.shaded.apache.http.client.entity.UrlEncodedFormEntity;
+import org.shaded.apache.http.client.methods.HttpPost;
+import org.shaded.apache.http.impl.client.HttpClientBuilder;
+import org.shaded.apache.http.message.BasicNameValuePair;
+
+import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.Credentials;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.JsonUtils;
@@ -27,19 +38,49 @@ public class IridiumServlet extends HttpServlet {
 
 		if (req.getContentType().equals("application/hub")) {
 			sendInlineMessage(req, resp);
-		}
-		else {
-			Logger.getGlobal().info("Ignoring request with wrong content type.");
+		} else {
+			Logger.getGlobal()
+					.info("Ignoring request with wrong content type.");
 			resp.setStatus(400);
 			resp.getWriter().close();
 		}
 	}
 
-	private void sendInlineMessage(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public static String sendToRockBlockHttp(String destImei, String username,
+			String password, byte[] data) throws Exception {
+
+		HttpClient client = HttpClientBuilder.create().build();
+
+		HttpPost post = new HttpPost(
+				"https://secure.rock7mobile.com/rockblock/MT");
+		List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
+		urlParameters.add(new BasicNameValuePair("imei", destImei));
+		urlParameters.add(new BasicNameValuePair("username", username));
+		urlParameters.add(new BasicNameValuePair("password", password));
+		urlParameters.add(new BasicNameValuePair("data", new HexBinaryAdapter()
+				.marshal(data)));
+
+		post.setEntity(new UrlEncodedFormEntity(urlParameters));
+		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+		HttpResponse response = client.execute(post);
+
+		BufferedReader rd = new BufferedReader(new InputStreamReader(response
+				.getEntity().getContent()));
+
+		StringBuffer result = new StringBuffer();
+		String line = "";
+		while ((line = rd.readLine()) != null) {
+			result.append(line);
+		}
+		return result.toString();
+	}
+
+	private void sendInlineMessage(HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
 
 		StringBuilder sb = new StringBuilder();
-		BufferedReader r = new BufferedReader(new InputStreamReader(req.getInputStream()));
+		BufferedReader r = new BufferedReader(new InputStreamReader(
+				req.getInputStream()));
 		String line = r.readLine();
 
 		while (line != null) {
@@ -48,34 +89,55 @@ public class IridiumServlet extends HttpServlet {
 		}
 
 		try {
-			IridiumMessage m = IridiumMessage.deserialize(new HexBinaryAdapter().unmarshal(sb.toString()));
+			IridiumMessage m = IridiumMessage
+					.deserialize(new HexBinaryAdapter().unmarshal(sb.toString()));
 			int dst = m.getDestination();
 			int src = m.getSource();
 
-			Credentials cred =  Store.ofy().load().type(Credentials.class).id("rockblock").now();
+			String imei = findImei(dst);
 
-			if (cred == null) {
+			if (imei == null) {
 				Logger.getGlobal()
-				.log(Level.SEVERE,
-						"Could not find credentials for RockBlock. Iridium message will not be delivered.");
-				resp.getWriter()
-				.write("Credentials for RockBlock service have not been set. Please contact the system administrator");
+						.log(Level.SEVERE,
+								"Could not find IMEI address for dst. Iridium message will not be delivered.");
+				resp.getWriter().write(
+						"Could not find IMEI address for destination.");
 				resp.setStatus(500);
 				return;
 			}
 
-			System.out.println("Message from "+src+" to "+dst+": "+m);
-			//TODO
-		}
-		catch (Exception e) {
-			Logger.getGlobal().log(Level.WARNING, "Error parsing message to send", e);
+			Credentials cred = Store.ofy().load().type(Credentials.class)
+					.id("rockblock").now();
+
+			if (cred == null) {
+				Logger.getGlobal()
+						.log(Level.SEVERE,
+								"Could not find credentials for RockBlock. Iridium message will not be delivered.");
+				resp.getWriter().write(
+						"Credentials for RockBlock service have not been set.");
+				resp.setStatus(500);
+				return;
+			}
+
+			sendToRockBlockHttp(imei, cred.login, cred.password, m.serialize());
+			Logger.getGlobal().log(Level.INFO,
+					"Sent Iridium message from " + src + " to " + dst);
+
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.WARNING,
+					"Error sending Iridium message", e);
 			resp.setStatus(400);
 			resp.getWriter().close();
 			return;
 		}
 	}
 
-
+	private String findImei(int imcid) {
+		Address addr = Store.ofy().load().type(Address.class).id(imcid).now();
+		if (addr == null)
+			return null;
+		return addr.imei;
+	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -83,26 +145,30 @@ public class IridiumServlet extends HttpServlet {
 
 		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
 			resp.setStatus(200);
-			resp.getWriter().write(JsonUtils.getGsonInstance().toJson(Store.ofy().load().type(HubIridiumMsg.class).list()));
-			resp.getWriter().close();	
-		}
-		else {
+			resp.getWriter().write(
+					JsonUtils.getGsonInstance()
+							.toJson(Store.ofy().load()
+									.type(HubIridiumMsg.class).list()));
+			resp.getWriter().close();
+		} else {
 			try {
 				Long l = Long.parseLong(req.getPathInfo().substring(1));
-				HubIridiumMsg msg = Store.ofy().load().type(HubIridiumMsg.class).id(l).now();
+				HubIridiumMsg msg = Store.ofy().load()
+						.type(HubIridiumMsg.class).id(l).now();
 				if (msg == null) {
 					resp.setStatus(404);
 					resp.getWriter().close();
-				}
-				else {
+				} else {
 					resp.setStatus(200);
-					IridiumMessage m = IridiumMessage.deserialize(new HexBinaryAdapter().unmarshal(msg.getMsg()));
-					resp.getWriter().write(""+m.asImc());
+					IridiumMessage m = IridiumMessage
+							.deserialize(new HexBinaryAdapter().unmarshal(msg
+									.getMsg()));
+					resp.getWriter().write("" + m.asImc());
 					resp.getWriter().close();
-				}					
-			}
-			catch (Exception e) {
-				Logger.getGlobal().log(Level.WARNING, "Error translating message to IMC", e);
+				}
+			} catch (Exception e) {
+				Logger.getGlobal().log(Level.WARNING,
+						"Error translating message to IMC", e);
 				resp.setStatus(400);
 				resp.getWriter().close();
 			}

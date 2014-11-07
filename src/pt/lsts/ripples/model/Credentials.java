@@ -8,7 +8,7 @@ import com.googlecode.objectify.annotation.Id;
 @Cache
 public class Credentials {
 	@Id
-	String name;
-	String login;
-	String password;
+	public String name;
+	public String login;
+	public String password;
 }

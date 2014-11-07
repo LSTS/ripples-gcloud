@@ -58,6 +58,15 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     private static LinkedHashMap<Integer, Class<? extends IridiumMessage> > iridiumTypes = new LinkedHashMap<>();
     private static final HexBinaryAdapter hexAdapter = new HexBinaryAdapter();
     
+    public static final int TYPE_DEVICE_UPDATE = 2001;
+    public static final int TYPE_ACTIVATE_SUBSCRIPTION = 2003;
+    public static final int TYPE_DEACTIVATE_SUBSCRIPTION = 2004;
+    public static final int TYPE_IRIDIUM_COMMAND = 2005;
+    public static final int TYPE_DESIRED_ASSET_POSITION = 2006;
+    public static final int TYPE_TARGET_ASSET_POSITION = 2007;
+    public static final int TYPE_IMC_IRIDIUM_MESSAGE = 2010;
+    public static final int TYPE_EXTENDED_DEVICE_UPDATE = 2011;
+    
     public IridiumMessage(int msgType) {
         this.message_type = msgType;        
     }

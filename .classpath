@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jta-1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-18.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/libimc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/firebase-client-jvm-2.0.0.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
