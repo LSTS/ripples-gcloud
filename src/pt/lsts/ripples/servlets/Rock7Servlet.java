@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,6 +48,7 @@ public class Rock7Servlet extends HttpServlet {
 				m.setUpdated_at(new Date());
 				Store.ofy().save().entity(m);
 
+				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received message from RockBlock");
 				IridiumMsgHandler.setMessage(msg);
 
 				HubSystem system = Store.ofy().load().type(HubSystem.class)

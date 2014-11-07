@@ -70,6 +70,8 @@ public class ImcIridiumMessage extends IridiumMessage {
         long timestamp = in.readUnsignedInt();
         msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(type));
         msg.setTimestamp(timestamp);
+        msg.setSrc(getSource());
+        msg.setDst(getDestination());
         try {
             IMCDefinition.getInstance().deserializeFields(msg, in);
         }

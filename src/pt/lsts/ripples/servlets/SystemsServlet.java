@@ -52,14 +52,14 @@ public class SystemsServlet extends HttpServlet {
 					HubSystem.class);
 			s.setUpdated_at(new Date());
 			Store.ofy().save().entity(s).now();
-			Logger.getGlobal().log(Level.FINE, "System " + s.getName() + " was updated.");
+			Logger.getLogger(getClass().getName()).log(Level.FINE, "System " + s.getName() + " was updated.");
 			resp.setStatus(200);
 			resp.setContentType("application/json");
 			resp.getWriter().write(JsonUtils.getGsonInstance().toJson(s));
 			resp.getWriter().close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Logger.getGlobal().log(Level.WARNING, "Error handling " + req.getPathInfo(), e);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error handling " + req.getPathInfo(), e);
 			resp.setStatus(400);
 			resp.getWriter().close();
 		}
@@ -87,7 +87,7 @@ public class SystemsServlet extends HttpServlet {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				Logger.getGlobal().log(Level.WARNING, "Error handling " + req.getPathInfo(), e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error handling " + req.getPathInfo(), e);
 				resp.setStatus(400);
 			}
 		}

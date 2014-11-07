@@ -33,7 +33,7 @@ public class AddressesServlet extends HttpServlet {
 				resp.setStatus(200);
 	
 			} catch (Exception e) {
-				Logger.getGlobal().log(Level.WARNING, "Error fetching addresses", e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error fetching addresses", e);
 				resp.setStatus(500);
 				return;
 			}
@@ -80,8 +80,8 @@ public class AddressesServlet extends HttpServlet {
 			Store.ofy().save().entity(address);
 			count++;
 			if (existing == null)
-				Logger.getGlobal().info("Created a new address entry for " + address.name);
+				Logger.getLogger(getClass().getName()).info("Created a new address entry for " + address.name);
 		}
-		Logger.getGlobal().info("Stored " + count + " addresses in the datastore.");
+		Logger.getLogger(getClass().getName()).info("Stored " + count + " addresses in the datastore.");
 	}
 }

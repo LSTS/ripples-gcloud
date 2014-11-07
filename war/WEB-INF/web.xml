@@ -38,7 +38,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Update Spots</servlet-name>
-		<url-pattern>/updateSpots</url-pattern>
+		<url-pattern>/spots/*</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>

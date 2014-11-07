@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
   <cron>
-    <url>/updateSpots</url>
+    <url>/spots/update</url>
     <description>Update the SPOT device positions</description>
     <schedule>every 5 mins</schedule>
   </cron>

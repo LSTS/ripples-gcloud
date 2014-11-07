@@ -7,8 +7,6 @@ import java.util.logging.Logger;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.ripples.firebase.FirebaseDB;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
@@ -19,51 +17,63 @@ import pt.lsts.ripples.model.iridium.ExtendedDeviceUpdate;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.model.iridium.Position;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
 public class IridiumMsgHandler {
 
-	private static EventBus iridiumBus = new EventBus();
-	static {
-		iridiumBus.register(new IridiumMsgHandler());
-	}
-
 	public static void setMessage(IridiumMessage msg) {
-		iridiumBus.post(msg);
+		on(msg);
+		
+		switch (msg.message_type) {
+		case IridiumMessage.TYPE_DEVICE_UPDATE:
+			on((DeviceUpdate)msg);			
+			break;
+		case IridiumMessage.TYPE_EXTENDED_DEVICE_UPDATE:
+			on((ExtendedDeviceUpdate)msg);
+			break;
+		case IridiumMessage.TYPE_ACTIVATE_SUBSCRIPTION:
+			on((ActivateSubscription)msg);
+			break;
+		case IridiumMessage.TYPE_DEACTIVATE_SUBSCRIPTION:
+			on((DeactivateSubscription)msg);
+			break;
+		default:
+			break;
+		}
 	}
 	
-	@Subscribe
-	public void on(IridiumMessage msg) {
-		for (IMCMessage m : msg.asImc())
-			FirebaseDB.setMessage(m);
+	public static  void on(IridiumMessage msg) {
+//		for (IMCMessage m : msg.asImc()) {
+//			try {
+//				FirebaseDB.setMessage(m);
+//			}
+//			catch (Exception e) {
+//				Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.SEVERE, "Error posting to Firebase", e);
+//			}
+//		}			
 	}
 
-	@Subscribe
-	public void on(DeviceUpdate devUpdate) {
-		Logger.getGlobal().info("Handling DeviceUpdate");
+	public static void on(DeviceUpdate devUpdate) {
+		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling DeviceUpdate");
 		try {
 			for (Position p : devUpdate.getPositions().values())
 				setPosition(p);
 		} catch (Exception e) {
-			Logger.getGlobal().log(Level.WARNING,
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.WARNING,
 					"Error handling DeviceUpdate", e);
 		}
 	}
 
-	@Subscribe
-	public void on(ExtendedDeviceUpdate devUpdate) {
-		Logger.getGlobal().info("Handling ExtendedDeviceUpdate");
+	public static void on(ExtendedDeviceUpdate devUpdate) {
+		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling ExtendedDeviceUpdate");
 		try {
 			for (Position p : devUpdate.getPositions().values())
 				setPosition(p);
 		} catch (Exception e) {
-			Logger.getGlobal().log(Level.WARNING,
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.WARNING,
 					"Error handling DeviceUpdate", e);
 		}
 	}
 	
-	private void setPosition(Position p) {
+	private static void setPosition(Position p) {
 		long id = p.id;
 		HubSystem sys = Store.ofy().load().type(HubSystem.class).id(id).now();
 		if (sys == null) {
@@ -84,14 +94,12 @@ public class IridiumMsgHandler {
 		Store.ofy().save().entity(sys);
 	}
 
-	@Subscribe
-	public void on(ActivateSubscription sub) {
-		Logger.getGlobal().info("Handling ActivateSub");
+	public static void on(ActivateSubscription sub) {
+		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling ActivateSub");
 	}
 
-	@Subscribe
-	public void on(DeactivateSubscription unsb) {
-		Logger.getGlobal().info("Handling DeactivateSub");
+	public static void on(DeactivateSubscription unsb) {
+		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling DeactivateSub");
 	}
 
 	public static void main(String[] args) throws Exception {

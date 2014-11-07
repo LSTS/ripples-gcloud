@@ -3,8 +3,8 @@ package pt.lsts.ripples.servlets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,20 +14,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-import org.shaded.apache.http.HttpResponse;
-import org.shaded.apache.http.NameValuePair;
-import org.shaded.apache.http.client.HttpClient;
-import org.shaded.apache.http.client.entity.UrlEncodedFormEntity;
-import org.shaded.apache.http.client.methods.HttpPost;
-import org.shaded.apache.http.impl.client.HttpClientBuilder;
-import org.shaded.apache.http.message.BasicNameValuePair;
-
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.Credentials;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
+
+import com.firebase.client.utilities.Pair;
+import com.google.appengine.api.urlfetch.FetchOptions;
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 
 @SuppressWarnings("serial")
 public class IridiumServlet extends HttpServlet {
@@ -39,40 +40,32 @@ public class IridiumServlet extends HttpServlet {
 		if (req.getContentType().equals("application/hub")) {
 			sendInlineMessage(req, resp);
 		} else {
-			Logger.getGlobal()
+			Logger.getLogger(getClass().getName())
 					.info("Ignoring request with wrong content type.");
 			resp.setStatus(400);
+
 			resp.getWriter().close();
 		}
 	}
 
-	public static String sendToRockBlockHttp(String destImei, String username,
+	public static Pair<Integer, String> sendToRockBlockHttp(String destImei, String username,
 			String password, byte[] data) throws Exception {
+		URL url = new URL("http://secure.rock7mobile.com/rockblock/MT");
+		
+		String content = "imei=" + URLEncoder.encode(destImei, "UTF-8");
+		content += "&username=" + URLEncoder.encode(username, "UTF-8");
+		content += "&password=" + URLEncoder.encode(password, "UTF-8");
+		content += "&data="
+				+ URLEncoder.encode(new HexBinaryAdapter().marshal(data),
+						"UTF-8");
 
-		HttpClient client = HttpClientBuilder.create().build();
-
-		HttpPost post = new HttpPost(
-				"https://secure.rock7mobile.com/rockblock/MT");
-		List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
-		urlParameters.add(new BasicNameValuePair("imei", destImei));
-		urlParameters.add(new BasicNameValuePair("username", username));
-		urlParameters.add(new BasicNameValuePair("password", password));
-		urlParameters.add(new BasicNameValuePair("data", new HexBinaryAdapter()
-				.marshal(data)));
-
-		post.setEntity(new UrlEncodedFormEntity(urlParameters));
-		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-		HttpResponse response = client.execute(post);
-
-		BufferedReader rd = new BufferedReader(new InputStreamReader(response
-				.getEntity().getContent()));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
-		return result.toString();
+		URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+		FetchOptions options = FetchOptions.Builder.validateCertificate();
+		HTTPRequest request = new HTTPRequest(url, HTTPMethod.POST, options);
+		request.setHeader(new HTTPHeader("content-Type", "application/x-www-form-urlencoded"));
+		request.setPayload(content.getBytes());
+		HTTPResponse response = fetcher.fetch(request);
+		return new Pair<Integer, String>(response.getResponseCode(), new String(response.getContent()));
 	}
 
 	private void sendInlineMessage(HttpServletRequest req,
@@ -97,7 +90,7 @@ public class IridiumServlet extends HttpServlet {
 			String imei = findImei(dst);
 
 			if (imei == null) {
-				Logger.getGlobal()
+				Logger.getLogger(getClass().getName())
 						.log(Level.SEVERE,
 								"Could not find IMEI address for dst. Iridium message will not be delivered.");
 				resp.getWriter().write(
@@ -110,7 +103,7 @@ public class IridiumServlet extends HttpServlet {
 					.id("rockblock").now();
 
 			if (cred == null) {
-				Logger.getGlobal()
+				Logger.getLogger(getClass().getName())
 						.log(Level.SEVERE,
 								"Could not find credentials for RockBlock. Iridium message will not be delivered.");
 				resp.getWriter().write(
@@ -119,14 +112,24 @@ public class IridiumServlet extends HttpServlet {
 				return;
 			}
 
-			sendToRockBlockHttp(imei, cred.login, cred.password, m.serialize());
-			Logger.getGlobal().log(Level.INFO,
+			Pair<Integer, String> rock7Resp = sendToRockBlockHttp(imei, cred.login, cred.password, m.serialize());
+			Logger.getLogger(getClass().getName()).log(Level.INFO,
 					"Sent Iridium message from " + src + " to " + dst);
+			if (rock7Resp.getSecond().startsWith("FAILED")) {
+				resp.getWriter().write("Sending to "+imei+" failed: ");
+				resp.setStatus(502);
+			}
+			else
+				resp.setStatus(rock7Resp.getFirst());
+			
+			resp.getWriter().write(rock7Resp.getSecond());
+			resp.getWriter().close();
 
 		} catch (Exception e) {
-			Logger.getGlobal().log(Level.WARNING,
+			Logger.getLogger(getClass().getName()).log(Level.WARNING,
 					"Error sending Iridium message", e);
 			resp.setStatus(400);
+			e.printStackTrace(resp.getWriter());
 			resp.getWriter().close();
 			return;
 		}
@@ -167,11 +170,17 @@ public class IridiumServlet extends HttpServlet {
 					resp.getWriter().close();
 				}
 			} catch (Exception e) {
-				Logger.getGlobal().log(Level.WARNING,
+				Logger.getLogger(getClass().getName()).log(Level.WARNING,
 						"Error translating message to IMC", e);
 				resp.setStatus(400);
 				resp.getWriter().close();
 			}
 		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		String dstr = "0e411e00da076d03dc9d5354510002fd0054fe2f026e01fed42077e714d541000000ffffff000000000200733101002702020073310000000000000500476f746f31030028020500476f746f31c20110274e8e003a7300e73f6937343e8973c3bf0000004001000061440100000000000000000000000000000000000000000000000000000000000028020500476f746f32c2011027f68816ad6200e73f47d3104eef72c3bf0000004001000061440100000000000000000000000000000000000000000000000000000100240303004c424c010021030600416374697665050066616c7365000028020f0053746174696f6e4b656570696e6731cd0171472e327f00e73fa5f80085ee72c3bf00";
+		IridiumMessage msg = IridiumMessage.deserialize(new HexBinaryAdapter().unmarshal(dstr));
+		System.out.println(msg);
 	}
 }

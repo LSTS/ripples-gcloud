@@ -15,8 +15,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 
 
 public class FirebaseDB {
@@ -25,7 +23,6 @@ public class FirebaseDB {
 	private static FirebaseDB instance = null;
 	private final static String rootPath = "https://neptus.firebaseio-demo.com/";
 	private final static String authKey = "";
-	private final EventBus fbBus = new EventBus();
 	
 	private static FirebaseDB instance() {
 		synchronized (FirebaseDB.class) {
@@ -51,7 +48,19 @@ public class FirebaseDB {
 	}
 	
 	public static void setMessage(IMCMessage msg) {
-		FirebaseDB.instance().fbBus.post(msg);
+		switch (msg.getMgid()) {
+		case Announce.ID_STATIC:
+			FirebaseDB.instance().set((Announce)msg);
+			break;
+		case RemoteSensorInfo.ID_STATIC:
+			FirebaseDB.instance().set((RemoteSensorInfo)msg);
+			break;
+		case EstimatedState.ID_STATIC:
+			FirebaseDB.instance().set((EstimatedState)msg);
+			break;
+		default:
+			break;
+		}
 	}
 	
 	public static void addValue(String path, Object obj) {
@@ -72,27 +81,26 @@ public class FirebaseDB {
 			
 			@Override
 			public void onCancelled(FirebaseError arg0) {
-				Logger.getGlobal().log(Level.WARNING, "Cancelled: "+arg0.getMessage());
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cancelled: "+arg0.getMessage());
 			}
 		});
 		if (!authKey.isEmpty()) {
 			new Firebase(rootPath).authWithCustomToken(authKey, new Firebase.AuthResultHandler() {
 				@Override
 				public void onAuthenticated(AuthData arg0) {
-					Logger.getGlobal().log(Level.INFO, "Connected.");		
+					Logger.getLogger(getClass().getName()).log(Level.INFO, "Connected.");		
 				}
 
 				@Override
 				public void onAuthenticationError(FirebaseError arg0) {
-					Logger.getGlobal().log(Level.SEVERE, arg0.getCode()+": "+arg0.getMessage());
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, arg0.getCode()+": "+arg0.getMessage());
 				}
 				
 			});								
 		}
-		fbBus.register(this);
 	}
 	
-	@Subscribe
+	
 	@SuppressWarnings("unchecked")
 	public void set(Announce ann) {
 		
@@ -114,10 +122,10 @@ public class FirebaseDB {
 		FirebaseDB.setValue("assets/"+ann.getSourceName()+"/type", ann.getSysType().toString());		
 	}	
 	
-	@Subscribe
+	
 	@SuppressWarnings("unchecked")
 	public void set(RemoteSensorInfo sinfo) {
-		
+		System.out.println("Received remote sensor info");
 		double lat = Math.toDegrees(sinfo.getLat());
 		double lon = Math.toDegrees(sinfo.getLon());
 		if (lat == 0 && lon == 0.0)
@@ -138,7 +146,7 @@ public class FirebaseDB {
 		FirebaseDB.setValue("assets/"+sinfo.getId()+"/type", sinfo.getSensorClass().toString());			
 	}	
 	
-	@Subscribe
+	
 	public void set(EstimatedState s) {
 		double[] pos = WGS84Utilities.toLatLonDepth(s);
 		LinkedHashMap<String, Object> position = new LinkedHashMap<String, Object>();
