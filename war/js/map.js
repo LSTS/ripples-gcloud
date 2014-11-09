@@ -1,6 +1,6 @@
-
-
 var markers = {};
+var plans = {};
+var tails = {};
 
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
@@ -106,6 +106,8 @@ var desiredIcon = new SysIcon({
 	iconUrl : 'icons/ico_desired.png'
 });
 
+L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
+
 function updatePositions() {
 	$.getJSON("api/v1/systems", function(data) {
 
@@ -135,7 +137,6 @@ function updatePositions() {
 						+ ellapsed + ")");
 				markers[name].addTo(map);
 			} else {
-				console.info(markers[name].getLatLng());
 				markers[name].setLatLng(new L.LatLng(coords[0], coords[1]));
 				markers[name].bindPopup("<b>" + name + "</b><br/>"
 						+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
@@ -204,8 +205,35 @@ ripplesRef.child('assets').on(
 			var lat = position.latitude;
 			var lon = position.longitude;
 
+			var plan = snapshot.val().plan;
+			
+			if (plan == undefined)
+				plans[name] = undefined;
+			else { 
+				if (plan.path != undefined) {
+					if (plans[name] == undefined)
+						plans[name] = L.polyline({}, {color: 'green'}).addTo(map);
+					else 
+						plans[name].setLatLngs([]);
+					
+					for (point in plan.path) {
+						plans[name].addLatLng(L.latLng(plan.path[point]));
+					}
+				}				
+			}
+			
+			var pos = new L.LatLng(lat, lon);
+			
+			if (tails[name] == undefined) {
+				tails[name] = L.polyline({});
+				tails[name].addTo(map);				
+			}
+			tails[name].addLatLng(pos);
+			if (tails[name].getLatLngs().length > 120)
+				tails[name].spliceLatLngs(0, 1);
+			
 			if (markers[name] != undefined) {
-				markers[name].setLatLng(new L.LatLng(lat, lon));
+				markers[name].setLatLng(pos);
 				markers[name].bindPopup("<b>" + name + "</b><br/>"
 						+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
 						+ new Date().toLocaleString());
