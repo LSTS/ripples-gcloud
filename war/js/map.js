@@ -109,7 +109,7 @@ var desiredIcon = new SysIcon({
 L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
 
 function updatePositions() {
-	$.getJSON("api/v1/systems", function(data) {
+	$.getJSON("api/v1/systems/active", function(data) {
 
 		$.each(data, function(val) {
 			var coords = data[val].coordinates;
