@@ -78,7 +78,7 @@ public class PositionsServlet extends HttpServlet {
 				.filter("imc_id", pos.imc_id)
 				.order("-timestamp").limit(1).first().now();
 		if (existing == null) { 
-			Logger.getLogger(PositionsServlet.class.getName()).log(Level.WARNING,
+			Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
 					"First position for " + pos.imc_id);
 		}
 		else if (existing.timestamp.getTime() > pos.timestamp.getTime()) {
@@ -89,12 +89,12 @@ public class PositionsServlet extends HttpServlet {
 		}
 		// log at most 1 position every 1 seconds
 		else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000) {
-			Logger.getLogger(PositionsServlet.class.getName()).log(Level.WARNING,
+			Logger.getLogger(PositionsServlet.class.getName()).log(Level.FINE,
 					"Already have an up to date position for " + pos.imc_id);
 			return;
 		}
 		Logger.getLogger(PositionsServlet.class.getName()).log(
-				Level.WARNING,
+				Level.FINE,
 				"Storing " + pos.imc_id);
 		Store.ofy().save().entity(pos);	
 	}
