@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.SystemPosition;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -77,6 +78,13 @@ public class UpdateFirebaseServlet extends HttpServlet {
 			sys.setUpdated_at(new Date(updated_at));
 			sys.setCoordinates(new double[] { latDegs, lonDegs });
 			Store.ofy().save().entity(sys);
+			
+			SystemPosition pos = new SystemPosition();
+			pos.imc_id = id;
+			pos.lat = latDegs;
+			pos.lon = lonDegs;
+			pos.timestamp = new Date(updated_at);
+			PositionsServlet.addPosition(pos);
 		}	
 	}
 	
