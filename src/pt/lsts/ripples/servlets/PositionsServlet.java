@@ -61,7 +61,7 @@ public class PositionsServlet extends HttpServlet {
 				counters.put(p.imc_id, 0);
 			
 			int count = counters.get(p.imc_id);
-			if (count >= 1)
+			if (count >= 50)
 				continue;
 			counters.put(p.imc_id, ++count);
 			ret.add(0, p);			
@@ -76,22 +76,26 @@ public class PositionsServlet extends HttpServlet {
 	public static void addPosition(SystemPosition pos) {
 		SystemPosition existing = Store.ofy().load().type(SystemPosition.class)
 				.filter("imc_id", pos.imc_id)
-				.filter("timestamp", pos.timestamp).first().now();
-		if (existing == null)
-			Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
+				.order("-timestamp").limit(1).first().now();
+		if (existing == null) { 
+			Logger.getLogger(PositionsServlet.class.getName()).log(Level.WARNING,
 					"First position for " + pos.imc_id);
-
-		else if (existing.timestamp.getTime() > pos.timestamp.getTime())
+		}
+		else if (existing.timestamp.getTime() > pos.timestamp.getTime()) {
 			Logger.getLogger(PositionsServlet.class.getName()).log(
 					Level.WARNING,
 					"Already have a more updated position for " + pos.imc_id);
-
+			return;
+		}
 		// log at most 1 position every 1 seconds
-		else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000)
-			Logger.getLogger(PositionsServlet.class.getName()).log(Level.FINE,
+		else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000) {
+			Logger.getLogger(PositionsServlet.class.getName()).log(Level.WARNING,
 					"Already have an up to date position for " + pos.imc_id);
-
-		else
-			Store.ofy().save().entity(pos);
+			return;
+		}
+		Logger.getLogger(PositionsServlet.class.getName()).log(
+				Level.WARNING,
+				"Storing " + pos.imc_id);
+		Store.ofy().save().entity(pos);	
 	}
 }
