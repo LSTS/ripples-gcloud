@@ -55,7 +55,7 @@ public class PositionsServlet extends HttpServlet {
 						new Date(System.currentTimeMillis() - 1000 * 3600 * 24))
 						.order("-timestamp").list();
 
-		for (int i = positions.size() -1; i >= 0; i--) {
+		for (int i = 0; i < positions.size(); i++) {
 			SystemPosition p = positions.get(i);
 			if (!counters.containsKey(p.imc_id))
 				counters.put(p.imc_id, 0);
@@ -64,7 +64,7 @@ public class PositionsServlet extends HttpServlet {
 			if (count >= 50)
 				continue;
 			counters.put(p.imc_id, ++count);
-			ret.add(0, p);			
+			ret.add(p);			
 		}
 
 		resp.setContentType("application/json");
