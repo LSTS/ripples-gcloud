@@ -1,5 +1,7 @@
 package pt.lsts.ripples.model;
 
+import pt.lsts.ripples.model.log.MissionLog;
+
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
@@ -13,6 +15,7 @@ public class Store {
 		ObjectifyService.factory().register(ArgosPosition.class);        
 		ObjectifyService.factory().register(Credentials.class);
 		ObjectifyService.factory().register(SystemPosition.class);
+		ObjectifyService.factory().register(MissionLog.class);
 	}
 	
 	public static Objectify ofy() {
