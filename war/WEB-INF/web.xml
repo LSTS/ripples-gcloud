@@ -78,6 +78,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet-mapping>
 	
 	<servlet>
+		<servlet-name>LogBook</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.LogbookServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LogBook</servlet-name>
+		<url-pattern>/logbook/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>Update Firebase</servlet-name>
 		<servlet-class>pt.lsts.ripples.servlets.UpdateFirebaseServlet</servlet-class>
 	</servlet>
