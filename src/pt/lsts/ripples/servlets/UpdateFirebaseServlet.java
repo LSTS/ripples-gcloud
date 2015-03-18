@@ -55,36 +55,45 @@ public class UpdateFirebaseServlet extends HttpServlet {
 		Set<Entry<String, JsonElement>> assets = root.getAsJsonObject().get("assets").getAsJsonObject().entrySet();
 		
 		for (Entry<String, JsonElement> asset : assets) {
-			
-			long updated_at = asset.getValue().getAsJsonObject().get("updated_at").getAsLong();
-			JsonElement position = asset.getValue().getAsJsonObject().get("position");
-			double latDegs = position.getAsJsonObject().get("latitude").getAsDouble();
-			double lonDegs = position.getAsJsonObject().get("longitude").getAsDouble();
-			
-			long id = getId(asset.getKey());
-			
-			if (id == -1) {
-				Logger.getGlobal().log(Level.WARNING, "Unknown system: "+asset.getKey());
+			try {
+				long updated_at = asset.getValue().getAsJsonObject().get("updated_at").getAsLong();
+				JsonElement position = asset.getValue().getAsJsonObject().get("position");
+				if (position == null)
+					continue;
+				
+				double latDegs = position.getAsJsonObject().get("latitude").getAsDouble();
+				double lonDegs = position.getAsJsonObject().get("longitude").getAsDouble();
+				
+				long id = getId(asset.getKey());
+				
+				if (id == -1) {
+					Logger.getGlobal().log(Level.WARNING, "Unknown system: "+asset.getKey());
+					continue;
+				}
+				
+				HubSystem sys = Store.ofy().load().type(HubSystem.class).id(id).now();
+				if (sys == null) {
+					sys = new HubSystem();
+					sys.setImcid(id);
+					sys.setName(asset.getKey());
+					sys.setCreated_at(new Date(updated_at));				
+				}
+				sys.setUpdated_at(new Date(updated_at));
+				sys.setCoordinates(new double[] { latDegs, lonDegs });
+				Store.ofy().save().entity(sys);
+				
+				SystemPosition pos = new SystemPosition();
+				pos.imc_id = id;
+				pos.lat = latDegs;
+				pos.lon = lonDegs;
+				pos.timestamp = new Date(updated_at);
+				PositionsServlet.addPosition(pos);
+			}
+			catch (Exception e) {
+				System.err.println(asset.getKey());
+				e.printStackTrace();
 				continue;
 			}
-			
-			HubSystem sys = Store.ofy().load().type(HubSystem.class).id(id).now();
-			if (sys == null) {
-				sys = new HubSystem();
-				sys.setImcid(id);
-				sys.setName(asset.getKey());
-				sys.setCreated_at(new Date(updated_at));				
-			}
-			sys.setUpdated_at(new Date(updated_at));
-			sys.setCoordinates(new double[] { latDegs, lonDegs });
-			Store.ofy().save().entity(sys);
-			
-			SystemPosition pos = new SystemPosition();
-			pos.imc_id = id;
-			pos.lat = latDegs;
-			pos.lon = lonDegs;
-			pos.timestamp = new Date(updated_at);
-			PositionsServlet.addPosition(pos);
 		}	
 	}
 	
