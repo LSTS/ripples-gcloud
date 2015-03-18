@@ -36,7 +36,6 @@ public class PositionsCsvServlet extends HttpServlet {
 		try {
 			String day = req.getPathInfo().split("[/\\.]+")[1];
 			long start = dayFormat.parse(day).getTime();
-			System.out.println(new Date(start));
 			long nextMidnight = start + 3600 * 24 * 1000;
 			List<SystemPosition> positions = Store.ofy().load()
 					.type(SystemPosition.class).filter("timestamp >=", new Date(start))
