@@ -241,6 +241,9 @@ public class LogbookServlet extends HttpServlet {
 				return;
 			} else {
 				String extension = getExtension(req);
+				if (extension == null)
+					extension = "html";
+				
 				switch (extension) {
 				case "html":
 					resp.setContentType("text/html");
