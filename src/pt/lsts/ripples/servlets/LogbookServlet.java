@@ -74,7 +74,13 @@ public class LogbookServlet extends HttpServlet {
 			case "systems":
 				System.out.println(indexToDelete);
 				if (indexToDelete >= 0) {
-					log.systems.remove(indexToDelete);
+					try {
+						log.systems.remove(log.systems.toArray()[indexToDelete]);
+					}
+					catch (Exception e) {
+						resp.sendError(400,
+								"No such index.");
+					}
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
 					if (elem.isJsonPrimitive()) {
@@ -89,7 +95,14 @@ public class LogbookServlet extends HttpServlet {
 				break;
 			case "team":
 				if (indexToDelete >= 0) {
-					log.team.remove(indexToDelete);
+					try {
+						log.team.remove(log.team.toArray()[indexToDelete]);
+					}
+					catch (Exception e) {
+						resp.sendError(400,
+								"No such index.");
+					}
+
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
 					if (elem.isJsonPrimitive())
@@ -103,7 +116,14 @@ public class LogbookServlet extends HttpServlet {
 				break;
 			case "objectives":
 				if (indexToDelete >= 0) {
-					log.objectives.remove(indexToDelete);
+					try {
+						log.objectives.remove(log.objectives.toArray()[indexToDelete]);
+					}
+					catch (Exception e) {
+						resp.sendError(400,
+								"No such index.");
+					}
+
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
 					if (elem.isJsonPrimitive())
@@ -117,7 +137,14 @@ public class LogbookServlet extends HttpServlet {
 				break;
 			case "actions":
 				if (indexToDelete >= 0) {
-					log.actions.remove(indexToDelete);
+					try {
+						log.actions.remove(log.actions.toArray()[indexToDelete]);
+					}
+					catch (Exception e) {
+						resp.sendError(400,
+								"No such index.");
+					}
+
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
 
@@ -137,7 +164,14 @@ public class LogbookServlet extends HttpServlet {
 				break;
 			case "log":
 				if (indexToDelete >= 0) {
-					log.log.remove(indexToDelete);
+					try {
+						log.log.remove(log.log.toArray()[indexToDelete]);
+					}
+					catch (Exception e) {
+						resp.sendError(400,
+								"No such index.");
+					}
+
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
 					try {
