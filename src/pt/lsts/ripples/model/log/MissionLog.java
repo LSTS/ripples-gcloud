@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
@@ -24,12 +25,13 @@ public class MissionLog {
 	public String date = sdf.format(new Date());
 
 	public String place = "";
+	public double[] coords = new double[]{0,0};
 	public String conditions = "";
-	public ArrayList<String> objectives = new ArrayList<>();
-	public ArrayList<String> team = new ArrayList<>();
-	public ArrayList<String> systems = new ArrayList<>();
-	public ArrayList<LogEntry> log = new ArrayList<>();
-	public ArrayList<ActionItem> actions = new ArrayList<>();
+	public LinkedHashSet<String> objectives = new LinkedHashSet<>();
+	public LinkedHashSet<String> team = new LinkedHashSet<>();
+	public LinkedHashSet<String> systems = new LinkedHashSet<>();
+	public LinkedHashSet<LogEntry> log = new LinkedHashSet<>();
+	public LinkedHashSet<ActionItem> actions = new LinkedHashSet<>();
 
 	public String asMarkDown() {
 		SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm");
