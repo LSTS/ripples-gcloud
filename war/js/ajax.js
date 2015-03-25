@@ -25,8 +25,8 @@ $(document).ready(function() {
                 });*/
 			
 			$.ajax({
-	            url : 'http://localhost:8888/logbook/'+date+'/log',
-	            dataType: 'jsonp',
+	            url : '/logbook/'+date+'/log',
+	            dataType: 'json',
 	            type: 'POST',
 	            method: 'POST',
 	            contentType: 'application/json',
