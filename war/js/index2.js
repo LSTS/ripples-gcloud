@@ -33,6 +33,11 @@ $(document).ready(function(){
             		$("#contentIframe").show();
             		$("#contentIframe").attr('src',location+"create_log.jsp");   
             	}
+            	else if(itemName=="Place")
+            	{
+            		$("#contentIframe").show();
+            		$("#contentIframe").attr('src',location+"add_place.html");   
+            	}
             	else if(itemName=="Log")
             	{
             		$("#contentIframe").show();
