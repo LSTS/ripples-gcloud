@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Ripples - Message Box</title>
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script type='text/javascript' src='js/jquery.msgBox.js'></script>
+<link rel="stylesheet" href="css/msgBoxLight.css" />
+<script type="text/javascript">
+	$(document).ready(
+					function() {
+						var d = new Date();
+						var month = d.getMonth() + 1;
+						var day = d.getDate();
+						var date = d.getFullYear() + '-'
+								+ (month < 10 ? '0' : '') + month + '-'
+								+ (day < 10 ? '0' : '') + day;
+						var path = "/logbook/" + date;
+						$.ajax({
+									type : 'HEAD',
+									url : path,
+									success : function() {
+										//alert("The logbook for this date " + date + " exists.");
+										$("#log_view").attr('src', path);
+									},
+									error : function() {
+										//alert("The logbook for this date "+ date +" needs to be created.");
+										$.msgBox({
+													title : "Are You Sure",
+													content : "Would you like to create a logobook for today?",
+													type : "confirm",
+													buttons : [ {
+														value : "Yes"
+													}, {
+														value : "No"
+													}, {
+														value : "Cancel"
+													} ],
+													success : function(result) {
+														if (result == "Yes") {
+															var newpath = '/logbook/create';
+															//window.location.href = newpath;
+															$("#log_view").attr('src', newpath);
+															alert("Logbook created.");
+														} else {
+															$("#log_view").attr('src', '/logbook/');
+														}
+													}
+												});
+									}
+								});
+					});
+
+	function autoResize(){
+	    $('#log_view').height($('#log_view').contents().height());
+	}
+</script>
+</head>
+<body>
+	<h1>Hello user!</h1>
+	<p>Test MsgBox</p>
+	<iframe id="log_view" width="100%" onLoad="autoResize();" frameborder="0"></iframe>
+</body>
+</html>
