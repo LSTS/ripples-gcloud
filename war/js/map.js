@@ -162,7 +162,7 @@ function sysIconFromName(name) {
 
 function sysIcon(imcId) {
 	var sys_selector = 0xE000;
-	var vtype_selector = 0x1800;
+	var vtype_selector = 0x1c00;
 
 	if (imcId >= 0x8401 && imcId <= 0x841a)
 		return spotIcon;
@@ -172,7 +172,7 @@ function sysIcon(imcId) {
 	switch (sys_type) {
 	case 0:
 	case 1:
-		switch ((imcId & vtype_selector) >> 11) {
+		switch ((imcId & vtype_selector) >> 10) {
 		case 0:
 			return auvIcon;
 		case 1:
