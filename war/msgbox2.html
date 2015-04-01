@@ -37,7 +37,7 @@
 								updateListJSON();
 							});
 							}, 5000); // 5000 micro second = 5 sec. 
-						
+		
 						$.ajax({
 									type : 'HEAD',
 									url : path,
@@ -81,7 +81,15 @@
 							$.getJSON( path+'.json', function( data ) {
 								var items = [];
 								$.each( data, function( key, val ) {
-								items.push( "<li id='" + key + "'>"+key+": "+ val + "</li>" );
+									if(key=="log"){
+										//console.log(this);
+										for (var log in this) {
+											items.push( "<li id='" + key + "'>"+key+": "+this[log].author+" - "+ this[log].text + "</li>" );
+										}
+									}else if(key=="coords" || key=="actions"){}
+									else{
+										items.push( "<li id='" + key + "'>"+key+": "+ val + "</li>" );
+									}
 								});
 								$( "<ul/>", {
 								"class": "log_list",
