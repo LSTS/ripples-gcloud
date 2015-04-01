@@ -170,22 +170,38 @@
 				            	}
 					            else if(itemName=="Log")
 				            	{
-					            	//alert("Log."); 
-					            	
-				            	}
-					            else if(itemName=="Actions")
-				            	{
-					            	//alert("Actions."); 
-					            	
-				            	}
-					            else if(itemName=="History")
-				            	{
-					            	//alert("History."); 
-					            	$.msgBox({
-					            		title:"Hello",
-					            		content:"Hello World!",
-					            		type:"info"
+					            	//alert("Log.");
+					            	$.msgBox({ type: "prompt",
+					            		title: "Insert Log",
+					            		inputs: [
+					            		{ header: "Author", type: "text", name: "log_author" },
+					            		{ header: "Text", type: "text", name: "log_text" }],
+					            		buttons: [
+					            		{ value: "Ok" }, {value:"Cancel"}],
+					            		success: function (result, values) {
+						            		if (result == "Ok") {
+							            		$.ajax({
+							        	            url : path+'/log',
+							        	            dataType: 'json',
+							        	            type: 'POST',
+							        	            method: 'POST',
+							        	            contentType: 'application/json',
+							        	            async:true,
+							        	            crossDomain: true,
+							        	            data : JSON.stringify({"author": $('input[name=log_author]').val(), "text": $('input[name=log_text]').val()}),
+							        	            cache: false,
+							        	            success: function( data, textStatus, jQxhr ){
+							        	                alert("Log inserted.");
+							        	            },
+							        	            error: function( jqXhr, textStatus, errorThrown ){
+							        	                console.log( errorThrown );
+							        	            }
+							        	        });
+					            			}
+					            			//alert(v);
+					            		}
 					            		});
+					            	
 				            	}
 					            else{
 				            		alert("Empty.");
@@ -210,14 +226,8 @@
 	
 	        <div id="menu">
             <nav>
-                <h2><i class="fa fa-reorder"></i>LSTS - Ripples</h2>
-                <ul>
-                    <li>
-                        <a href="#">Map</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fa fa-book"></i>Logbook</a>
-                        <h2><i class="fa fa-book"></i>Logbook</h2>
+                
+                        <h2><i class="fa fa-book"></i>Ripples - Logbook</h2>
                         <ul>
                             <li>
                                 <a href="#">Place</a>
@@ -237,21 +247,8 @@
                             <li>
                                 <a href="#">Log</a>
                             </li>
-                            <li>
-                                <a href="#">Actions</a>
-                            </li>
-                            <li>
-                                <a href="#">History</a>
-                            </li>
                         </ul>
-                    </li>
-                    <li>
-                        <a href="#">Servlets</a>
-                    </li>
-                    <li>
-                        <a href="#">Logout</a>
-                    </li>
-                </ul>
+
             </nav>
         </div>
 	
