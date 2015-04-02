@@ -67,6 +67,7 @@
 															$("#log_view").attr('src', newpath);
 															alert("Logbook created.");
 															$('#log_view', window.parent.document).hide();
+															window.location.reload();
 														} else {
 															//$("#log_view").attr('src', '/logbook/');
 															$('#log_view', window.parent.document).hide();
@@ -75,7 +76,7 @@
 												});
 									}
 								});
-						
+							
 						//update of the JSON List 
 						function updateListJSON() {
 							$.getJSON( path+'.json', function( data ) {
@@ -98,7 +99,7 @@
 								});
 						}	
 						
-						//update of the JSON List 
+						//messageBox
 						function messageBox(msg_title, input_header, input_name, json_url, alert_msg) {
 							$.msgBox({ type: "prompt",
 			            		title: msg_title,
@@ -108,23 +109,27 @@
 			            		{ value: "Ok" }, {value:"Cancel"}],
 			            		success: function (result, values) {
 				            		if (result == "Ok") {
-					            		$.ajax({
-					        	            url : path+json_url,
-					        	            dataType: 'json',
-					        	            type: 'POST',
-					        	            method: 'POST',
-					        	            contentType: 'application/json',
-					        	            async:true,
-					        	            crossDomain: true,
-					        	            data : JSON.stringify($('input[name='+input_name+']').val()),
-					        	            cache: false,
-					        	            success: function( data, textStatus, jQxhr ){
-					        	                alert(alert_msg);
-					        	            },
-					        	            error: function( jqXhr, textStatus, errorThrown ){
-					        	                console.log( errorThrown );
-					        	            }
-					        	        });
+				            			//check if the form inputs are empty on submit
+										if($('input[name='+input_name+']').val() != ''){
+						            		$.ajax({
+						        	            url : path+json_url,
+						        	            dataType: 'json',
+						        	            type: 'POST',
+						        	            method: 'POST',
+						        	            contentType: 'application/json',
+						        	            async:true,
+						        	            crossDomain: true,
+						        	            data : JSON.stringify($('input[name='+input_name+']').val()),
+						        	            cache: false,
+						        	            success: function( data, textStatus, jQxhr ){
+						        	                alert(alert_msg);
+						        	                window.location.reload();
+						        	            },
+						        	            error: function( jqXhr, textStatus, errorThrown ){
+						        	                console.log( errorThrown );
+						        	            }
+						        	        });
+										} else {alert("empty field.");}
 			            			}
 			            			//alert(v);
 			            		}
@@ -147,11 +152,11 @@
 					                options = arguments[3],
 					                title = $menuLevelHolder.find( 'h2:first' ).text(),
 					                itemName = $item.find( 'a:first' ).text();
-					            if(itemName=="Map")
+					            /*if(itemName=="Map")
 				            	{
 					            	alert("Map.");
 				            	}
-					            else if(itemName=="Place")
+					            else*/ if(itemName=="Place")
 				            	{
 					            	//alert("Place.");
 					            	messageBox("Insert Place", "Place", "log_place", "/place", "Added Place.");
@@ -169,7 +174,7 @@
 					            else if(itemName=="Team")
 				            	{
 					            	//alert("Team."); 
-					            	messageBox("Insert Team", "Team", "log_team", "/team", "Added Team element.");
+					            	messageBox("Insert Team", "Team", "log_team", "/team", "Added Team member.");
 				            	}
 					            else if(itemName=="Systems")
 				            	{
@@ -188,6 +193,8 @@
 					            		{ value: "Ok" }, {value:"Cancel"}],
 					            		success: function (result, values) {
 						            		if (result == "Ok") {
+						            			//check if the form inputs are empty on submit
+												if($('input[name=log_author]').val() != '' || $('input[name=log_text]').val() != ''){
 							            		$.ajax({
 							        	            url : path+'/log',
 							        	            dataType: 'json',
@@ -205,15 +212,16 @@
 							        	                console.log( errorThrown );
 							        	            }
 							        	        });
+												} else {alert("empty field.");}
 					            			}
 					            			//alert(v);
 					            		}
 					            		});
 					            	
 				            	}
-					            else{
+					            /*else{
 				            		alert("Empty.");
-				            	}
+				            	}*/
 					            //$( '#eventpanel' ).append( '<br />Item <i>' + itemName + '</i>' + ' on <i>' + title + '</i> menu level clicked!' );
 					            console.log(arguments);
 					        }
