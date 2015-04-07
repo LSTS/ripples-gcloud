@@ -12,6 +12,10 @@
 <title>Ripples - Logbook</title>
 <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+<script src="js/jquery.cookie.js"></script>
 
 <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700&subset=latin,cyrillic-ext,latin-ext,cyrillic' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css">
@@ -41,7 +45,8 @@
 <p>Hello, ${fn:escapeXml(user.nickname)}! (You can
     <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>.)</p>
     
-    <h1>Logbook for today:</h1>
+    <h1 id="log_title">Logbook for today:</h1>
+    <p>Date: <input type="text" id="datepicker"></p>
 	<iframe id="log_view" style="display:none;"></iframe>
 	<div id="pushobj" style="float:left;margin-left: 25px;"></div>
 	

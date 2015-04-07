@@ -7,11 +7,35 @@ $(document).ready(
 								+ (month < 10 ? '0' : '') + month + '-'
 								+ (day < 10 ? '0' : '') + day;
 						var path = "/logbook/" + date;
+						//var path='';
+						$( "#datepicker" ).datepicker();
+						$( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
+						$( "#datepicker" ).datepicker( "setDate", date );
+						$( "#datepicker" ).datepicker({ altFormat: "yy-mm-dd"});
+						//alert($( "#datepicker" ).datepicker( "option", "altFormat" ));
+						$( "#ui-datepicker-div" ).mouseout(function() {
+							var selected_date= $("#datepicker").datepicker({ dateFormat: "yy-mm-dd" }).val();
+							$.cookie('date', selected_date, { expires: 1 });
+							//alert($("#datepicker").datepicker({ dateFormat: "yy-mm-dd" }).val());
+							$("#log_title").text("Logbook for "+selected_date+":");
+							//alert("cookie:"+$.cookie('date'));
+							
+							if($.cookie('date')=='')
+							{
+								path = "/logbook/" + date;
+							}
+							else{
+								path = "/logbook/" + $.cookie('date');
+							}
+						});
 						
 						//update json load every 5 sec
 						setInterval(function(){
 							$.ajax({
 							url: path+'.json',
+							error : function() {
+								alert("The requested log book does not exist.");
+							},
 							}).done(function() {
 							//alert( "done" );
 								$('.log_list').remove();
