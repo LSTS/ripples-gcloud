@@ -24,7 +24,7 @@ public class LogbookServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
-		if (!req.getContentType().equals("application/json")) {
+		if (!req.getContentType().startsWith("application/json")) {
 			resp.sendError(400, "Invalid content type: " + req.getContentType()
 					+ ". Only JSON is allowed.");
 			return;
