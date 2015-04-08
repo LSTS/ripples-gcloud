@@ -45,10 +45,11 @@
 <p>Hello, ${fn:escapeXml(user.nickname)}! (You can
     <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>.)</p>
     
-    <h1 id="log_title">Logbook for today:</h1>
+    <h3 id="log_title">Logbook for today:</h3>
     <p>Date: <input type="text" id="datepicker"></p>
+    <h5 id="log_alert"></h5>
 	<iframe id="log_view" style="display:none;"></iframe>
-	<div id="pushobj" style="float:left;margin-left: 25px;"></div>
+	<div id="pushobj" style="float:left;margin-left: 55px;"></div>
 	
 	        <div id="menu">
             <nav>
@@ -72,6 +73,9 @@
                             </li>
                             <li>
                                 <a href="#">Log</a>
+                            </li>
+                            <li>
+                                <a href="#">Actions</a>
                             </li>
                         </ul>
 

@@ -26,31 +26,22 @@ $(document).ready(
 							}
 							else{
 								path = "/logbook/" + $.cookie('date');
+								loadContent();
 							}
 						});
 						
 						//update json load every 5 sec
 						setInterval(function(){
-							$.ajax({
-							url: path+'.json',
-							error : function() {
-								alert("The requested log book does not exist.");
-							},
-							}).done(function() {
-							//alert( "done" );
-								$('.log_list').remove();
-								updateListJSON();
-							});
+							loadContent();
+							$("#log_alert").text("");
 							}, 5000); // 5000 micro second = 5 sec. 
 		
 						$.ajax({
 									type : 'HEAD',
 									url : path,
 									success : function() {
-										//alert("The logbook for this date " + date + " exists.");
-										//$("#log_view").attr('src', path);
 										$('#log_view', window.parent.document).hide();
-										updateListJSON();
+										loadContent();
 									},
 									error : function() {
 										//alert("The logbook for this date "+ date +" needs to be created.");
@@ -70,39 +61,25 @@ $(document).ready(
 															var newpath = '/logbook/create';
 															$('#log_view', window.parent.document).show();
 															$("#log_view").attr('src', newpath);
-															alert("Logbook created.");
+															//alert("Logbook created.");
+															$("#log_alert").text("Logbook created.");
 															$('#log_view', window.parent.document).hide();
-															window.location.reload();
 														} else {
-															//$("#log_view").attr('src', '/logbook/');
 															$('#log_view', window.parent.document).hide();
 														}
 													}
 												});
 									}
 								});
-							
-						//update of the JSON List 
-						function updateListJSON() {
-							$.getJSON( path+'.json', function( data ) {
-								var items = [];
-								$.each( data, function( key, val ) {
-									if(key=="log"){
-										//console.log(this);
-										for (var log in this) {
-											items.push( "<li id='" + key + "'>"+key+": "+this[log].author+" - "+ this[log].text + "</li>" );
-										}
-									}else if(key=="coords" || key=="actions"){}
-									else{
-										items.push( "<li id='" + key + "'>"+key+": "+ val + "</li>" );
-									}
+						
+						function loadContent(){
+							$.get( path+'.html', function( data ) {
+								$( "#pushobj" ).html( data );
+								//alert(data);
+								}).fail(function() {
+									$("#log_alert").text("The requested logbook does not exist.");
 								});
-								$( "<ul/>", {
-								"class": "log_list",
-								html: items.join( "" )
-								}).appendTo( "#pushobj" );
-								});
-						}	
+						};
 						
 						//messageBox
 						function messageBox(msg_title, input_header, input_name, json_url, alert_msg) {
@@ -127,14 +104,18 @@ $(document).ready(
 						        	            data : JSON.stringify($('input[name='+input_name+']').val()),
 						        	            cache: false,
 						        	            success: function( data, textStatus, jQxhr ){
-						        	                alert(alert_msg);
-						        	                window.location.reload();
+						        	                //alert(alert_msg);
+						        	            	loadContent();
+						        	            	$("#log_alert").text(alert_msg);
 						        	            },
 						        	            error: function( jqXhr, textStatus, errorThrown ){
 						        	                console.log( errorThrown );
 						        	            }
 						        	        });
-										} else {alert("empty field.");}
+										} else {
+											//alert("empty field.");
+											$("#log_alert").text("empty field.");
+											}
 			            			}
 			            			//alert(v);
 			            		}
@@ -211,13 +192,60 @@ $(document).ready(
 							        	            data : JSON.stringify({"author": $('input[name=log_author]').val(), "text": $('input[name=log_text]').val()}),
 							        	            cache: false,
 							        	            success: function( data, textStatus, jQxhr ){
-							        	                alert("Log inserted.");
+							        	                //alert("Log inserted.");
+							        	            	loadContent();
+							        	            	$("#log_alert").text("Log inserted.");
 							        	            },
 							        	            error: function( jqXhr, textStatus, errorThrown ){
 							        	                console.log( errorThrown );
 							        	            }
 							        	        });
-												} else {alert("empty field.");}
+												} else {
+													//alert("empty field.");
+													$("#log_alert").text("empty field.");
+													}
+					            			}
+					            			//alert(v);
+					            		}
+					            		});
+					            	
+				            	}else if(itemName=="Actions")
+				            	{
+					            	//alert("Log.");
+					            	$.msgBox({ type: "prompt",
+					            		title: "Insert Actions",
+					            		inputs: [
+					            		{ header: "Module", type: "text", name: "log_module" },
+					            		{ header: "Text", type: "text", name: "log_text" }],
+					            		buttons: [
+					            		{ value: "Ok" }, {value:"Cancel"}],
+					            		success: function (result, values) {
+						            		if (result == "Ok") {
+						            			//check if the form inputs are empty on submit
+												if($('input[name=log_module]').val() != '' || $('input[name=log_text]').val() != ''){
+							            		$.ajax({
+							        	            url : path+'/actions',
+							        	            dataType: 'json',
+							        	            type: 'POST',
+							        	            method: 'POST',
+							        	            contentType: 'application/json',
+							        	            async:true,
+							        	            crossDomain: true,
+							        	            data : JSON.stringify({"module": $('input[name=log_module]').val(), "text": $('input[name=log_text]').val()}),
+							        	            cache: false,
+							        	            success: function( data, textStatus, jQxhr ){
+							        	                //alert("Log inserted.");
+							        	            	loadContent();
+							        	            	$("#log_alert").text("Action inserted.");
+							        	            },
+							        	            error: function( jqXhr, textStatus, errorThrown ){
+							        	                console.log( errorThrown );
+							        	            }
+							        	        });
+												} else {
+													//alert("empty field.");
+													$("#log_alert").text("empty field.");
+													}
 					            			}
 					            			//alert(v);
 					            		}
