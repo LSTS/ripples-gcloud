@@ -47,7 +47,7 @@ $(document).ready(
 										//alert("The logbook for this date "+ date +" needs to be created.");
 										$.msgBox({
 													title : "Are You Sure",
-													content : "Would you like to create a logobook for today?",
+													content : "Would you like to create a logbook for today?",
 													type : "confirm",
 													buttons : [ {
 														value : "Yes"
@@ -64,6 +64,7 @@ $(document).ready(
 															//alert("Logbook created.");
 															$("#log_alert").text("Logbook created.");
 															$('#log_view', window.parent.document).hide();
+															loadContent();
 														} else {
 															$('#log_view', window.parent.document).hide();
 														}
@@ -72,6 +73,7 @@ $(document).ready(
 									}
 								});
 						
+						//load Content from the selected logbook date
 						function loadContent(){
 							$.get( path+'.html', function( data ) {
 								$( "#pushobj" ).html( data );
@@ -80,6 +82,27 @@ $(document).ready(
 									$("#log_alert").text("The requested logbook does not exist.");
 								});
 						};
+						
+						//key press events
+						$(document).keypress(function(event){
+						    var keycode = (event.keyCode ? event.keyCode : event.which);
+						    var ok_btn = 'input[type="button"][value="Ok"]';
+						    var cancel_btn = 'input[type="button"][value="Cancel"]';
+						    
+						    if(keycode == '13'){
+						    	//alert("Pressed Enter.");
+						    	//$(this).closest('form').submit();
+						    	if($(ok_btn).is(':visible')) {
+						    		$(ok_btn).click();
+						    	}
+						    }else if(keycode == '27'){
+						    	//alert("Pressed Esc.");
+						    	if($(cancel_btn).is(':visible')) {
+						    		$(cancel_btn).click();
+						    	}
+						    }
+
+						});
 						
 						//messageBox
 						function messageBox(msg_title, input_header, input_name, json_url, alert_msg) {
@@ -173,14 +196,13 @@ $(document).ready(
 					            	$.msgBox({ type: "prompt",
 					            		title: "Insert Log",
 					            		inputs: [
-					            		{ header: "Author", type: "text", name: "log_author" },
 					            		{ header: "Text", type: "text", name: "log_text" }],
 					            		buttons: [
 					            		{ value: "Ok" }, {value:"Cancel"}],
 					            		success: function (result, values) {
 						            		if (result == "Ok") {
 						            			//check if the form inputs are empty on submit
-												if($('input[name=log_author]').val() != '' || $('input[name=log_text]').val() != ''){
+												if($('input[name=log_text]').val() != ''){
 							            		$.ajax({
 							        	            url : path+'/log',
 							        	            dataType: 'json',
@@ -189,7 +211,7 @@ $(document).ready(
 							        	            contentType: 'application/json',
 							        	            async:true,
 							        	            crossDomain: true,
-							        	            data : JSON.stringify({"author": $('input[name=log_author]').val(), "text": $('input[name=log_text]').val()}),
+							        	            data : JSON.stringify({"author": $("#log_user").text(), "text": $('input[name=log_text]').val()}),
 							        	            cache: false,
 							        	            success: function( data, textStatus, jQxhr ){
 							        	                //alert("Log inserted.");

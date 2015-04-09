@@ -42,7 +42,7 @@
 
 <script type='text/javascript' src='js/log.js'></script>
 
-<p>Hello, ${fn:escapeXml(user.nickname)}! (You can
+<p>Hello, <b id="log_user">${fn:escapeXml(user.nickname)}</b> (You can
     <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>.)</p>
     
     <h3 id="log_title">Logbook for today:</h3>
