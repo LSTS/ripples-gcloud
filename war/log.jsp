@@ -43,7 +43,7 @@
 <script type='text/javascript' src='js/log.js'></script>
 
 <p>Hello, <b id="log_user">${fn:escapeXml(user.nickname)}</b> (You can
-    <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>.)</p>
+    <a href="<%= userService.createLogoutURL("/index.jsp") %>">sign out</a>.)</p>
     
     <h3 id="log_title">Logbook for today:</h3>
     <p>Date: <input type="text" id="datepicker"></p>
