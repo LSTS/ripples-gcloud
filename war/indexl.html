@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ripples Map</title>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+	<link rel="stylesheet" href="css/L.Control.Locate.min.css"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+        .menu-ui {
+  background:#fff;
+  position:absolute;
+  bottom:10px;left:10px;
+  z-index:1;
+  border-radius:3px;
+  width:70px;
+  border:1px solid rgba(0,0,0,0.4);
+  }
+  .menu-ui a {
+    font-size:13px;
+    color:#404040;
+    display:block;
+    margin:0;padding:0;
+    padding:4px;
+    text-decoration:none;
+    border-bottom:1px solid rgba(0,0,0,0.25);
+    text-align:center;
+    }
+    .menu-ui a:first-child {
+      border-radius:3px 3px 0 0;
+      }
+    .menu-ui a:last-child {
+      border:none;
+      border-radius:0 0 3px 3px;
+      }
+    .menu-ui a:hover {
+      background:#f8f8f8;
+      color:#404040;
+      }
+    .menu-ui a.active {
+      background:#3887BE;
+      color:#FFF;
+      }
+    </style>
+</head>
+<body>
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type='text/javascript' src='https://cdn.firebase.com/js/client/1.0.17/firebase.js'></script>
+	
+	<nav id='menu-ui' class='menu-ui'>
+	  <a href='#' id='logbook-login'>Logbook</a>
+	</nav>
+	<script>
+	//L.mapbox.accessToken = '<your access token here>';
+    //var map = L.mapbox.map('map', 'examples.map-i875mjb7'),
+    logbook = document.getElementById('logbook-login');
+        
+    logbook.onclick = function(e) {
+        this.className = 'active';
+        //alert("the button is alive.");
+        document.location.href = '/log.jsp';
+        return false;
+    };
+	</script>
+	<div id="map"></div>
+	<script src="js/L.Control.Locate.min.js"></script>			
+	<script src="js/map.js"></script>					
+</body>
