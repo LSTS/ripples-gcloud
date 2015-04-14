@@ -1,6 +1,7 @@
 package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -29,6 +30,8 @@ public class LogbookServlet extends HttpServlet {
 					+ ". Only JSON is allowed.");
 			return;
 		}
+		
+		
 
 		MissionLog log = getLogBook(req);
 
@@ -84,8 +87,11 @@ public class LogbookServlet extends HttpServlet {
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
 					if (elem.isJsonPrimitive()) {
-						log.systems.add(elem.getAsString());
-						System.out.println(elem.getAsString());
+						String[] elems = new String[] {elem.getAsString()};
+						if (elems[0].contains(","))
+							elems = elems[0].split("[, ]+");
+						for (String e : elems)
+							log.systems.add(e);						
 					} else {
 						resp.sendError(400,
 								"Bad data. Expecting JSON String element.");
@@ -105,8 +111,13 @@ public class LogbookServlet extends HttpServlet {
 
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
-					if (elem.isJsonPrimitive())
-						log.team.add(elem.getAsString());
+					if (elem.isJsonPrimitive()){
+						String[] elems = new String[] {elem.getAsString()};
+						if (elems[0].contains(","))
+							elems = elems[0].split("[, ]+");
+						for (String e : elems)
+							log.team.add(e);	
+					}						
 					else {
 						resp.sendError(400,
 								"Bad data. Expecting JSON String element.");
@@ -126,8 +137,13 @@ public class LogbookServlet extends HttpServlet {
 
 				} else {
 					JsonElement elem = new JsonParser().parse(req.getReader());
-					if (elem.isJsonPrimitive())
-						log.objectives.add(elem.getAsString());
+					if (elem.isJsonPrimitive()) {
+						String[] elems = new String[] {elem.getAsString()};
+						if (elems[0].contains(","))
+							elems = elems[0].split("[, ]+");
+						for (String e : elems)
+							log.objectives.add(e);	
+					}
 					else {
 						resp.sendError(400,
 								"Bad data. Expecting JSON String element.");
@@ -281,8 +297,8 @@ public class LogbookServlet extends HttpServlet {
 				switch (extension) {
 				case "html":
 					resp.setContentType("text/html");
-					resp.getWriter().write(log.asHtml());
-					resp.getWriter().close();
+					resp.getOutputStream().write(log.asHtml().getBytes(Charset.forName("UTF-8")));
+					resp.getOutputStream().close();
 					break;
 				case "md":
 					resp.setContentType("text/plain");

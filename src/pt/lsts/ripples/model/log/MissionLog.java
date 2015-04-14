@@ -53,7 +53,8 @@ public class MissionLog {
 		buf.append("----\n\n");
 		for (String teamMember : team)
 			buf.append("* " + teamMember.trim() + "\n");
-
+		buf.append("\n");
+		
 		buf.append("Systems\n");
 		buf.append("-------\n\n");
 		for (String system : systems)
