@@ -7,7 +7,10 @@ $(document).ready(
 								+ (month < 10 ? '0' : '') + month + '-'
 								+ (day < 10 ? '0' : '') + day;
 						var path = "/logbook/" + date;
-						//var path='';
+						
+						$("#export_json").attr("href", path+".json");
+						$("#export_md").attr("href", path+".md");
+						
 						$( "#datepicker" ).datepicker();
 						$( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
 						$( "#datepicker" ).datepicker( "setDate", date );
@@ -23,10 +26,14 @@ $(document).ready(
 							if($.cookie('date')=='')
 							{
 								path = "/logbook/" + date;
+								$("#export_json").attr("href", path+".json");
+								$("#export_md").attr("href", path+".md");
 							}
 							else{
 								path = "/logbook/" + $.cookie('date');
 								loadContent();
+								$("#export_json").attr("href", path+".json");
+								$("#export_md").attr("href", path+".md");
 							}
 						});
 						

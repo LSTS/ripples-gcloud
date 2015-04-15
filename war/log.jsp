@@ -48,6 +48,14 @@
     <h3 id="log_title">Logbook for today:</h3>
     <p>Date: <input type="text" id="datepicker"></p>
     <h5 id="log_alert"></h5>
+    <table width="350px"style="margin-bottom:10px">
+	    <tr>
+		    <td><a href="/">Map</a></td>
+		    <td><a href="/logbook/" target="_blank">History</a></td>
+		    <td><a id="export_json" href="#" download>Export to json</a></td>
+		    <td><a id="export_md" href="#" download>Export to md</a></td>
+	    </tr>
+    </table>
 	<iframe id="log_view" style="display:none;"></iframe>
 	<div id="pushobj" style="float:left;margin-left: 55px;"></div>
 	
