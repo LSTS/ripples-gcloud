@@ -113,6 +113,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/poi/*</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>Buoys Servlet</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.RaiaServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Buoys Servlet</servlet-name>
+		<url-pattern>/raia/*</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

@@ -18,6 +18,7 @@ public class Store {
 		ObjectifyService.factory().register(SystemPosition.class);
 		ObjectifyService.factory().register(MissionLog.class);
 		ObjectifyService.factory().register(PointOfInterest.class);
+		ObjectifyService.factory().register(BuoyAddress.class);
 	}
 	
 	public static Objectify ofy() {
