@@ -8,7 +8,7 @@
 </head>
 <body>
 	<!--form name="frm" method="get" action="log_entry.jsp"-->
-	<form id="add_log">
+	<form id="add_log" name="add_log">
 		<table width="100%" border="0" cellspacing="0" cellpadding="0">
 			<tr>
 				<td width="10%">&nbsp;</td>
@@ -41,7 +41,8 @@
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td><input type="submit" name="submit" value="Submit" /> <input
+				<td><!--div id="other">Trigger the handler</div-->
+				<input type="submit" id="submit" name="submit" value="Submit" /> <input
 					type="reset" name="reset" value="Reset" /></td>
 			</tr>
 			<tr>

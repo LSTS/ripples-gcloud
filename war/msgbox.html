@@ -21,7 +21,18 @@
 									url : path,
 									success : function() {
 										//alert("The logbook for this date " + date + " exists.");
-										$("#log_view").attr('src', path);
+										//$("#log_view").attr('src', path);
+										$('#log_view', window.parent.document).hide();
+										$.getJSON( path+'.json', function( data ) {
+											var items = [];
+											$.each( data, function( key, val ) {
+											items.push( "<li id='" + key + "'>"+key+": "+ val + "</li>" );
+											});
+											$( "<ul/>", {
+											"class": "log_list",
+											html: items.join( "" )
+											}).appendTo( "body" );
+											});
 									},
 									error : function() {
 										//alert("The logbook for this date "+ date +" needs to be created.");
@@ -39,26 +50,23 @@
 													success : function(result) {
 														if (result == "Yes") {
 															var newpath = '/logbook/create';
-															//window.location.href = newpath;
+															$('#log_view', window.parent.document).show();
 															$("#log_view").attr('src', newpath);
 															alert("Logbook created.");
+															$('#log_view', window.parent.document).hide();
 														} else {
-															$("#log_view").attr('src', '/logbook/');
+															//$("#log_view").attr('src', '/logbook/');
+															$('#log_view', window.parent.document).hide();
 														}
 													}
 												});
 									}
 								});
 					});
-
-	function autoResize(){
-	    $('#log_view').height($('#log_view').contents().height());
-	}
 </script>
 </head>
 <body>
-	<h1>Hello user!</h1>
-	<p>Test MsgBox</p>
-	<iframe id="log_view" width="100%" onLoad="autoResize();" frameborder="0"></iframe>
+	<h1>Logbook for today:</h1>
+	<iframe id="log_view" style="display:none;"></iframe>
 </body>
 </html>
