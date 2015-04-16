@@ -260,7 +260,7 @@ $(document).ready(
 							        	            contentType: 'application/json',
 							        	            async:true,
 							        	            crossDomain: true,
-							        	            data : JSON.stringify({"module": $('input[name=log_module]').val(), "text": $('input[name=log_text]').val()}),
+							        	            data : JSON.stringify({"module": $('input[name=log_module]').val().replace(/:$/, ""), "text": $('input[name=log_text]').val()}),
 							        	            cache: false,
 							        	            success: function( data, textStatus, jQxhr ){
 							        	                //alert("Log inserted.");
