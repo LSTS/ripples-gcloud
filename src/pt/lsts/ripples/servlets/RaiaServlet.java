@@ -41,8 +41,8 @@ public class RaiaServlet extends HttpServlet {
 		//load
 		
 		List<BuoyAddress> c = Store.ofy().load().type(BuoyAddress.class).list();
-		BuoyAddress d = new BuoyAddress();
-		d = c.get(0);
+		//BuoyAddress d = new BuoyAddress();
+		
 		//resp.setContentType("text/plain");
 		//resp.getWriter().println(d.ip+" : "+d.id);
 		
@@ -75,11 +75,15 @@ public class RaiaServlet extends HttpServlet {
         out.println("<td>IP</td>");
         out.println("<td>Battery (%)</td>");
         out.println("</tr>");
-        out.println("<tr>");
-        out.println("<td>"+d.id+"</td>");
-        out.println("<td>"+d.ip+"</td>");
-        out.println("<td>"+d.battery+"</td>");
-        out.println("</tr>");
+        
+        for (BuoyAddress d : c) {
+        	out.println("<tr>");
+        	out.println("<td>"+d.id+"</td>");
+        	out.println("<td>"+d.ip+"</td>");
+        	out.println("<td>"+d.battery+"</td>");
+        	out.println("</tr>");
+        }
+        
         out.println("</table>");
         
         out.println("</div>");
