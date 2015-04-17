@@ -87,6 +87,39 @@ marker = L.marker(ll, {
     }]
 }).addTo(map).bindPopup('<strong>Popup KML marker</strong><br>Here is the text, this marker has author, description and coordinates.');
 
+/*var pin_location = [
+      		["marker01",40.99497,-7.50808],
+      		["marker02",41.30269,-7.63696],
+      		["marker03",41.49413,-7.5421],
+      		["marker04",40.98585,-7.50659],
+      		["marker05",40.93163,-7.81726],
+      		["marker06",41.5183,-7.78081],
+      		["marker07",41.42079,-7.5783],
+      		["marker08",42.08414,-7.96632],
+      		["marker09",41.51285,-7.53274]
+      		];*/
+
+/*for (var i = 0; i < pin_location.length; i++) {
+markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
+	.bindPopup(pin_location[i][0])
+	.addTo(map);
+}*/
+var pin_location = [[,,]];
+
+map.on('click', function(e) {
+    var lat = e.latlng.lat;
+    var lng = e.latlng.lng;
+    var count = 0;
+    //alert ("Latitude : " + lat + "\nLongitude : " + lng);
+    for (var i = 0; i < pin_location.length; i++) {
+    	count+=1;
+    	markerArray = new L.marker([lat,lng])
+    		.bindPopup("marker"+count)
+    		.addTo(map);
+    }
+});
+
+
 var SysIcon = L.Icon.extend({
 	options : {
 		shadowUrl : 'icons/shadow.png',
