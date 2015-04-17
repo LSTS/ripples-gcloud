@@ -13,4 +13,5 @@ public class BuoyAddress {
 	
 	public String battery;
 	
+	public String date;
 }

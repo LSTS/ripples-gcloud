@@ -23,12 +23,13 @@ public class RaiaServlet extends HttpServlet {
 		//resp.getWriter().write(req.getParameter("id"));
 		//resp.getWriter().write(req.getParameter("ip"));
 		
-		BuoyAddress c = new BuoyAddress();
-		c.id = req.getParameter("id");
-		c.ip = req.getParameter("ip");
-		c.battery = req.getParameter("battery");
+		BuoyAddress data = new BuoyAddress();
+		data.id = req.getParameter("id");
+		data.ip = req.getParameter("ip");
+		data.battery = req.getParameter("battery");
+		data.date = req.getParameter("date");
 		
-		Store.ofy().save().entity(c).now();
+		Store.ofy().save().entity(data).now();
 	}
 	
 	@Override
@@ -40,8 +41,7 @@ public class RaiaServlet extends HttpServlet {
         PrintWriter out = resp.getWriter();
 		//load
 		
-		List<BuoyAddress> c = Store.ofy().load().type(BuoyAddress.class).list();
-		//BuoyAddress d = new BuoyAddress();
+		List<BuoyAddress> buoyData = Store.ofy().load().type(BuoyAddress.class).list();
 		
 		//resp.setContentType("text/plain");
 		//resp.getWriter().println(d.ip+" : "+d.id);
@@ -74,38 +74,25 @@ public class RaiaServlet extends HttpServlet {
         out.println("<td>ID</td>");
         out.println("<td>IP</td>");
         out.println("<td>Battery (%)</td>");
+        out.println("<td>Date</td>");
         out.println("</tr>");
         
-        for (BuoyAddress d : c) {
+        for (BuoyAddress data : buoyData) {
         	out.println("<tr>");
-        	out.println("<td>"+d.id+"</td>");
-        	out.println("<td>"+d.ip+"</td>");
-        	out.println("<td>"+d.battery+"</td>");
+        	out.println("<td>"+data.id+"</td>");
+        	out.println("<td>"+data.ip+"</td>");
+        	out.println("<td>"+data.battery+"</td>");
+        	out.println("<td>"+data.date+"</td>");
         	out.println("</tr>");
         }
         
         out.println("</table>");
         
         out.println("</div>");
-        /*<table style="width:100%">
-        <tr>
-          <td>Jill</td>
-          <td>Smith</td> 
-          <td>50</td>
-        </tr>
-        <tr>
-          <td>Eve</td>
-          <td>Jackson</td> 
-          <td>94</td>
-        </tr>
-      </table>*/
         
         out.println("</body>");
         out.println("</html>");
 		
-        /*req.setAttribute("ID", d.id); // This will be available as ${message}
-        req.setAttribute("IP", d.ip);
-        req.getRequestDispatcher("/WEB-INF/page.jsp").forward(req, resp);*/
 	}
 	
 }
