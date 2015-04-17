@@ -1,7 +1,7 @@
 var markers = {};
 var plans = {};
 var tails = {};
-
+var map;
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
 				{
@@ -29,7 +29,57 @@ var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/
 
 var osmLayer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 23, attribution: 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'});
 
-var map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
+function showCoordinates (e) {
+    alert(e.latlng);
+}
+
+function centerMap (e) {
+    map.panTo(e.latlng);
+}
+
+function zoomIn (e) {
+    map.zoomIn();
+}
+
+function zoomOut (e) {
+    map.zoomOut();
+}
+
+//map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
+map = L.map('map', {
+    center: [ 41.185356, -8.704898 ],
+    zoom: 13,
+    layers: [osmLayer],
+    contextmenu: true,
+    contextmenuWidth: 140,
+    contextmenuItems: [{
+	      text: 'Show coordinates',
+	      callback: showCoordinates
+    }, {
+	      text: 'Center map here',
+	      callback: centerMap
+    }, '-', {
+	      text: 'Zoom in',
+	      icon: 'images/zoom-in.png',
+	      callback: zoomIn
+    }, {
+	      text: 'Zoom out',
+	      icon: 'images/zoom-out.png',
+	      callback: zoomOut
+    }]     
+});
+
+var ll = new L.LatLng(41.18146, -8.70521);
+L.marker(ll, {
+    contextmenu: true,
+    contextmenuItems: [{
+        text: 'Marker item',
+        index: 0
+    }, {
+        separator: true,
+        index: 1
+    }]
+}).addTo(map);
 
 var SysIcon = L.Icon.extend({
 	options : {
@@ -248,7 +298,7 @@ ripplesRef.child('assets').on(
 			}
 		});
 
-map.on('contextmenu',function(e){
+/*map.on('contextmenu',function(e){
     //alert("plugin run!");
 	
 	$(function(){
@@ -278,4 +328,4 @@ map.on('contextmenu',function(e){
 	    });
 	});
 	
-});
+});*/
