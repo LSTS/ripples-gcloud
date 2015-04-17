@@ -1,7 +1,7 @@
 var markers = {};
 var plans = {};
 var tails = {};
-var map;
+var map, marker;
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
 				{
@@ -45,6 +45,10 @@ function zoomOut (e) {
     map.zoomOut();
 }
 
+function openPopup (e) {
+	marker.openPopup();
+}
+
 //map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
 map = L.map('map', {
     center: [ 41.185356, -8.704898 ],
@@ -70,16 +74,18 @@ map = L.map('map', {
 });
 
 var ll = new L.LatLng(41.18146, -8.70521);
-L.marker(ll, {
+marker = L.marker(ll, {
     contextmenu: true,
     contextmenuItems: [{
-        text: 'Marker item',
+        text: 'Edit Marker',
+        icon: 'images/edit.png',
+        callback: openPopup,
         index: 0
     }, {
         separator: true,
         index: 1
     }]
-}).addTo(map);
+}).addTo(map).bindPopup('<strong>Popup KML marker</strong><br>Here is the text, this marker has author, description and coordinates.');
 
 var SysIcon = L.Icon.extend({
 	options : {
