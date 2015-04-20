@@ -113,6 +113,8 @@ markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
 	.addTo(map);
 }*/
 
+
+
 function addMarker () {
 	//alert("open");
 	var pin_location = [[,,]];
@@ -132,6 +134,26 @@ function addMarker () {
 	    	pin_location[i][0]="marker"+count;
 	    	pin_location[i][1]=lat;
 	    	pin_location[i][2]=lng;
+	    	
+	    	$.ajax({
+	            url : '/poi',
+	            dataType: 'json',
+	            type: 'POST',
+	            method: 'POST',
+	            contentType: 'application/json',
+	            async:true,
+	            crossDomain: true,
+	            data : JSON.stringify({"author": $("#log_user").text(), "description": pin_location[i][0],"coordinates": [pin_location[i][1],pin_location[i][2]] }),
+	            cache: false,
+	            success: function( data, textStatus, jQxhr ){
+	                alert("Point of interest inserted.");
+	            	//loadContent();
+	            	//$("#log_alert").text("Log inserted.");
+	            },
+	            error: function( jqXhr, textStatus, errorThrown ){
+	                console.log( errorThrown );
+	            }
+	        });
 	    	
 	    	markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
 	    		.bindPopup(pin_location[i][0])
