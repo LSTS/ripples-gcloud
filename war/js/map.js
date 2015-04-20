@@ -57,6 +57,14 @@ map = L.map('map', {
     contextmenu: true,
     contextmenuWidth: 140,
     contextmenuItems: [{
+        text: 'Add Marker',
+        icon: 'images/add_pin.png',
+        callback: addMarker,
+        index: 0
+    }, {
+        separator: true,
+        index: 1
+    }, {
 	      text: 'Show coordinates',
 	      callback: showCoordinates
     }, {
@@ -104,20 +112,33 @@ markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
 	.bindPopup(pin_location[i][0])
 	.addTo(map);
 }*/
-var pin_location = [[,,]];
 
-map.on('click', function(e) {
-    var lat = e.latlng.lat;
-    var lng = e.latlng.lng;
-    var count = 0;
-    //alert ("Latitude : " + lat + "\nLongitude : " + lng);
-    for (var i = 0; i < pin_location.length; i++) {
-    	count+=1;
-    	markerArray = new L.marker([lat,lng])
-    		.bindPopup("marker"+count)
-    		.addTo(map);
-    }
-});
+function addMarker () {
+	//alert("open");
+	var pin_location = [[,,]];
+	//alert($("div").hasClass("a.leaflet-contextmenu-item"));
+	
+	//alert($("div").find('a').hasClass("leaflet-contextmenu-item"));
+	
+	map.on('click', function(e) {
+		//alert("map");
+	    var lat = e.latlng.lat;
+	    var lng = e.latlng.lng;
+	    var count = 0;
+	    //alert ("Latitude : " + lat + "\nLongitude : " + lng);
+	    for (var i = 0; i < pin_location.length; i++) {
+	    	count+=1;
+	    	
+	    	pin_location[i][0]="marker"+count;
+	    	pin_location[i][1]=lat;
+	    	pin_location[i][2]=lng;
+	    	
+	    	markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
+	    		.bindPopup(pin_location[i][0])
+	    		.addTo(map);
+	    }
+	});
+}
 
 
 var SysIcon = L.Icon.extend({
