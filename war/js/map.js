@@ -115,26 +115,15 @@ markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
 
 
 
-function addMarker () {
+function addMarker (e) {
 	//alert("open");
-	var pin_location = [[,,]];
-	//alert($("div").hasClass("a.leaflet-contextmenu-item"));
+	var storage = [];
+	var lat = e.latlng.lat;
+	var lng = e.latlng.lng;
+	var val = {"author": "xpto", "description": "marker"+storage.length,"coordinates": [lat, lng] };
 	
-	//alert($("div").find('a').hasClass("leaflet-contextmenu-item"));
-	
-	map.on('click', function(e) {
-		//alert("map");
-	    var lat = e.latlng.lat;
-	    var lng = e.latlng.lng;
-	    var count = 0;
-	    //alert ("Latitude : " + lat + "\nLongitude : " + lng);
-	    for (var i = 0; i < pin_location.length; i++) {
-	    	count+=1;
-	    	
-	    	pin_location[i][0]="marker"+count;
-	    	pin_location[i][1]=lat;
-	    	pin_location[i][2]=lng;
-	    	
+	$("a.leaflet-contextmenu-item:first").click(function() {
+
 	    	$.ajax({
 	            url : '/poi',
 	            dataType: 'json',
@@ -143,22 +132,18 @@ function addMarker () {
 	            contentType: 'application/json',
 	            async:true,
 	            crossDomain: true,
-	            data : JSON.stringify({"author": $("#log_user").text(), "description": pin_location[i][0],"coordinates": [pin_location[i][1],pin_location[i][2]] }),
+	            data : JSON.stringify(val),
 	            cache: false,
 	            success: function( data, textStatus, jQxhr ){
-	                alert("Point of interest inserted.");
-	            	//loadContent();
-	            	//$("#log_alert").text("Log inserted.");
+	                //alert("Point of interest inserted.");
+	            	storage.push(val);
+	            	new L.marker([lat,lng]).bindPopup("marker"+storage.length).addTo(map);
 	            },
 	            error: function( jqXhr, textStatus, errorThrown ){
 	                console.log( errorThrown );
 	            }
 	        });
 	    	
-	    	markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
-	    		.bindPopup(pin_location[i][0])
-	    		.addTo(map);
-	    }
 	});
 }
 
