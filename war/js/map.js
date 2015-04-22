@@ -2,6 +2,8 @@ var markers = {};
 var plans = {};
 var tails = {};
 var map, marker;
+var storage = [];
+
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
 				{
@@ -46,7 +48,11 @@ function zoomOut (e) {
 }
 
 function openPopup (e) {
+	//alert(marker.options.title);
+	//console.log(marker);
 	marker.openPopup();
+	//alert(e.target);
+	//console.log(e);
 }
 
 //map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
@@ -81,7 +87,7 @@ map = L.map('map', {
     }]     
 });
 
-var ll = new L.LatLng(41.18146, -8.70521);
+/*var ll = new L.LatLng(41.18146, -8.70521);
 marker = L.marker(ll, {
     contextmenu: true,
     contextmenuItems: [{
@@ -94,30 +100,11 @@ marker = L.marker(ll, {
         index: 1
     }]
 }).addTo(map).bindPopup('<strong>Popup KML marker</strong><br>Here is the text, this marker has author, description and coordinates.');
-
-/*var pin_location = [
-      		["marker01",40.99497,-7.50808],
-      		["marker02",41.30269,-7.63696],
-      		["marker03",41.49413,-7.5421],
-      		["marker04",40.98585,-7.50659],
-      		["marker05",40.93163,-7.81726],
-      		["marker06",41.5183,-7.78081],
-      		["marker07",41.42079,-7.5783],
-      		["marker08",42.08414,-7.96632],
-      		["marker09",41.51285,-7.53274]
-      		];*/
-
-/*for (var i = 0; i < pin_location.length; i++) {
-markerArray = new L.marker([pin_location[i][1],pin_location[i][2]])
-	.bindPopup(pin_location[i][0])
-	.addTo(map);
-}*/
-
-
+*/
 
 function addMarker (e) {
 	//alert("open");
-	var storage = [];
+	
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
 	var val = {"author": "xpto", "description": "marker"+storage.length,"coordinates": [lat, lng] };
@@ -137,7 +124,21 @@ function addMarker (e) {
 	            success: function( data, textStatus, jQxhr ){
 	                //alert("Point of interest inserted.");
 	            	storage.push(val);
-	            	new L.marker([lat,lng]).bindPopup("marker"+storage.length).addTo(map);
+	            	//console.log(val);
+	            	//console.log(storage);
+	            	marker = L.marker([lat,lng],{
+	            		title:"marker"+storage.length,
+	            	    contextmenu: true,
+	            	    contextmenuItems: [{
+	            	        text: 'Edit Marker',
+	            	        icon: 'images/edit.png',
+	            	        callback: openPopup,
+	            	        index: 0
+	            	    }, {
+	            	        separator: true,
+	            	        index: 1
+	            	    }]}).bindPopup("marker"+storage.length).addTo(map);
+	            	val=null;
 	            },
 	            error: function( jqXhr, textStatus, errorThrown ){
 	                console.log( errorThrown );
@@ -364,35 +365,3 @@ ripplesRef.child('assets').on(
 				markers[name].addTo(map);
 			}
 		});
-
-/*map.on('contextmenu',function(e){
-    //alert("plugin run!");
-	
-	$(function(){
-	    $.contextMenu({
-	        selector: '.context-menu-one', 
-	        callback: function(key, options) {
-	            var m = "global: " + key;
-	            window.console && console.log(m) || alert(m); 
-	        },
-	        items: {
-	            "edit": {
-	                name: "Edit", 
-	                icon: "edit", 
-	                // superseeds "global" callback
-	                callback: function(key, options) {
-	                    var m = "edit was clicked";
-	                    window.console && console.log(m) || alert(m); 
-	                }
-	            },
-	            "cut": {name: "Cut", icon: "cut"},
-	            "copy": {name: "Copy", icon: "copy"},
-	            "paste": {name: "Paste", icon: "paste"},
-	            "delete": {name: "Delete", icon: "delete"},
-	            "sep1": "---------",
-	            "quit": {name: "Quit", icon: "quit"}
-	        }
-	    });
-	});
-	
-});*/
