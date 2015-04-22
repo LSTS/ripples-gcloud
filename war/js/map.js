@@ -87,29 +87,12 @@ map = L.map('map', {
     }]     
 });
 
-/*var ll = new L.LatLng(41.18146, -8.70521);
-marker = L.marker(ll, {
-    contextmenu: true,
-    contextmenuItems: [{
-        text: 'Edit Marker',
-        icon: 'images/edit.png',
-        callback: openPopup,
-        index: 0
-    }, {
-        separator: true,
-        index: 1
-    }]
-}).addTo(map).bindPopup('<strong>Popup KML marker</strong><br>Here is the text, this marker has author, description and coordinates.');
-*/
-
 function addMarker (e) {
 	//alert("open");
 	
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
 	var val = {"author": "xpto", "description": "marker"+storage.length,"coordinates": [lat, lng] };
-	
-	$("a.leaflet-contextmenu-item:first").click(function() {
 
 	    	$.ajax({
 	            url : '/poi',
@@ -144,8 +127,6 @@ function addMarker (e) {
 	                console.log( errorThrown );
 	            }
 	        });
-	    	
-	});
 }
 
 
