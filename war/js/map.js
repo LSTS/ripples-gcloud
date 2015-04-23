@@ -3,7 +3,7 @@ var plans = {};
 var tails = {};
 var map, marker;
 var storage = [];
-
+var plotlayers=[];
 loadPoi();
 
 function loadPoi(){
@@ -11,9 +11,7 @@ function loadPoi(){
 	console.log( "success" );
 	$.each(data, function(i, item) {
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
-    	console.log(record);
-    	storage.push(record);
-    	marker = L.marker([item.coordinates[0],item.coordinates[1]],{
+    	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
     		title: item.description,
     	    contextmenu: true,
     	    contextmenuItems: [{
@@ -24,7 +22,11 @@ function loadPoi(){
     	    }, {
     	        separator: true,
     	        index: 1
-    	    }]}).bindPopup(item.description).addTo(map);
+    	    }]});
+    	map.addLayer(marker);
+    	marker.bindPopup(item.description);
+    	storage.push(record);
+    	plotlayers.push(marker);
         record=null;
     });
 	})
@@ -39,10 +41,19 @@ function loadPoi(){
 	});
 };
 
+function removeMarkers() {
+	for (i=0;i<plotlayers.length;i++) {
+		map.removeLayer(plotlayers[i]);
+	}
+	plotlayers=[];
+}
+
 setInterval(function(){
-	location.reload();
+	//alert("update");
+	removeMarkers();
+	loadPoi();
 	//$("#log_alert").text("");
-	}, 10000); // 60000 milliseconds = one minute
+	}, 60000); // 60000 milliseconds = one minute
 
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
@@ -141,10 +152,7 @@ function addMarker (e) {
 	            cache: false,
 	            success: function( data, textStatus, jQxhr ){
 	                //alert("Point of interest inserted.");
-	            	storage.push(val);
-	            	//console.log(val);
-	            	//console.log(storage);
-	            	marker = L.marker([lat,lng],{
+	            	marker = new L.marker([lat,lng],{
 	            		title:"marker"+storage.length,
 	            	    contextmenu: true,
 	            	    contextmenuItems: [{
@@ -155,7 +163,10 @@ function addMarker (e) {
 	            	    }, {
 	            	        separator: true,
 	            	        index: 1
-	            	    }]}).bindPopup("marker"+storage.length).addTo(map);
+	            	    }]}).bindPopup("marker"+storage.length);
+	            	map.addLayer(marker);
+	            	storage.push(val);
+	            	plotlayers.push(marker);
 	            	val=null;
 	            },
 	            error: function( jqXhr, textStatus, errorThrown ){
