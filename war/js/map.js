@@ -4,6 +4,19 @@ var tails = {};
 var map, marker;
 var storage = [];
 
+var poi_json = $.getJSON( "/poi", function() {
+	console.log( "success" );
+	})
+	.done(function() {
+	console.log( "done" );
+	})
+	.fail(function() {
+	console.log( "error" );
+	})
+	.always(function() {
+	console.log( "complete" );
+	});
+
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
 				{
@@ -48,14 +61,9 @@ function zoomOut (e) {
 }
 
 function openPopup (e) {
-	//alert(marker.options.title);
-	//console.log(marker);
 	marker.openPopup();
-	//alert(e.target);
-	//console.log(e);
 }
 
-//map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
 map = L.map('map', {
     center: [ 41.185356, -8.704898 ],
     zoom: 13,
@@ -128,7 +136,6 @@ function addMarker (e) {
 	            }
 	        });
 }
-
 
 var SysIcon = L.Icon.extend({
 	options : {
