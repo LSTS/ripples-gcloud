@@ -4,8 +4,26 @@ var tails = {};
 var map, marker;
 var storage = [];
 
-var poi_json = $.getJSON( "/poi", function() {
+var poi_json = $.getJSON( "/poi", function(data) {
 	console.log( "success" );
+	$.each(data, function(i, item) {
+    	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
+    	console.log(record);
+    	storage.push(record);
+    	marker = L.marker([item.coordinates[0],item.coordinates[1]],{
+    		title: item.description,
+    	    contextmenu: true,
+    	    contextmenuItems: [{
+    	        text: 'Edit Marker',
+    	        icon: 'images/edit.png',
+    	        callback: openPopup,
+    	        index: 0
+    	    }, {
+    	        separator: true,
+    	        index: 1
+    	    }]}).bindPopup(item.description).addTo(map);
+        record=null;
+    });
 	})
 	.done(function() {
 	console.log( "done" );
