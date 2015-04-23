@@ -4,7 +4,10 @@ var tails = {};
 var map, marker;
 var storage = [];
 
-var poi_json = $.getJSON( "/poi", function(data) {
+loadPoi();
+
+function loadPoi(){
+	var poi_json = $.getJSON( "/poi", function(data) {
 	console.log( "success" );
 	$.each(data, function(i, item) {
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
@@ -34,6 +37,12 @@ var poi_json = $.getJSON( "/poi", function(data) {
 	.always(function() {
 	console.log( "complete" );
 	});
+};
+
+setInterval(function(){
+	location.reload();
+	//$("#log_alert").text("");
+	}, 10000); // 60000 milliseconds = one minute
 
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
