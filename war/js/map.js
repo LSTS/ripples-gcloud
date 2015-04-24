@@ -25,6 +25,12 @@ function loadPoi(){
     	    }]});
     	map.addLayer(marker);
     	marker.bindPopup(item.description);
+    	marker.on('mouseover', function (e) {
+            this.openPopup();
+        });
+        marker.on('mouseout', function (e) {
+            this.closePopup();
+        });
     	storage.push(record);
     	plotlayers.push(marker);
         record=null;
@@ -99,7 +105,12 @@ function zoomOut (e) {
 }
 
 function openPopup (e) {
-	marker.openPopup();
+	//console.log(storage);
+	//marker.openPopup();
+	console.log(this);
+	alert("show edit popup");
+	//console.log(e);
+	//this.openPopup();
 }
 
 map = L.map('map', {
@@ -166,6 +177,12 @@ function addMarker (e) {
 	            	    }]}).bindPopup("marker"+storage.length);
 	            	map.addLayer(marker);
 	            	storage.push(val);
+	            	marker.on('mouseover', function (e) {
+	                    this.openPopup();
+	                });
+	                marker.on('mouseout', function (e) {
+	                    this.closePopup();
+	                });
 	            	plotlayers.push(marker);
 	            	val=null;
 	            },
