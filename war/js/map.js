@@ -8,21 +8,13 @@ loadPoi();
 
 function loadPoi(){
 	var poi_json = $.getJSON( "/poi", function(data) {
+	removeMarkers();
 	console.log( "success" );
 	$.each(data, function(i, item) {
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
     	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
     		title: item.description,
-    	    contextmenu: true,
-    	    contextmenuItems: [{
-    	        text: 'Edit Marker',
-    	        icon: 'images/edit.png',
-    	        callback: openPopup,
-    	        index: 0
-    	    }, {
-    	        separator: true,
-    	        index: 1
-    	    }]});
+    	    contextmenu: true});
     	map.addLayer(marker);
     	marker.bindPopup(item.description);
     	marker.on('mouseover', function (e) {
@@ -31,6 +23,8 @@ function loadPoi(){
         marker.on('mouseout', function (e) {
             this.closePopup();
         });
+        //marker.on('click', onMarkerClick);
+    	//marker.fireEvent('click');
     	storage.push(record);
     	plotlayers.push(marker);
         record=null;
@@ -104,14 +98,16 @@ function zoomOut (e) {
     map.zoomOut();
 }
 
-function openPopup (e) {
+//function openPopup (e) {
 	//console.log(storage);
 	//marker.openPopup();
-	console.log(this);
-	alert("show edit popup");
+	//console.log(this);
+	//alert("show edit popup");
 	//console.log(e);
 	//this.openPopup();
-}
+	//console.log(e.latlng);
+	//alert(e.target.options.title);
+//}
 
 map = L.map('map', {
     center: [ 41.185356, -8.704898 ],
@@ -144,6 +140,11 @@ map = L.map('map', {
     }]     
 });
 
+//function onMarkerClick(e) {
+	//alert("click");
+    //alert(e.target.title);
+//}
+
 function addMarker (e) {
 	//alert("open");
 	
@@ -165,18 +166,11 @@ function addMarker (e) {
 	                //alert("Point of interest inserted.");
 	            	marker = new L.marker([lat,lng],{
 	            		title:"marker"+storage.length,
-	            	    contextmenu: true,
-	            	    contextmenuItems: [{
-	            	        text: 'Edit Marker',
-	            	        icon: 'images/edit.png',
-	            	        callback: openPopup,
-	            	        index: 0
-	            	    }, {
-	            	        separator: true,
-	            	        index: 1
-	            	    }]}).bindPopup("marker"+storage.length);
+	            	    contextmenu: true}).bindPopup("marker"+storage.length);
 	            	map.addLayer(marker);
 	            	storage.push(val);
+	            	//marker.on('click', onMarkerClick);
+	            	//marker.fireEvent('click');
 	            	marker.on('mouseover', function (e) {
 	                    this.openPopup();
 	                });
