@@ -4,6 +4,7 @@ var tails = {};
 var map, marker;
 var storage = [];
 var plotlayers=[];
+
 loadPoi();
 
 function loadPoi(){
@@ -14,7 +15,16 @@ function loadPoi(){
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
     	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
     		title: item.description,
-    	    contextmenu: true});
+    	    contextmenu: true,
+    	    contextmenuItems: [{
+    	    	text: 'Edit Marker',
+    	    	icon: 'images/edit.png',
+    	    	callback: openPopup,
+    	    	index: 0
+    	    	}, {
+    	    	separator: true,
+    	    	index: 1
+    	    	}]});
     	map.addLayer(marker);
     	marker.bindPopup(item.description);
     	marker.on('mouseover', function (e) {
@@ -55,6 +65,88 @@ setInterval(function(){
 	//$("#log_alert").text("");
 	}, 60000); // 60000 milliseconds = one minute
 
+function showCoordinates (e) {
+    alert(e.latlng);
+}
+
+function centerMap (e) {
+    map.panTo(e.latlng);
+}
+
+function zoomIn (e) {
+    map.zoomIn();
+}
+
+function zoomOut (e) {
+    map.zoomOut();
+}
+
+function openPopup (e) {
+	//console.log(storage);
+	//marker.openPopup();
+	//console.log(this);
+	alert("show edit popup");
+	//console.log(e);
+	//this.openPopup();
+	//console.log(e.latlng);
+	//alert(e.target.options.title);
+}
+
+//function onMarkerClick(e) {
+//alert("click");
+//alert(e.target.title);
+//}
+
+function addMarker (e) {
+	//alert("open");
+	
+	var lat = e.latlng.lat;
+	var lng = e.latlng.lng;
+	var val = {"author": "xpto", "description": "marker"+storage.length,"coordinates": [lat, lng] };
+
+	    	$.ajax({
+	            url : '/poi',
+	            dataType: 'json',
+	            type: 'POST',
+	            method: 'POST',
+	            contentType: 'application/json',
+	            async:true,
+	            crossDomain: true,
+	            data : JSON.stringify(val),
+	            cache: false,
+	            success: function( data, textStatus, jQxhr ){
+	                //alert("Point of interest inserted.");
+	            	marker = new L.marker([lat,lng],{
+	            		title:"marker"+storage.length,
+	            	    contextmenu: true,
+	            	    contextmenuItems: [{
+	            	    	text: 'Edit Marker',
+	            	    	icon: 'images/edit.png',
+	            	    	callback: openPopup,
+	            	    	index: 0
+	            	    	}, {
+	            	    	separator: true,
+	            	    	index: 1
+	            	    	}]}).bindPopup("marker"+storage.length);
+	            	map.addLayer(marker);
+	            	storage.push(val);
+	            	//marker.on('click', onMarkerClick);
+	            	//marker.fireEvent('click');
+	            	marker.on('mouseover', function (e) {
+	                    this.openPopup();
+	                });
+	                marker.on('mouseout', function (e) {
+	                    this.closePopup();
+	                });
+	            	plotlayers.push(marker);
+	            	val=null;
+	            },
+	            error: function( jqXhr, textStatus, errorThrown ){
+	                console.log( errorThrown );
+	            }
+	        });
+}
+
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
 				{
@@ -81,33 +173,6 @@ var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/
 });
 
 var osmLayer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 23, attribution: 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'});
-
-function showCoordinates (e) {
-    alert(e.latlng);
-}
-
-function centerMap (e) {
-    map.panTo(e.latlng);
-}
-
-function zoomIn (e) {
-    map.zoomIn();
-}
-
-function zoomOut (e) {
-    map.zoomOut();
-}
-
-//function openPopup (e) {
-	//console.log(storage);
-	//marker.openPopup();
-	//console.log(this);
-	//alert("show edit popup");
-	//console.log(e);
-	//this.openPopup();
-	//console.log(e.latlng);
-	//alert(e.target.options.title);
-//}
 
 map = L.map('map', {
     center: [ 41.185356, -8.704898 ],
@@ -139,52 +204,6 @@ map = L.map('map', {
 	      callback: zoomOut
     }]     
 });
-
-//function onMarkerClick(e) {
-	//alert("click");
-    //alert(e.target.title);
-//}
-
-function addMarker (e) {
-	//alert("open");
-	
-	var lat = e.latlng.lat;
-	var lng = e.latlng.lng;
-	var val = {"author": "xpto", "description": "marker"+storage.length,"coordinates": [lat, lng] };
-
-	    	$.ajax({
-	            url : '/poi',
-	            dataType: 'json',
-	            type: 'POST',
-	            method: 'POST',
-	            contentType: 'application/json',
-	            async:true,
-	            crossDomain: true,
-	            data : JSON.stringify(val),
-	            cache: false,
-	            success: function( data, textStatus, jQxhr ){
-	                //alert("Point of interest inserted.");
-	            	marker = new L.marker([lat,lng],{
-	            		title:"marker"+storage.length,
-	            	    contextmenu: true}).bindPopup("marker"+storage.length);
-	            	map.addLayer(marker);
-	            	storage.push(val);
-	            	//marker.on('click', onMarkerClick);
-	            	//marker.fireEvent('click');
-	            	marker.on('mouseover', function (e) {
-	                    this.openPopup();
-	                });
-	                marker.on('mouseout', function (e) {
-	                    this.closePopup();
-	                });
-	            	plotlayers.push(marker);
-	            	val=null;
-	            },
-	            error: function( jqXhr, textStatus, errorThrown ){
-	                console.log( errorThrown );
-	            }
-	        });
-}
 
 var SysIcon = L.Icon.extend({
 	options : {
