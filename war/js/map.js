@@ -33,6 +33,9 @@ function loadPoi(){
         marker.on('mouseout', function (e) {
             this.closePopup();
         });
+        marker.on('contextmenu', function (e) {
+        	console.log(e.target.options.title);
+        });
         //marker.on('click', onMarkerClick);
     	//marker.fireEvent('click');
     	storage.push(record);
@@ -122,7 +125,10 @@ function addMarker (e) {
 	            	    contextmenuItems: [{
 	            	    	text: 'Edit Marker',
 	            	    	icon: 'images/edit.png',
-	            	    	callback: openPopup,
+	            	    	callback: openPopup
+	            	    		/*function openNow(e) {
+	            	    		console.log(e.target.options.title);
+	            	            }*/,
 	            	    	index: 0
 	            	    	}, {
 	            	    	separator: true,
@@ -137,6 +143,9 @@ function addMarker (e) {
 	                });
 	                marker.on('mouseout', function (e) {
 	                    this.closePopup();
+	                });
+	                marker.on('contextmenu', function (e) {
+	                	console.log(e.target.options.title);
 	                });
 	            	plotlayers.push(marker);
 	            	val=null;
