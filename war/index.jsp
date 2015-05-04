@@ -10,6 +10,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Ripples Map</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type='text/javascript' src='js/jquery.msgBox.js'></script>
+	<link rel="stylesheet" href="css/msgBoxLight.css" />
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 	<link rel="stylesheet" href="css/L.Control.Locate.min.css"/>
 	<link rel="stylesheet" href="css/leaflet.contextmenu.css"/>
@@ -18,7 +21,6 @@
 </head>
 <body>
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='https://cdn.firebase.com/js/client/1.0.17/firebase.js'></script>
 	
 	<nav id='menu-ui' class='menu-ui'>
@@ -34,7 +36,7 @@
 	        pageContext.setAttribute("user", user);
 	  %>
 	  <a href='<%= userService.createLogoutURL(request.getRequestURI()) %>' id='logbook-out'>Logout</a>
-	  <div id="log_user" style="float:left; position:absolute;left:80px;bottom:4px"><b>${fn:escapeXml(user.nickname)}</b></div>
+	  <div id="log_user" style="float:left;position:absolute;bottom:60px;font-weight:bold;font-size:11px;">${fn:escapeXml(user.nickname)}</div>
 	  <%
    	  } else {
 	  %>

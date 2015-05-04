@@ -105,8 +105,17 @@ function addMarker (e) {
 	
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
-	var val = {"author": "xpto", "description": "marker"+storage.length,"coordinates": [lat, lng] };
-
+	$.msgBox({ type: "prompt",
+		title: "Insert Point of Interest",
+		inputs: [
+		{ header: "Description:", type: "text", name: "description_text" }],
+		buttons: [
+		{ value: "Ok" }, {value:"Cancel"}],
+		success: function (result, values) {
+    		if (result == "Ok") {
+    			//check if the form inputs are empty on submit
+				if($('input[name=description_text]').val() != ''){
+				var val = {"author": $("#log_user").text(), "description": $('input[name=description_text]').val(),"coordinates": [lat, lng] };
 	    	$.ajax({
 	            url : '/poi',
 	            dataType: 'json',
@@ -133,7 +142,7 @@ function addMarker (e) {
 	            	    	}, {
 	            	    	separator: true,
 	            	    	index: 1
-	            	    	}]}).bindPopup("marker"+storage.length);
+	            	    	}]}).bindPopup($('input[name=description_text]').val());
 	            	map.addLayer(marker);
 	            	storage.push(val);
 	            	//marker.on('click', onMarkerClick);
@@ -154,6 +163,14 @@ function addMarker (e) {
 	                console.log( errorThrown );
 	            }
 	        });
+				} else {
+					alert("empty field.");
+					//$("#description_text").text("empty field.");
+					}
+			}
+			//alert(v);
+		}
+		});
 }
 
 var hybrid = L.tileLayer(
