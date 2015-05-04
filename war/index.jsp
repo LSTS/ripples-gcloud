@@ -12,6 +12,7 @@
 <title>Ripples Map</title>
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 	<link rel="stylesheet" href="css/L.Control.Locate.min.css"/>
+	<link rel="stylesheet" href="css/leaflet.contextmenu.css"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="stylesheet" href="css/index.css"/>
 </head>
@@ -44,6 +45,7 @@
 	</nav>
 	<script src="js/index.js"></script>
 	<div id="map"></div>
-	<script src="js/L.Control.Locate.min.js"></script>			
+	<script src="js/L.Control.Locate.min.js"></script>
+	<script src="js/leaflet.contextmenu.js"></script>	
 	<script src="js/map.js"></script>					
 </body>
