@@ -34,6 +34,7 @@
 	        pageContext.setAttribute("user", user);
 	  %>
 	  <a href='<%= userService.createLogoutURL(request.getRequestURI()) %>' id='logbook-out'>Logout</a>
+	  <div id="log_user" style="float:left; position:absolute;left:80px;bottom:4px"><b>${fn:escapeXml(user.nickname)}</b></div>
 	  <%
    	  } else {
 	  %>
