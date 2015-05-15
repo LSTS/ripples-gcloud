@@ -1,9 +1,12 @@
 var markers = {};
+var pois = {};
 var plans = {};
 var tails = {};
 var map, marker;
 var storage = [];
 var plotlayers=[];
+var selectedMarker;
+
 
 loadPoi();
 
@@ -12,6 +15,11 @@ function loadPoi(){
 	removeMarkers();
 	console.log( "success" );
 	$.each(data, function(i, item) {
+		
+		pois[item.description] = item;
+		
+		console.log("POI\n:"+JSON.stringify(item));
+		
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
     	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
     		title: item.description,
@@ -19,7 +27,7 @@ function loadPoi(){
     	    contextmenuItems: [{
     	    	text: 'Edit Marker',
     	    	icon: 'images/edit.png',
-    	    	callback: openPopup,
+    	    	callback: editMarker,
     	    	index: 0
     	    	}, {
     	    	separator: true,
@@ -34,7 +42,8 @@ function loadPoi(){
             this.closePopup();
         });
         marker.on('contextmenu', function (e) {
-        	console.log(e.target.options.title);
+        	console.log('contextmenu: '+e.target.options.title);
+        	selectedMarker = e.target.options.title;
         });
         //marker.on('click', onMarkerClick);
     	//marker.fireEvent('click');
@@ -59,6 +68,7 @@ function removeMarkers() {
 		map.removeLayer(plotlayers[i]);
 	}
 	plotlayers=[];
+	pois =  {};
 }
 
 setInterval(function(){
@@ -84,11 +94,13 @@ function zoomOut (e) {
     map.zoomOut();
 }
 
-function openPopup (e) {
+function editMarker (e) {
 	//console.log(storage);
 	//marker.openPopup();
 	//console.log(this);
-	alert("show edit popup");
+	alert("show edit popup for "+selectedMarker);
+	
+	console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
 	//console.log(e);
 	//this.openPopup();
 	//console.log(e.latlng);
@@ -134,7 +146,7 @@ function addMarker (e) {
 	            	    contextmenuItems: [{
 	            	    	text: 'Edit Marker',
 	            	    	icon: 'images/edit.png',
-	            	    	callback: openPopup
+	            	    	callback: editMarker
 	            	    		/*function openNow(e) {
 	            	    		console.log(e.target.options.title);
 	            	            }*/,
@@ -154,7 +166,8 @@ function addMarker (e) {
 	                    this.closePopup();
 	                });
 	                marker.on('contextmenu', function (e) {
-	                	console.log(e.target.options.title);
+	                	console.log('contextmenu: '+e.target.options.title);
+	                	selectedMarker = e.target.options.title;
 	                });
 	            	plotlayers.push(marker);
 	            	val=null;
@@ -172,6 +185,15 @@ function addMarker (e) {
 		}
 		});
 }
+
+/*map.on('contextmenu.show', function (event) {
+	//console.log(event.relatedTarget);
+	var data_marker = event.relatedTarget.options.title;
+    // show marker data on console
+    if(typeof event.toElement != "undefined"){
+    	console.log(data_marker);
+    }
+});*/
 
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
