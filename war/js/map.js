@@ -3,10 +3,8 @@ var pois = {};
 var plans = {};
 var tails = {};
 var map, marker;
-var storage = [];
 var plotlayers=[];
 var selectedMarker;
-
 
 loadPoi();
 
@@ -18,7 +16,7 @@ function loadPoi(){
 		
 		pois[item.description] = item;
 		
-		console.log("POI\n:"+JSON.stringify(item));
+		//console.log("POI\n:"+JSON.stringify(item));
 		
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
     	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
@@ -42,12 +40,9 @@ function loadPoi(){
             this.closePopup();
         });
         marker.on('contextmenu', function (e) {
-        	console.log('contextmenu: '+e.target.options.title);
+        	//console.log('contextmenu: '+e.target.options.title);
         	selectedMarker = e.target.options.title;
         });
-        //marker.on('click', onMarkerClick);
-    	//marker.fireEvent('click');
-    	storage.push(record);
     	plotlayers.push(marker);
         record=null;
     });
@@ -95,26 +90,11 @@ function zoomOut (e) {
 }
 
 function editMarker (e) {
-	//console.log(storage);
-	//marker.openPopup();
-	//console.log(this);
 	alert("show edit popup for "+selectedMarker);
-	
-	console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
-	//console.log(e);
-	//this.openPopup();
-	//console.log(e.latlng);
-	//alert(e.target.options.title);
+	//console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
 }
 
-//function onMarkerClick(e) {
-//alert("click");
-//alert(e.target.title);
-//}
-
 function addMarker (e) {
-	//alert("open");
-	
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
 	$.msgBox({ type: "prompt",
@@ -139,26 +119,25 @@ function addMarker (e) {
 	            data : JSON.stringify(val),
 	            cache: false,
 	            success: function( data, textStatus, jQxhr ){
+	            	//console.log(data);
+	            	pois[data.description] = data;
+	            	
+	            	console.log("POI\n:"+JSON.stringify(data));
+	            	
 	                //alert("Point of interest inserted.");
 	            	marker = new L.marker([lat,lng],{
-	            		title:"marker"+storage.length,
+	            		title:data.description,
 	            	    contextmenu: true,
 	            	    contextmenuItems: [{
 	            	    	text: 'Edit Marker',
 	            	    	icon: 'images/edit.png',
-	            	    	callback: editMarker
-	            	    		/*function openNow(e) {
-	            	    		console.log(e.target.options.title);
-	            	            }*/,
+	            	    	callback: editMarker,
 	            	    	index: 0
 	            	    	}, {
 	            	    	separator: true,
 	            	    	index: 1
 	            	    	}]}).bindPopup($('input[name=description_text]').val());
 	            	map.addLayer(marker);
-	            	storage.push(val);
-	            	//marker.on('click', onMarkerClick);
-	            	//marker.fireEvent('click');
 	            	marker.on('mouseover', function (e) {
 	                    this.openPopup();
 	                });
@@ -166,7 +145,7 @@ function addMarker (e) {
 	                    this.closePopup();
 	                });
 	                marker.on('contextmenu', function (e) {
-	                	console.log('contextmenu: '+e.target.options.title);
+	                	//console.log('contextmenu: '+e.target.options.title);
 	                	selectedMarker = e.target.options.title;
 	                });
 	            	plotlayers.push(marker);
@@ -178,22 +157,12 @@ function addMarker (e) {
 	        });
 				} else {
 					alert("empty field.");
-					//$("#description_text").text("empty field.");
 					}
 			}
 			//alert(v);
 		}
 		});
 }
-
-/*map.on('contextmenu.show', function (event) {
-	//console.log(event.relatedTarget);
-	var data_marker = event.relatedTarget.options.title;
-    // show marker data on console
-    if(typeof event.toElement != "undefined"){
-    	console.log(data_marker);
-    }
-});*/
 
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
