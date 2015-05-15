@@ -46,6 +46,7 @@ function loadPoi(){
     	plotlayers.push(marker);
         record=null;
     });
+	/* test json load methods
 	})
 	.done(function() {
 	console.log( "done" );
@@ -54,7 +55,7 @@ function loadPoi(){
 	console.log( "error" );
 	})
 	.always(function() {
-	console.log( "complete" );
+	console.log( "complete" );*/
 	});
 };
 
@@ -90,8 +91,73 @@ function zoomOut (e) {
 }
 
 function editMarker (e) {
-	alert("show edit popup for "+selectedMarker);
-	//console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
+	//alert("show edit popup for "+selectedMarker);
+	console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
+	var lat=pois[selectedMarker].coordinates[0], lng=pois[selectedMarker].coordinates[1];
+	$.msgBox({ type: "prompt",
+		title: "Update Point of Interest",
+		inputs: [
+		{ header: "Description:", type: "text", name: "description_text", value: pois[selectedMarker].description }],
+		buttons: [
+		{ value: "Ok" }, {value:"Cancel"}],
+		success: function (result, values) {
+    		if (result == "Ok") {
+    			//check if the form inputs are empty on submit
+				if($('input[name=description_text]').val() != ''){
+				var val = {"author": $("#log_user").text(), "description": $('input[name=description_text]').val(),"coordinates": [lat, lng] };
+	    	$.ajax({
+	            url : '/poi',
+	            dataType: 'json',
+	            type: 'POST',
+	            method: 'POST',
+	            contentType: 'application/json',
+	            async:true,
+	            crossDomain: true,
+	            data : JSON.stringify(val),
+	            cache: false,
+	            success: function( data, textStatus, jQxhr ){
+	            	//console.log(data);
+	            	pois[data.description] = data;
+	            	
+	            	console.log("POI\n:"+JSON.stringify(data));
+	            	 //alert("Point of interest inserted.");
+	            	marker = new L.marker([lat,lng],{
+	            		title:data.description,
+	            	    contextmenu: true,
+	            	    contextmenuItems: [{
+	            	    	text: 'Edit Marker',
+	            	    	icon: 'images/edit.png',
+	            	    	callback: editMarker,
+	            	    	index: 0
+	            	    	}, {
+	            	    	separator: true,
+	            	    	index: 1
+	            	    	}]}).bindPopup($('input[name=description_text]').val());
+	            	map.addLayer(marker);
+	            	marker.on('mouseover', function (e) {
+	                    this.openPopup();
+	                });
+	                marker.on('mouseout', function (e) {
+	                    this.closePopup();
+	                });
+	                marker.on('contextmenu', function (e) {
+	                	//console.log('contextmenu: '+e.target.options.title);
+	                	selectedMarker = e.target.options.title;
+	                });
+	            	plotlayers.push(marker);
+	            	val=null;
+	            },
+	            error: function( jqXhr, textStatus, errorThrown ){
+	                console.log( errorThrown );
+	            }
+	        });
+				} else {
+					alert("empty field.");
+					}
+			}
+			//alert(v);
+		}
+		});
 }
 
 function addMarker (e) {
