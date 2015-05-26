@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.Credentials;
 import pt.lsts.ripples.model.HubIridiumMsg;
@@ -93,6 +95,13 @@ public class IridiumServlet extends HttpServlet {
 					.deserialize(new HexBinaryAdapter().unmarshal(sb.toString()));
 			int dst = m.getDestination();
 			int src = m.getSource();
+			// store message in the DB
+			HubIridiumMsg msg = new HubIridiumMsg();
+			msg.setMsg(sb.toString());
+			msg.setType(m.getMessageType());
+			msg.setCreated_at(new Date(m.timestampMillis));
+			msg.setUpdated_at(new Date());
+			Store.ofy().save().entity(msg);
 
 			// This message is not to be sent but just posted
 			if (dst == 0 || dst == 65535) {
@@ -106,8 +115,8 @@ public class IridiumServlet extends HttpServlet {
 
 			if (imei == null) {
 				Logger.getLogger(getClass().getName())
-						.log(Level.WARNING,
-								"Could not find IMEI address for dst. Iridium message will not be delivered.");
+				.log(Level.WARNING,
+						"Could not find IMEI address for dst. Iridium message will not be delivered.");
 				resp.getWriter().write(
 						"Could not find IMEI address for destination.");
 				resp.setStatus(500);
@@ -119,8 +128,8 @@ public class IridiumServlet extends HttpServlet {
 
 			if (cred == null) {
 				Logger.getLogger(getClass().getName())
-						.log(Level.SEVERE,
-								"Could not find credentials for RockBlock. Iridium message will not be delivered.");
+				.log(Level.SEVERE,
+						"Could not find credentials for RockBlock. Iridium message will not be delivered.");
 				resp.getWriter().write(
 						"Credentials for RockBlock service have not been set.");
 				resp.setStatus(500);
@@ -129,14 +138,17 @@ public class IridiumServlet extends HttpServlet {
 
 			Pair<Integer, String> rock7Resp = sendToRockBlockHttp(imei,
 					cred.login, cred.password, m.serialize());
-			Logger.getLogger(getClass().getName()).log(Level.INFO,
-					"Sent Iridium message from " + src + " to " + dst);
+
 			if (rock7Resp.getSecond().startsWith("FAILED")) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING,
+						"Error sending Iridium message from " + src + " to " + dst+": "+rock7Resp.getSecond());
 				resp.getWriter().write("Sending to " + imei + " failed: ");
 				resp.setStatus(502);
-			} else
+			} else {
 				resp.setStatus(rock7Resp.getFirst());
-
+				Logger.getLogger(getClass().getName()).log(Level.INFO,
+						"Sent Iridium message from " + src + " to " + dst);
+			}
 			resp.getWriter().write(rock7Resp.getSecond());
 			resp.getWriter().close();
 
@@ -159,9 +171,42 @@ public class IridiumServlet extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		resp.setContentType("application/json");
 
 		String since = req.getParameter("since");
+		String id = req.getParameter("id");
+		String data = req.getParameter("data");
+
+		if (id != null) {
+			Long.parseLong(id);
+			HubIridiumMsg msg = Store.ofy().load().type(HubIridiumMsg.class).id(id).now();
+			if (msg == null) {
+				resp.setStatus(404);
+				resp.getWriter().write("No message with ID "+id);
+				resp.getWriter().close();
+				return;
+			}
+			data = msg.getMsg();
+		}
+
+		if (data != null) {
+			try {
+				IridiumMessage m = IridiumMessage.deserialize(new HexBinaryAdapter().unmarshal(data));
+				resp.setStatus(200);
+				resp.setContentType("text/html");
+				for (IMCMessage message : m.asImc()) {
+					resp.getWriter().write(IMCUtil.getAsHtml(message).replaceAll("<.?html>", ""));
+				}
+				resp.getWriter().close();
+			}		
+			catch (Exception e) {
+				e.printStackTrace();
+				resp.setStatus(500);
+				resp.getWriter().write(e.getClass().getSimpleName()+": "+e.getMessage());
+				resp.getWriter().close();
+				return;
+			}
+		}
+		resp.setContentType("application/json");
 		Date start = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
 
 		if (since != null) {
@@ -181,8 +226,8 @@ public class IridiumServlet extends HttpServlet {
 			resp.getWriter().write(
 					JsonUtils.getGsonInstance().toJson(
 							Store.ofy().load().type(HubIridiumMsg.class)
-									.filter("updated_at >= ", start)
-									.order("-updated_at").list()));
+							.filter("updated_at >= ", start)
+							.order("-updated_at").list()));
 			resp.getWriter().close();
 		} else {
 			try {
@@ -212,7 +257,7 @@ public class IridiumServlet extends HttpServlet {
 	public static void main(String[] args) throws Exception {
 		String dstr = "0e411e00da076d03dc9d5354510002fd0054fe2f026e01fed42077e714d541000000ffffff000000000200733101002702020073310000000000000500476f746f31030028020500476f746f31c20110274e8e003a7300e73f6937343e8973c3bf0000004001000061440100000000000000000000000000000000000000000000000000000000000028020500476f746f32c2011027f68816ad6200e73f47d3104eef72c3bf0000004001000061440100000000000000000000000000000000000000000000000000000100240303004c424c010021030600416374697665050066616c7365000028020f0053746174696f6e4b656570696e6731cd0171472e327f00e73fa5f80085ee72c3bf00";
 		IridiumMessage msg = IridiumMessage.deserialize(new HexBinaryAdapter()
-				.unmarshal(dstr));
+		.unmarshal(dstr));
 		System.out.println(msg);
 	}
 }

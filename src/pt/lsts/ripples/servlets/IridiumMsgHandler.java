@@ -103,7 +103,7 @@ public class IridiumMsgHandler {
 	}
 
 	public static void on(ActivateSubscription sub) {
-		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling ActivateSub");
+		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling ActivateSub");		
 	}
 
 	public static void on(DeactivateSubscription unsb) {
