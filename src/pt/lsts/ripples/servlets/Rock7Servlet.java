@@ -18,6 +18,9 @@ import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
+import pt.lsts.ripples.util.IridiumUtils;
+
+import com.firebase.client.utilities.Pair;
 
 public class Rock7Servlet extends HttpServlet {
 
@@ -49,8 +52,11 @@ public class Rock7Servlet extends HttpServlet {
 				Store.ofy().save().entity(m);
 
 				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received message from RockBlock");
-				IridiumMsgHandler.setMessage(msg);
-
+				
+				IridiumMsgHandler.setMessage(imei, msg);
+				
+				
+				
 				HubSystem system = Store.ofy().load().type(HubSystem.class)
 						.id(msg.getSource()).now();
 				Address addr = Store.ofy().load().type(Address.class).id(msg.getSource()).now();
@@ -63,6 +69,19 @@ public class Rock7Servlet extends HttpServlet {
 				if (addr != null && !imei.equals(addr.imei)) {
 					addr.imei = imei;
 					Store.ofy().save().entity(addr);
+				}
+				
+				String destImei = IridiumUtils.getIMEI(msg.destination);
+				if (destImei != null) {
+					Logger.getLogger(getClass().getName()).log(Level.INFO, "Forwarding iridium message to "+msg.getDestination());
+					Pair<Integer, String> res = IridiumUtils.sendviaRockBlock(destImei, msg.serialize());
+					if (res.getFirst() > 299) {
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error "+res.getFirst()+" orwarding message to "+msg.getDestination()+": "+res.getSecond());
+					}
+					resp.setStatus(res.getFirst());
+					resp.getWriter().write(res.getSecond());
+					resp.getWriter().close();
+					return;
 				}
 			}
 		} catch (Exception e) {

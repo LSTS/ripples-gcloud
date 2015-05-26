@@ -24,6 +24,7 @@ import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
+import pt.lsts.ripples.util.IridiumUtils;
 
 import com.firebase.client.utilities.Pair;
 import com.google.appengine.api.urlfetch.FetchOptions;
@@ -55,26 +56,10 @@ public class IridiumServlet extends HttpServlet {
 		}
 	}
 
-	public static Pair<Integer, String> sendToRockBlockHttp(String destImei,
-			String username, String password, byte[] data) throws Exception {
-		URL url = new URL("http://secure.rock7mobile.com/rockblock/MT");
 
-		String content = "imei=" + URLEncoder.encode(destImei, "UTF-8");
-		content += "&username=" + URLEncoder.encode(username, "UTF-8");
-		content += "&password=" + URLEncoder.encode(password, "UTF-8");
-		content += "&data="
-				+ URLEncoder.encode(new HexBinaryAdapter().marshal(data),
-						"UTF-8");
-
-		URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
-		FetchOptions options = FetchOptions.Builder.validateCertificate();
-		HTTPRequest request = new HTTPRequest(url, HTTPMethod.POST, options);
-		request.setHeader(new HTTPHeader("content-Type",
-				"application/x-www-form-urlencoded"));
-		request.setPayload(content.getBytes());
-		HTTPResponse response = fetcher.fetch(request);
-		return new Pair<Integer, String>(response.getResponseCode(),
-				new String(response.getContent()));
+	
+	private void sendUpdates() {
+		
 	}
 
 	private void sendInlineMessage(HttpServletRequest req,
@@ -105,7 +90,7 @@ public class IridiumServlet extends HttpServlet {
 
 			// This message is not to be sent but just posted
 			if (dst == 0 || dst == 65535) {
-				IridiumMsgHandler.setMessage(m);
+				IridiumMsgHandler.setMessage(null, m);
 				resp.setStatus(200);
 				resp.getWriter().close();
 				return;
@@ -123,21 +108,7 @@ public class IridiumServlet extends HttpServlet {
 				return;
 			}
 
-			Credentials cred = Store.ofy().load().type(Credentials.class)
-					.id("rockblock").now();
-
-			if (cred == null) {
-				Logger.getLogger(getClass().getName())
-				.log(Level.SEVERE,
-						"Could not find credentials for RockBlock. Iridium message will not be delivered.");
-				resp.getWriter().write(
-						"Credentials for RockBlock service have not been set.");
-				resp.setStatus(500);
-				return;
-			}
-
-			Pair<Integer, String> rock7Resp = sendToRockBlockHttp(imei,
-					cred.login, cred.password, m.serialize());
+			Pair<Integer, String> rock7Resp = IridiumUtils.sendviaRockBlock(imei, m.serialize());
 
 			if (rock7Resp.getSecond().startsWith("FAILED")) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING,
