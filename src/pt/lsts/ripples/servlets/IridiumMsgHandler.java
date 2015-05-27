@@ -107,11 +107,11 @@ public class IridiumMsgHandler {
 		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling ActivateSub");
 		
 		List<IridiumSubscription> subscribers = Store.ofy().load().type(IridiumSubscription.class).list();
-		boolean found = false;
+		IridiumSubscription subscription = null;
 		
 		for (IridiumSubscription s : subscribers) {
 			if (s.subscriberId == sub.source) {
-				found = true;
+				subscription = s;
 				if (imei != null) {
 					s.imei = imei;
 					Store.ofy().save().entity(s).now();
@@ -119,17 +119,14 @@ public class IridiumMsgHandler {
 				break;
 			}
 		}
-		if (!found) {
-			IridiumSubscription subscription = new IridiumSubscription();
+		if (subscription == null) {
+			subscription = new IridiumSubscription();
 			subscription.subscriberId = sub.source;
 			subscription.imei = imei;
-			subscription.lastUpdateTime = new Date();
-			Store.ofy().save().entity(subscription).now();
-			Logger.getGlobal().log(Level.INFO, "Added subscription to "+sub.source);
 		}
-		else {
-			
-		}
+		subscription.lastUpdateTime = 0;
+		Store.ofy().save().entity(subscription).now();
+		Logger.getGlobal().log(Level.INFO, sub.source+" has subscribed.");		
 	}
 
 	public static void on(DeactivateSubscription unsb) {

@@ -20,5 +20,10 @@
     <description>Update the Argos positions</description>
     <schedule>every 2 mins</schedule>
   </cron>
+  <cron>
+    <url>/iridiumUpdates</url>
+    <description>Send Iridium updates</description>
+    <schedule>every 2 mins</schedule>
+  </cron>
   
 </cronentries>
