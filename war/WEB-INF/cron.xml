@@ -3,7 +3,7 @@
   <cron>
     <url>/spots/update</url>
     <description>Update the SPOT device positions</description>
-    <schedule>every 5 mins</schedule>
+    <schedule>every 2 mins</schedule>
   </cron>
   <cron>
     <url>/fbase/update</url>
