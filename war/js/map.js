@@ -109,9 +109,12 @@ var desiredIcon = new SysIcon({
 L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
 
 function updatePositions() {
-	$.getJSON("api/v1/systems/active", function(data) {
-
-		$.each(data, function(val) {
+	$.ajax({
+	    cache: false,
+	    url: "api/v1/systems/active",
+	    dataType: "json",
+	    success: function(data) {
+	      $.each(data, function(val) {
 			var coords = data[val].coordinates;
 			var name = data[val].name;
 			var updated = new Date(data[val].updated_at);
@@ -144,7 +147,7 @@ function updatePositions() {
 						+ ellapsed + ")");
 			}
 		});
-	});
+	}});
 }
 
 function sysIconFromName(name) {
@@ -191,8 +194,9 @@ function sysIcon(imcId) {
 		break;
 	}
 }
+updatePositions();
+setInterval(updatePositions, 30000);
 
-setInterval(updatePositions(), 10000);
 var assets = {};
 var lastPositions = {};
 var ripplesRef = new Firebase('https://neptus.firebaseIO-demo.com/');
