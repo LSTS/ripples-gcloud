@@ -1,4 +1,5 @@
 var markers = {};
+var updates = {};
 var plans = {};
 var tails = {};
 
@@ -131,6 +132,7 @@ function updatePositions() {
 			}
 
 			if (markers[name] == undefined) {
+				updates[name] = updated;
 				markers[name] = L.marker(coords, {
 					icon : ic
 				});
@@ -140,11 +142,14 @@ function updatePositions() {
 						+ ellapsed + ")");
 				markers[name].addTo(map);
 			} else {
-				markers[name].setLatLng(new L.LatLng(coords[0], coords[1]));
-				markers[name].bindPopup("<b>" + name + "</b><br/>"
-						+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
-						+ "<hr/>" + updated.toLocaleString() + "<br/>("
-						+ ellapsed + ")");
+				if (updates[name] <= updated) {
+					markers[name].setLatLng(new L.LatLng(coords[0], coords[1]));
+					markers[name].bindPopup("<b>" + name + "</b><br/>"
+							+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
+							+ "<hr/>" + updated.toLocaleString() + "<br/>("
+							+ ellapsed + ")");
+					updates[name] = updated;
+				}
 			}
 		});
 	}});
