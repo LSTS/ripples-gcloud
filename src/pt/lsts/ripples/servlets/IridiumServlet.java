@@ -3,8 +3,6 @@ package pt.lsts.ripples.servlets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -19,7 +17,6 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.ripples.model.Address;
-import pt.lsts.ripples.model.Credentials;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
@@ -27,13 +24,6 @@ import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.util.IridiumUtils;
 
 import com.firebase.client.utilities.Pair;
-import com.google.appengine.api.urlfetch.FetchOptions;
-import com.google.appengine.api.urlfetch.HTTPHeader;
-import com.google.appengine.api.urlfetch.HTTPMethod;
-import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 
 @SuppressWarnings("serial")
 public class IridiumServlet extends HttpServlet {
@@ -54,12 +44,6 @@ public class IridiumServlet extends HttpServlet {
 
 			resp.getWriter().close();
 		}
-	}
-
-
-	
-	private void sendUpdates() {
-		
 	}
 
 	private void sendInlineMessage(HttpServletRequest req,

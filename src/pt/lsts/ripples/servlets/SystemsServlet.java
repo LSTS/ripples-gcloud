@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.SystemPosition;
 
 /**
  * Systems service, according to HUB API V1.
@@ -52,6 +53,14 @@ public class SystemsServlet extends HttpServlet {
 					HubSystem.class);
 			s.setUpdated_at(new Date());
 			Store.ofy().save().entity(s).now();
+			
+			SystemPosition pos = new SystemPosition();
+			pos.imc_id = s.getImcid();
+			pos.lat = s.getCoordinates()[0];
+			pos.lon = s.getCoordinates()[1];
+			pos.timestamp = s.getUpdated_at();
+			PositionsServlet.addPosition(pos);
+			
 			Logger.getLogger(getClass().getName()).log(Level.FINE, "System " + s.getName() + " was updated.");
 			resp.setStatus(200);
 			resp.setContentType("application/json");
