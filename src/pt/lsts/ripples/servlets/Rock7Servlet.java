@@ -55,8 +55,6 @@ public class Rock7Servlet extends HttpServlet {
 				
 				IridiumMsgHandler.setMessage(imei, msg);
 				
-				
-				
 				HubSystem system = Store.ofy().load().type(HubSystem.class)
 						.id(msg.getSource()).now();
 				Address addr = Store.ofy().load().type(Address.class).id(msg.getSource()).now();
@@ -82,6 +80,9 @@ public class Rock7Servlet extends HttpServlet {
 					resp.getWriter().write(res.getSecond());
 					resp.getWriter().close();
 					return;
+				}
+				else {
+					IridiumUpdatesServlet.sendToSubscribers(msg);
 				}
 			}
 		} catch (Exception e) {

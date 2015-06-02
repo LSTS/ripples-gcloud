@@ -14,12 +14,15 @@ import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.iridium.DeviceUpdate;
+import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.model.iridium.Position;
 import pt.lsts.ripples.util.IridiumUtils;
 
 @SuppressWarnings("serial")
 public class IridiumUpdatesServlet extends HttpServlet {
 
+	
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		
@@ -40,6 +43,21 @@ public class IridiumUpdatesServlet extends HttpServlet {
 				}
 			}
 		}
+	}
+	
+	public static int sendToSubscribers(IridiumMessage msg) throws Exception {
+		String imei = IridiumUtils.getIMEI(msg.getSource());
+		
+		List<IridiumSubscription> subscribers = Store.ofy().load().type(IridiumSubscription.class).list();
+		int count = 0;
+		for (IridiumSubscription s : subscribers) {
+			// do not send to self
+			if (!s.imei.equals(imei)) {
+				IridiumUtils.sendviaRockBlock(s.imei, msg.serialize());
+				count++;
+			}
+		}		
+		return count;
 	}
 	
 	private void sendUpdates(String imei, long time_since) throws Exception {
