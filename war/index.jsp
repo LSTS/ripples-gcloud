@@ -44,6 +44,7 @@
 	</nav>
 	<script src="js/index.js"></script>
 	<div id="map"></div>
-	<script src="js/L.Control.Locate.min.js"></script>			
-	<script src="js/map.js"></script>					
+	<script src="js/L.Control.Locate.min.js"></script>
+	<script src="js/KML.js"></script>			
+	<script src="js/map.js"></script>						
 </body>

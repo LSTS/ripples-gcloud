@@ -32,6 +32,14 @@ var osmLayer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.pn
 
 var map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
 
+var kmlLayer = new L.KML("/kml/file.kmz", {async: true});
+                                                     
+kmlLayer.on("loaded", function(e) { 
+   map.fitBounds(e.target.getBounds());
+});
+                                       
+map.addLayer(kmlLayer);
+
 var SysIcon = L.Icon.extend({
 	options : {
 		shadowUrl : 'icons/shadow.png',
