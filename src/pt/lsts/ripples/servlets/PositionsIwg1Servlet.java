@@ -61,8 +61,8 @@ public class PositionsIwg1Servlet extends HttpServlet {
                 catch (ParseException e) {
                     // Let us try if system exist
                     Date date = null;
+                    systemStr = splitLst[1];
                     if (splitLst.length > 2) {
-                        systemStr = splitLst[1];
                         dayOrSystem = splitLst[2];
                         try {
                             date = dayFormat.parse(dayOrSystem);
@@ -74,13 +74,17 @@ public class PositionsIwg1Servlet extends HttpServlet {
                             return;
                         }
                     }
+                    else {
+                        getSystemByName(systemStr, req, resp);
+                        return;
+                    }
                 }
 		    }
 
-		    resp.setContentType("text/plain");
-            resp.setStatus(200);
-            resp.getWriter().close();
-		    return;
+//		    resp.setContentType("text/plain");
+//            resp.setStatus(200);
+//            resp.getWriter().close();
+//		    return;
 		    
 		    
 //			long start = dayFormat.parse(day).getTime();
@@ -197,16 +201,28 @@ public class PositionsIwg1Servlet extends HttpServlet {
                         }
                     }
                     if (id != -1) {
+//                        resp.getWriter().write("B" + elems.size() + "  " + system + ":" + id);
                         elems = elemsLT.filter("imcid", id).order("-updated_at").list();
+//                        resp.getWriter().write("A" + elems.size());
                     }
-                    else if (system != null && !"all".equalsIgnoreCase(system)
+                    else if (id == -1 && system != null && !"all".equalsIgnoreCase(system)
                             && !"".equalsIgnoreCase(system)) {
+//                        resp.getWriter().write("B" + elems.size() + "  " + system + ":" + id);
                         elems = elemsLT.filter("name", system).order("-updated_at").list();
+//                        resp.getWriter().write("A" + elems.size());
                     }
                     
                     ArrayList<IWG1Data> data = new ArrayList<>();
                     StringBuilder sb = new StringBuilder();
                     for (HubSystem hubSystem : elems) {
+//                        if (id != -1 && hubSystem.getImcid() != id) {
+//                            continue;
+//                        }
+//                        else if (id == -1 && system != null && !"all".equalsIgnoreCase(system)
+//                                && !"".equalsIgnoreCase(system) 
+//                                && !system.equalsIgnoreCase(hubSystem.getName())) {
+//                            continue;
+//                        }
                         IWG1Data iwg1 = IWG1DataFactory.create(hubSystem);
                         data.add(iwg1);
                         sb.append(iwg1.toIWG1());
@@ -216,7 +232,8 @@ public class PositionsIwg1Servlet extends HttpServlet {
                     resp.getWriter().write(sb.toString());
                     resp.getWriter().close();
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
                 Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error handling " + req.getPathInfo(), e);
                 resp.setStatus(400);
