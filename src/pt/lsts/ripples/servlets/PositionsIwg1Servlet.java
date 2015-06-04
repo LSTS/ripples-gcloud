@@ -42,7 +42,8 @@ public class PositionsIwg1Servlet extends HttpServlet {
 
 		try {
 		    String systemStr = null;
-		    String[] splitLst = req.getPathInfo().split("[/\\.]+");
+		    String pInfo = req.getPathInfo();
+		    String[] splitLst = pInfo == null ? new String[0] : req.getPathInfo().split("[/\\.]+");
             String day;
 		    if (splitLst.length < 1) {
 		        day = dayFormat.format(new Date(System.currentTimeMillis()));
@@ -120,21 +121,29 @@ public class PositionsIwg1Servlet extends HttpServlet {
             Query<SystemPosition> positionsLT = Store.ofy().load()
                     .type(SystemPosition.class).filter("timestamp >=", new Date(start))
                     .filter("timestamp <=", new Date(nextMidnight));
-            List<SystemPosition> positions = positionsLT.list();
+            List<SystemPosition> positions = positionsLT.order("-timestamp").list();
 
             long id = -1;
-            try {
-                id = Long.parseLong(system);
-            }
-            catch (NumberFormatException e) {
+            if (system != null && !"all".equalsIgnoreCase(system)
+                    && !"".equalsIgnoreCase(system)) {
+                try {
+                    id = Long.parseLong(system);
+                }
+                catch (NumberFormatException e) {
+                    try {
+                        id = Long.parseLong(system.replace("0x", "").replace("0X", ""), 16);
+                    }
+                    catch (NumberFormatException e1) {
+                    }
+                }
             }
             if (id != -1) {
-                positions = positionsLT.filter("imc_id", id).list();
+                positions = positionsLT.filter("imc_id", id).order("-timestamp").list();
             }
             else if (system != null && !"all".equalsIgnoreCase(system)
                     && !"".equalsIgnoreCase(system)) {
                 id = getId(system);
-                positions = positionsLT.filter("imc_id", id).list();
+                positions = positionsLT.filter("imc_id", id).order("-timestamp").list();
             }
 
             ArrayList<IWG1Data> data = new ArrayList<>();
@@ -168,23 +177,31 @@ public class PositionsIwg1Servlet extends HttpServlet {
         else {
             try {
                 LoadType<HubSystem> elemsLT = Store.ofy().load().type(HubSystem.class);
-                List<HubSystem> elems = elemsLT.list();
+                List<HubSystem> elems = elemsLT.order("-updated_at").list();
                 if (elems == null) {
                     resp.setStatus(404);
                 }
                 else {
                     long id = -1;
-                    try {
-                        id = Long.parseLong(system);
-                    }
-                    catch (NumberFormatException e) {
+                    if (system != null && !"all".equalsIgnoreCase(system)
+                            && !"".equalsIgnoreCase(system)) {
+                        try {
+                            id = Long.parseLong(system);
+                        }
+                        catch (NumberFormatException e) {
+                            try {
+                                id = Long.parseLong(system.replace("0x", "").replace("0X", ""), 16);
+                            }
+                            catch (NumberFormatException e1) {
+                            }
+                        }
                     }
                     if (id != -1) {
-                        elems = elemsLT.filter("imcid", id).list();
+                        elems = elemsLT.filter("imcid", id).order("-updated_at").list();
                     }
                     else if (system != null && !"all".equalsIgnoreCase(system)
                             && !"".equalsIgnoreCase(system)) {
-                        elems = elemsLT.filter("name", system).list();
+                        elems = elemsLT.filter("name", system).order("-updated_at").list();
                     }
                     
                     ArrayList<IWG1Data> data = new ArrayList<>();
