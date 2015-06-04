@@ -291,10 +291,6 @@ var map = L.map('map', {
 });
 
 var kmlLayer = new L.KML("/kml/file.kmz", {async: true});
-
-kmlLayer.on("loaded", function(e) { 
-   map.fitBounds(e.target.getBounds());
-});
                                        
 map.addLayer(kmlLayer);
 
