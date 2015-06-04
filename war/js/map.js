@@ -7,6 +7,7 @@ var map, marker;
 var plotlayers=[];
 var selectedMarker;
 
+$.ajaxSetup({ cache: false })
 loadPoi();
 
 function loadPoi(){
