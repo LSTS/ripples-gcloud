@@ -2,6 +2,7 @@ package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,11 +27,18 @@ public class PoiServlet extends HttpServlet {
 		resp.setContentType("text/plain");
 
 		Date d = new Date();
+		ArrayList<PointOfInterest> toShow = new ArrayList<PointOfInterest>();
+		
 		List<PointOfInterest> pois = Store.ofy().load().type(PointOfInterest.class)
-				.filter("expiration_date >=", d).list();
+				.list();
+		
+		for (PointOfInterest poi : pois) {
+			if (poi.expiration_date.after(d))
+				toShow.add(poi);
+		}
 		resp.setContentType("application/json");
 		resp.setStatus(200);
-		resp.getWriter().write(JsonUtils.getGsonInstance().toJson(pois));
+		resp.getWriter().write(JsonUtils.getGsonInstance().toJson(toShow));
 		resp.getWriter().close();
 	}
 	

@@ -1,7 +1,236 @@
 var markers = {};
 var updates = {};
+var pois = {};
 var plans = {};
 var tails = {};
+var map, marker;
+var plotlayers=[];
+var selectedMarker;
+
+$.ajaxSetup({ cache: false })
+loadPoi();
+
+function loadPoi(){
+	var poi_json = $.getJSON( "/poi", function(data) {
+	removeMarkers();
+	console.log( "success" );
+	$.each(data, function(i, item) {
+		
+		pois[item.description] = item;
+		
+		//console.log("POI\n:"+JSON.stringify(item));
+		
+    	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
+    	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
+    		title: item.description,
+    	    contextmenu: true,
+    	    contextmenuItems: [{
+    	    	text: 'Edit Marker',
+    	    	icon: 'images/edit.png',
+    	    	callback: editMarker,
+    	    	index: 0
+    	    	}, {
+    	    	separator: true,
+    	    	index: 1
+    	    	}]});
+    	map.addLayer(marker);
+    	marker.bindPopup(item.description);
+    	marker.on('mouseover', function (e) {
+            this.openPopup();
+        });
+        marker.on('mouseout', function (e) {
+            this.closePopup();
+        });
+        marker.on('contextmenu', function (e) {
+        	//console.log('contextmenu: '+e.target.options.title);
+        	selectedMarker = e.target.options.title;
+        });
+    	plotlayers.push(marker);
+        record=null;
+    });
+	/* test json load methods
+	})
+	.done(function() {
+	console.log( "done" );
+	})
+	.fail(function() {
+	console.log( "error" );
+	})
+	.always(function() {
+	console.log( "complete" );*/
+	});
+};
+
+function removeMarkers() {
+	for (i=0;i<plotlayers.length;i++) {
+		map.removeLayer(plotlayers[i]);
+	}
+	plotlayers=[];
+	pois =  {};
+}
+
+setInterval(function(){
+	//alert("update");
+	removeMarkers();
+	loadPoi();
+	//$("#log_alert").text("");
+	}, 60000); // 60000 milliseconds = one minute
+
+function showCoordinates (e) {
+    alert(e.latlng);
+}
+
+function centerMap (e) {
+    map.panTo(e.latlng);
+}
+
+function zoomIn (e) {
+    map.zoomIn();
+}
+
+function zoomOut (e) {
+    map.zoomOut();
+}
+
+function editMarker (e) {
+	//alert("show edit popup for "+selectedMarker);
+	console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
+	var lat=pois[selectedMarker].coordinates[0], lng=pois[selectedMarker].coordinates[1];
+	$.msgBox({ type: "prompt",
+		title: "Update Point of Interest",
+		inputs: [
+		{ header: "Description:", type: "text", name: "description_text", value: pois[selectedMarker].description }],
+		buttons: [
+		{ value: "Ok" }, {value:"Cancel"}],
+		success: function (result, values) {
+    		if (result == "Ok") {
+    			//check if the form inputs are empty on submit
+				if($('input[name=description_text]').val() != ''){
+				var val = {"author": $("#log_user").text(), "description": $('input[name=description_text]').val(),"coordinates": [lat, lng] };
+	    	$.ajax({
+	            url : '/poi',
+	            dataType: 'json',
+	            type: 'POST',
+	            method: 'POST',
+	            contentType: 'application/json',
+	            async:true,
+	            crossDomain: true,
+	            data : JSON.stringify(val),
+	            cache: false,
+	            success: function( data, textStatus, jQxhr ){
+	            	//console.log(data);
+	            	pois[data.description] = data;
+	            	
+	            	console.log("POI\n:"+JSON.stringify(data));
+	            	 //alert("Point of interest inserted.");
+	            	marker = new L.marker([lat,lng],{
+	            		title:data.description,
+	            	    contextmenu: true,
+	            	    contextmenuItems: [{
+	            	    	text: 'Edit Marker',
+	            	    	icon: 'images/edit.png',
+	            	    	callback: editMarker,
+	            	    	index: 0
+	            	    	}, {
+	            	    	separator: true,
+	            	    	index: 1
+	            	    	}]}).bindPopup($('input[name=description_text]').val());
+	            	map.addLayer(marker);
+	            	marker.on('mouseover', function (e) {
+	                    this.openPopup();
+	                });
+	                marker.on('mouseout', function (e) {
+	                    this.closePopup();
+	                });
+	                marker.on('contextmenu', function (e) {
+	                	//console.log('contextmenu: '+e.target.options.title);
+	                	selectedMarker = e.target.options.title;
+	                });
+	            	plotlayers.push(marker);
+	            	val=null;
+	            },
+	            error: function( jqXhr, textStatus, errorThrown ){
+	                console.log( errorThrown );
+	            }
+	        });
+				} else {
+					alert("empty field.");
+					}
+			}
+			//alert(v);
+		}
+		});
+}
+
+function addMarker (e) {
+	var lat = e.latlng.lat;
+	var lng = e.latlng.lng;
+	$.msgBox({ type: "prompt",
+		title: "Insert Point of Interest",
+		inputs: [
+		{ header: "Description:", type: "text", name: "description_text" }],
+		buttons: [
+		{ value: "Ok" }, {value:"Cancel"}],
+		success: function (result, values) {
+    		if (result == "Ok") {
+    			//check if the form inputs are empty on submit
+				if($('input[name=description_text]').val() != ''){
+				var val = {"author": $("#log_user").text(), "description": $('input[name=description_text]').val(),"coordinates": [lat, lng] };
+	    	$.ajax({
+	            url : '/poi',
+	            dataType: 'json',
+	            type: 'POST',
+	            method: 'POST',
+	            contentType: 'application/json',
+	            async:true,
+	            crossDomain: true,
+	            data : JSON.stringify(val),
+	            cache: false,
+	            success: function( data, textStatus, jQxhr ){
+	            	//console.log(data);
+	            	pois[data.description] = data;
+	            	
+	            	console.log("POI\n:"+JSON.stringify(data));
+	            	
+	                //alert("Point of interest inserted.");
+	            	marker = new L.marker([lat,lng],{
+	            		title:data.description,
+	            	    contextmenu: true,
+	            	    contextmenuItems: [{
+	            	    	text: 'Edit Marker',
+	            	    	icon: 'images/edit.png',
+	            	    	callback: editMarker,
+	            	    	index: 0
+	            	    	}, {
+	            	    	separator: true,
+	            	    	index: 1
+	            	    	}]}).bindPopup($('input[name=description_text]').val());
+	            	map.addLayer(marker);
+	            	marker.on('mouseover', function (e) {
+	                    this.openPopup();
+	                });
+	                marker.on('mouseout', function (e) {
+	                    this.closePopup();
+	                });
+	                marker.on('contextmenu', function (e) {
+	                	//console.log('contextmenu: '+e.target.options.title);
+	                	selectedMarker = e.target.options.title;
+	                });
+	            	plotlayers.push(marker);
+	            	val=null;
+	            },
+	            error: function( jqXhr, textStatus, errorThrown ){
+	                console.log( errorThrown );
+	            }
+	        });
+				} else {
+					alert("empty field.");
+					}
+			}
+			//alert(v);
+		}
+		});
+}
 
 var hybrid = L.tileLayer(
 		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
@@ -30,7 +259,40 @@ var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/
 
 var osmLayer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 23, attribution: 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'});
 
-var map = L.map('map', {center:[ 41.185356, -8.704898 ], zoom: 13, layers: [osmLayer]});
+var map = L.map('map', {
+    center: [ 41.185356, -8.704898 ],
+    zoom: 13,
+    layers: [osmLayer],
+    contextmenu: true,
+    contextmenuWidth: 140,
+    contextmenuItems: [{
+        text: 'Add Marker',
+        icon: 'images/add_pin.png',
+        callback: addMarker,
+        index: 0
+    }, {
+        separator: true,
+        index: 1
+    }, {
+	      text: 'Show coordinates',
+	      callback: showCoordinates
+    }, {
+	      text: 'Center map here',
+	      callback: centerMap
+    }, '-', {
+	      text: 'Zoom in',
+	      icon: 'images/zoom-in.png',
+	      callback: zoomIn
+    }, {
+	      text: 'Zoom out',
+	      icon: 'images/zoom-out.png',
+	      callback: zoomOut
+    }]     
+});
+
+var kmlLayer = new L.KML("/kml/file.kmz", {async: true});
+                                       
+map.addLayer(kmlLayer);
 
 var SysIcon = L.Icon.extend({
 	options : {
