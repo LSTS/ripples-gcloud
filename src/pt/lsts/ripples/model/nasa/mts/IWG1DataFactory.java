@@ -19,7 +19,9 @@ public class IWG1DataFactory {
         IWG1Data data = new IWG1Data();
         data.setTimeStampMillis(hSystem.getUpdated_at().getTime());
         data.setLatitudeDegs(hSystem.getCoordinates()[0]);
-        data.setLatitudeDegs(hSystem.getCoordinates()[1]);
+        data.setLongitudeDegs(hSystem.getCoordinates()[1]);
+        if (hSystem.getCoordinates().length > 2 && hSystem.getCoordinates()[2] != 0)
+            data.setGpsAltitude(hSystem.getCoordinates()[2]);
         data.setSourceId(hSystem.getImcid());
         return data;
     }
@@ -28,7 +30,7 @@ public class IWG1DataFactory {
         IWG1Data data = new IWG1Data();
         data.setTimeStampMillis(p.timestamp.getTime());
         data.setLatitudeDegs(p.lat);
-        data.setLatitudeDegs(p.lon);
+        data.setLongitudeDegs(p.lon);
         data.setSourceId(p.imc_id);
         return data;
     }
