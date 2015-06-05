@@ -200,29 +200,29 @@ public class PositionsIwg1Servlet extends HttpServlet {
                             }
                         }
                     }
-                    if (id != -1) {
+//                    if (id != -1) {
 //                        resp.getWriter().write("B" + elems.size() + "  " + system + ":" + id);
-                        elems = elemsLT.filter("imcid", id).order("-updated_at").list();
+//                        elems = elemsLT.filter("imcid", id).order("-updated_at").list();
 //                        resp.getWriter().write("A" + elems.size());
-                    }
-                    else if (id == -1 && system != null && !"all".equalsIgnoreCase(system)
-                            && !"".equalsIgnoreCase(system)) {
+//                    }
+//                    else if (id == -1 && system != null && !"all".equalsIgnoreCase(system)
+//                            && !"".equalsIgnoreCase(system)) {
 //                        resp.getWriter().write("B" + elems.size() + "  " + system + ":" + id);
-                        elems = elemsLT.filter("name", system).order("-updated_at").list();
+//                        elems = elemsLT.filter("name", system).order("-updated_at").list();
 //                        resp.getWriter().write("A" + elems.size());
-                    }
+//                    }
                     
                     ArrayList<IWG1Data> data = new ArrayList<>();
                     StringBuilder sb = new StringBuilder();
                     for (HubSystem hubSystem : elems) {
-//                        if (id != -1 && hubSystem.getImcid() != id) {
-//                            continue;
-//                        }
-//                        else if (id == -1 && system != null && !"all".equalsIgnoreCase(system)
-//                                && !"".equalsIgnoreCase(system) 
-//                                && !system.equalsIgnoreCase(hubSystem.getName())) {
-//                            continue;
-//                        }
+                        if (id != -1 && hubSystem.getImcid() != id) {
+                            continue;
+                        }
+                        else if (id == -1 && system != null && !"all".equalsIgnoreCase(system)
+                                && !"".equalsIgnoreCase(system) 
+                                && !system.equalsIgnoreCase(hubSystem.getName())) {
+                            continue;
+                        }
                         IWG1Data iwg1 = IWG1DataFactory.create(hubSystem);
                         data.add(iwg1);
                         sb.append(iwg1.toIWG1());
