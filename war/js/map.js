@@ -462,7 +462,7 @@ function sysIcon(imcId) {
 	}
 }
 updatePositions();
-setInterval(updatePositions, 30000);
+setInterval(updatePositions, 60000);
 
 var assets = {};
 var lastPositions = {};

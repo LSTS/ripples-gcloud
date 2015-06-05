@@ -33,8 +33,12 @@ public class PositionsCsvServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
+		String path = req.getPathInfo(); 
+		if (path == null || path.equals("/"))
+			path = "/"+dayFormat.format(new Date());
+			
 		try {
-			String day = req.getPathInfo().split("[/\\.]+")[1];
+			String day = path.split("/")[1];
 			long start = dayFormat.parse(day).getTime();
 			long nextMidnight = start + 3600 * 24 * 1000;
 			List<SystemPosition> positions = Store.ofy().load()
