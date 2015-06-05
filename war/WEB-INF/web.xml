@@ -103,6 +103,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<servlet-name>CSV Positions</servlet-name>
 		<url-pattern>/api/v1/csvTag/*</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>IWG1 Positions</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.PositionsIwg1Servlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>IWG1 Positions</servlet-name>
+		<url-pattern>/api/v1/iwg1/*</url-pattern>
+	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>Points of Interest Servlet</servlet-name>

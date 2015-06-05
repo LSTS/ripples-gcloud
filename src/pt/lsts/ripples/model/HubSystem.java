@@ -15,8 +15,10 @@ import com.googlecode.objectify.annotation.Index;
 @Cache
 public class HubSystem {
 	@Id
-    long imcid;
-    String name;
+	@Index
+    public long imcid;
+	@Index
+	public String name;
     String iridium;
     @Index
     Date updated_at;
