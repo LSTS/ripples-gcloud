@@ -149,6 +149,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/kml/*</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>RandomPositionsServlet</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.RandomPositionsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RandomPositionsServlet</servlet-name>
+		<url-pattern>/addpos/*</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
