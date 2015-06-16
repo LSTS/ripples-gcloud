@@ -2,6 +2,8 @@ package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +40,19 @@ public class AddressesServlet extends HttpServlet {
 				return;
 			}
 		}
+		else if ("/updateWavy".equals(req.getPathInfo())) {
+			try {
+				setWavyAddresses();
+				resp.setStatus(200);
+	
+			} catch (Exception e) {
+				resp.setStatus(500);
+				e.printStackTrace(resp.getWriter());
+				resp.getWriter().close();
+				e.printStackTrace();
+				return;
+			}
+		}
 		
 		resp.setContentType("application/json");
 		resp.getWriter().write(
@@ -46,6 +61,47 @@ public class AddressesServlet extends HttpServlet {
 		resp.getWriter().close();
 	}
 
+	private void setWavyAddresses() {
+		
+		LinkedHashMap<String, Long> addrs = new LinkedHashMap<String, Long>();
+		addrs.put("+351915733675", 0x8500+01l);
+		addrs.put("+351915733747", 0x8500+10l);
+		addrs.put("+351915733656", 0x8500+11l);
+		addrs.put("+351965655364", 0x8500+12l);
+		addrs.put("+351915733646", 0x8500+13l);
+		addrs.put("+351915733603", 0x8500+14l);
+		addrs.put("+351915733713", 0x8500+15l);
+		addrs.put("+351964660645", 0x8500+16l);
+		addrs.put("+351915733584", 0x8500+17l);
+		addrs.put("+351915733646", 0x8500+18l);
+		addrs.put("+351915733612", 0x8500+19l);
+		addrs.put("+351915733481", 0x8500+20l);
+		addrs.put("+351915733750", 0x8500+21l);
+		addrs.put("+351915733405", 0x8500+22l);
+		addrs.put("+351915733574", 0x8500+23l);
+		addrs.put("+351915733662", 0x8500+24l);
+		addrs.put("+351915733418", 0x8500+25l);
+		addrs.put("+351915733657", 0x8500+26l);
+		addrs.put("+351915733619", 0x8500+27l);
+		addrs.put("+351915733474", 0x8500+28l);
+		addrs.put("+351915733621", 0x8500+29l);
+		int count = 0;
+		for (Entry<String, Long> addr : addrs.entrySet()) {
+			Address existing = Store.ofy().load().type(Address.class).id(addr.getValue())
+					.now();
+
+			if (existing == null) {
+				Address address = new Address();
+				address.imc_id = addr.getValue();
+				address.name = "wavy-"+String.format("%02d", addr.getValue() - 0x8500);
+				address.phone = addr.getKey();
+				Store.ofy().save().entity(address);
+				count++;
+			}			
+		}	
+		Logger.getLogger(getClass().getName()).info("Stored " + count + " addresses in the datastore.");
+	}
+	
 	private void updateAddresses() throws Exception {
 
 		URL url = new URL(location);

@@ -13,4 +13,5 @@ public class Address {
 	public Long imc_id;
 	public String name;
 	public String imei = null;
+	public String phone = null;
 }

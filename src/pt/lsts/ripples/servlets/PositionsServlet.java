@@ -53,7 +53,7 @@ public class PositionsServlet extends HttpServlet {
 				.type(SystemPosition.class)
 				.filter("timestamp >=",
 						new Date(System.currentTimeMillis() - 1000 * 3600 * 24))
-						.order("-timestamp").list();
+						.order("-timestamp").limit(50).list();
 
 		for (int i = 0; i < positions.size(); i++) {
 			SystemPosition p = positions.get(i);
