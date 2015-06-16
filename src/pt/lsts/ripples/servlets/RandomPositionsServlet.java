@@ -28,14 +28,14 @@ public class RandomPositionsServlet extends HttpServlet {
 		resp.setContentType("text/plain");
 		for (int i = -10; i < 1; i++) {
 			SystemPosition pos = new SystemPosition();
-			pos.imc_id = 22;
+			pos.imc_id = -1;
 			pos.lat = lat + i * movement_x;
 			pos.lon = lon + i * movement_y;
 			pos.timestamp = new Date(System.currentTimeMillis() + 1000 * i);
 			PositionsServlet.addPosition(pos);			
 		}		
 		
-		resp.getWriter().write("Added 10 positions to system 22");
+		resp.getWriter().write("Added 10 positions to system -1");
 		resp.getWriter().close();		
 	}
 }
