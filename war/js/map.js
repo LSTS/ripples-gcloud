@@ -414,6 +414,7 @@ function updatePositions() {
 				smoothFactor: 1,
 				dashArray:"1,9"
 			}).addTo(map);
+			
 			//console.log(polylinePoints);
 			//L.polyline({polylinePoints}, {color: 'green'}).addTo(map);
 			//L.polyline(polylinePoints).addTo(map);
