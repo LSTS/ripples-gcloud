@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.ripples.model.Address;
+import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
 import pt.lsts.ripples.servlets.PositionsServlet;
@@ -78,6 +80,24 @@ public class WavyPositions extends HttpServlet {
 			pos.lat = lat;
 			pos.lon = lon;
 			pos.timestamp = d;
+			
+			HubSystem sys = Store.ofy().load().type(HubSystem.class).id(pos.imc_id).now();
+			
+			if (sys == null) {
+				sys = new HubSystem();
+				sys.setImcid(pos.imc_id);
+				Address addr = Store.ofy().load().type(Address.class).id(pos.imc_id).now();
+				if (addr != null)
+					sys.setName(addr.name);
+				else
+					sys.setName("wavy-"+(0x8500-pos.imc_id));
+				sys.setCreated_at(new Date());
+				sys.setUpdated_at(pos.timestamp);
+				sys.setCoordinates(new double[] { pos.lat, pos.lon });
+			}
+			sys.setUpdated_at(pos.timestamp);
+			sys.setCoordinates(new double[] { pos.lat, pos.lon });
+			Store.ofy().save().entity(sys);
 			PositionsServlet.addPosition(pos);
 			
 			resp.getWriter().write("\nDate: "+d+", lat: "+lat+", lon: "+lon+", voltage: "+voltage+", percent: "+percent+", ID: "+findId(phone)+"\n");
