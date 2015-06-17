@@ -408,7 +408,7 @@ function updatePositions() {
 			//console.log(activeSys[0]);
 			var sysData = new Array();
 			$.each( activeSys, function( key, value ) {
-				sysData[key] = activeSys.ToString().split(",");
+				sysData[key] = activeSys.toString().split(",");
 				if(sysData[0]==imc_id){
 					name=sysData[1];
 				}

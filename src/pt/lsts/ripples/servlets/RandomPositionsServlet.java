@@ -28,7 +28,7 @@ public class RandomPositionsServlet extends HttpServlet {
 		resp.setContentType("text/plain");
 		for (int i = -10; i < 1; i++) {
 			SystemPosition pos = new SystemPosition();
-			pos.imc_id = -1;
+			pos.imc_id = 21;
 			pos.lat = lat + i * movement_x;
 			pos.lon = lon + i * movement_y;
 			pos.timestamp = new Date(System.currentTimeMillis() + 1000 * i);
