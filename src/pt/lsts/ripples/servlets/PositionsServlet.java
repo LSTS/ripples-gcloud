@@ -3,7 +3,6 @@ package pt.lsts.ripples.servlets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
@@ -45,26 +45,25 @@ public class PositionsServlet extends HttpServlet {
 			throws IOException {
 
 		ArrayList<SystemPosition> ret = new ArrayList<>();
-		LinkedHashMap<Long, Integer> counters = new LinkedHashMap<>();
-
-		List<SystemPosition> positions = Store
-				.ofy()
-				.load()
-				.type(SystemPosition.class)
-				.filter("timestamp >=",
-						new Date(System.currentTimeMillis() - 1000 * 3600 * 24))
-						.order("-timestamp").limit(50).list();
-
-		for (int i = 0; i < positions.size(); i++) {
-			SystemPosition p = positions.get(i);
-			if (!counters.containsKey(p.imc_id))
-				counters.put(p.imc_id, 0);
-			
-			int count = counters.get(p.imc_id);
-			if (count >= 50)
-				continue;
-			counters.put(p.imc_id, ++count);
-			ret.add(p);			
+		
+		// get systems updated today
+		Date d = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
+		List<HubSystem> systems = Store.ofy().load().type(HubSystem.class)
+				.filter("updated_at >=", d).order("-updated_at").list();
+		
+		// get last 25 positions for each one of them
+		for (HubSystem s : systems) {
+			List<SystemPosition> positions = Store
+					.ofy()
+					.load()
+					.type(SystemPosition.class)
+					.filter("timestamp >=",
+							new Date(System.currentTimeMillis() - 1000 * 3600 * 24))
+							.filter("imc_id =", s.imcid)
+							.order("-timestamp").limit(25).list();
+			for (SystemPosition pos : positions) {
+				ret.add(pos);
+			}
 		}
 
 		resp.setContentType("application/json");

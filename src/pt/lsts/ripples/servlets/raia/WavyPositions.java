@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -13,7 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
@@ -100,6 +100,7 @@ public class WavyPositions extends HttpServlet {
 			Store.ofy().save().entity(sys);
 			PositionsServlet.addPosition(pos);
 			
+			Logger.getLogger(getClass().getName()).log(Level.INFO, "Date: "+d+", lat: "+lat+", lon: "+lon+", voltage: "+voltage+", percent: "+percent+", ID: "+findId(phone));
 			resp.getWriter().write("\nDate: "+d+", lat: "+lat+", lon: "+lon+", voltage: "+voltage+", percent: "+percent+", ID: "+findId(phone)+"\n");
 			
 			Pair<Integer, String> res = forward(imc_id - 0x8500, time.trim(), coords[0], coords[1], ""+voltage, ""+percent);
