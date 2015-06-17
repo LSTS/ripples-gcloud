@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
@@ -73,6 +75,25 @@ public class PositionsServlet extends HttpServlet {
 	}
 
 	public static void addPosition(SystemPosition pos) {
+		
+		HubSystem sys = Store.ofy().load().type(HubSystem.class).id(pos.imc_id).now();
+		if (sys == null) {
+			sys = new HubSystem();
+			sys.setImcid(pos.imc_id);
+			Address addr = Store.ofy().load().type(Address.class).id(pos.imc_id).now();
+			if (addr != null)
+				sys.setName(addr.name);
+			else
+				sys.setName(IMCDefinition.getInstance().getResolver()
+						.resolve((int) pos.imc_id));
+			sys.setCreated_at(new Date());
+		}
+		sys.setUpdated_at(pos.timestamp);
+		sys.setCoordinates(new double[] { pos.lat,
+				pos.lon });
+
+		Store.ofy().save().entity(sys);
+		
 		SystemPosition existing = Store.ofy().load().type(SystemPosition.class)
 				.filter("imc_id", pos.imc_id)
 				.order("-timestamp").limit(1).first().now();
