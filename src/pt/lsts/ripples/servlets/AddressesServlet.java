@@ -73,7 +73,7 @@ public class AddressesServlet extends HttpServlet {
 		addrs.put("+351915733713", 0x8500+15l);
 		addrs.put("+351964660645", 0x8500+16l);
 		addrs.put("+351915733584", 0x8500+17l);
-		addrs.put("+351915733646", 0x8500+18l);
+		addrs.put("+351915733635", 0x8500+18l);
 		addrs.put("+351915733612", 0x8500+19l);
 		addrs.put("+351915733481", 0x8500+20l);
 		addrs.put("+351915733750", 0x8500+21l);
