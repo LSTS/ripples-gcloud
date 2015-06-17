@@ -371,6 +371,23 @@ var desiredIcon = new SysIcon({
 
 L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
 
+function activeSystem (imc_id){
+	$.ajax({
+	    cache: false,
+	    url: "api/v1/systems/active",
+	    dataType: "json",
+	    success: function(data) {
+	      $.each(data, function(val) {
+	    	var imcid = data[val].imcid;
+			var name = data[val].name;
+			if(imc_id==imcid){
+				return name;
+			}
+	  	});
+		}
+	});
+}
+
 function updatePositions() {
 	$.ajax({
 	    cache: false,
@@ -381,9 +398,11 @@ function updatePositions() {
 	      $.each(data, function(val) {
 			var lat = data[val].lat;
 			var long = data[val].lon;
-			var name = "active system";
+			//var name = "active system";
 			var updated = new Date(data[val].timestamp);
-			var ic = sysIcon(data[val].imc_id);
+			var imc_id = data[val].imc_id;
+			var ic = sysIcon(imc_id);
+			var name = activeSystem(imc_id);
 			var mins = (new Date() - updated) / 1000 / 60;
 			var ellapsed = Math.floor(mins) + " mins ago";
 			var polylinePoints = [];
