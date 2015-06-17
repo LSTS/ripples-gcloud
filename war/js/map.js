@@ -379,31 +379,18 @@ function updatePositions() {
 	    dataType: "json",
 	    success: function(data) {
 	      $.each(data, function(val) {
-	    	//console.log(val);
 			var lat = data[val].lat;
-			//console.log(lat);
 			var long = data[val].lon;
-			//console.log(long);
-			//console.log("pos["+val+"][lat,long]: "+[lat,long]);
 			var name = "active system";
 			var updated = new Date(data[val].timestamp);
 			var ic = sysIcon(data[val].imc_id);
 			var mins = (new Date() - updated) / 1000 / 60;
 			var ellapsed = Math.floor(mins) + " mins ago";
-			
-			//console.log("pos["+val+"][lat,long]: "+[lat,long]+" at "+updated);
-			
 			var polylinePoints = [];
-			
 			var cols = [];
 			var rows = data.length;
 			for (var i  = 0; i < rows; i++){
-				//console.log(i);
-				
 				polylinePoints.push([data[i].lat,data[i].lon]);
-				//console.log(polylinePoints);
-				//console.log(cols[i]);
-				//console.log(polylinePoints);
 				
 			}
 			L.polyline(polylinePoints,
@@ -415,36 +402,16 @@ function updatePositions() {
 				dashArray:"1,9"
 			}).addTo(map);
 			
-			//console.log(polylinePoints);
-			//L.polyline({polylinePoints}, {color: 'green'}).addTo(map);
-			//L.polyline(polylinePoints).addTo(map);
-			//console.log(polylinePoints);
-			
-			//L.polyline(polylinePoints).addTo(map);
-			
-			//var polyline = L.polyline([[data[0].lat,data[0].lon],[data[1].lat,data[1].lon],[data[2].lat,data[2].lon]]).addTo(map);
-			
-			/*for (point in plan.path) {
-				plans[name].addLatLng(L.latLng(plan.path[point]));
-			}*/
-			
-			//console.log("polyline: "+polyline[0]);
-			//console.log(data[val]);
-			
 			if (mins > 120) {
 				ellapsed = Math.floor(mins / 60) + " hours ago";
-				//console.log("mins > 120");
 			}
 
 			if (mins > 60 * 24 * 2) {
 				ellapsed = Math.floor(mins / 60 / 24) + " days ago";
-				//console.log("mins > 60 * 24 * 2");
 			}
 
 			if (markers[name] == undefined) {
-				//console.log("updates[name]: "+ updated);
 				updates[name] = updated;
-				//markers[name] = L.polyline([lat,long], {color: 'red'});
 				markers[name] = L.marker([lat,long], {
 					icon : ic
 				});
@@ -461,8 +428,6 @@ function updatePositions() {
 							+ "<hr/>" + updated.toLocaleString() + "<br/>("
 							+ ellapsed + ")");
 					updates[name] = updated;
-					//updates[name] = L.polyline([lat,long], {color: 'yellow'}).addTo(map);
-					//console.log("updates[name]: "+ updated);
 				}
 			}
 		});
