@@ -7,9 +7,6 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.ripples.model.Address;
-import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
@@ -76,30 +73,11 @@ public class IridiumMsgHandler {
 	}
 	
 	private static void setPosition(Position p) {
-		long id = p.id;
-		HubSystem sys = Store.ofy().load().type(HubSystem.class).id(id).now();
-		if (sys == null) {
-			sys = new HubSystem();
-			sys.setImcid(id);
-			Address addr = Store.ofy().load().type(Address.class).id(id).now();
-			if (addr != null)
-				sys.setName(addr.name);
-			else
-				sys.setName(IMCDefinition.getInstance().getResolver()
-						.resolve((int) id));
-			sys.setCreated_at(new Date());
-		}
-		sys.setUpdated_at(new Date((long)(p.timestamp * 1000)));
-		sys.setCoordinates(new double[] { Math.toDegrees(p.latRads),
-				Math.toDegrees(p.lonRads) });
-
-		Store.ofy().save().entity(sys);
-		
 		SystemPosition pos = new SystemPosition();
-		pos.imc_id = sys.getImcid();
-		pos.lat = sys.getCoordinates()[0];
-		pos.lon = sys.getCoordinates()[1];
-		pos.timestamp = sys.getUpdated_at();
+		pos.imc_id = p.id;
+		pos.lat = Math.toDegrees(p.latRads);
+		pos.lon = Math.toDegrees(p.lonRads);
+		pos.timestamp = new Date((long)(p.timestamp * 1000));
 		PositionsServlet.addPosition(pos);
 	}
 

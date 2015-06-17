@@ -33,7 +33,7 @@ public class RandomPositionsServlet extends HttpServlet {
 			pos.lon = lon + i * movement_y;
 			pos.timestamp = new Date(System.currentTimeMillis() + 1000 * i);
 			PositionsServlet.addPosition(pos);			
-		}		
+		}
 		
 		resp.getWriter().write("Added 10 positions to system -1");
 		resp.getWriter().close();		
