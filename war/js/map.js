@@ -423,28 +423,53 @@ function updatePositions() {
 			var ellapsed = Math.floor(mins) + " mins ago";
 			var polylinePoints = [];
 			var cols = [];
-			var rows = data.length;
+			var rows = data.length/2;
 			
 			if(sysData[0][0]==imc_id){
 				name=sysData[0][1];
 			}else{
 				name=sysData[1][1];
 			}
-
+			console.log("rows: "+rows);
+			
 			if(val==0){
 				for (var i  = 0; i < rows; i++){
-					polylinePoints.push([data[i].lat,data[i].lon]);
-					console.log("polylinePoints["+i+"]: "+polylinePoints[i]);
+					if(polylinePoints[i]!=(lat+","+long).toString()){
+						polylinePoints.push([data[i].lat,data[i].lon]);
+						//console.log("polylinePoints["+i+"]: "+polylinePoints[i]);
+						
+						//console.log("(data[i].lat+","+data[i].lon).toString(): "+(data[i].lat+","+data[i].lon).toString());
+						//console.log("data["+i+"]: "+data[i].lat,data[i].lon);
+						//console.log("pos"+i+":"+(lat+","+long).toString());
+					}
 				}
+				tails[name] = L.polyline(polylinePoints);
+				tails[name].addTo(map);
+				console.log(tails[name]);
 			}
 			
-			L.polyline(polylinePoints,
+			var polylineArray = [
+			                     L.polyline([[39,5],[40,8],[41,6]], { color: 'red' }),
+			                     L.polyline([[40,5],[41,8],[42,7]], { color: 'green' }),
+			                     L.polyline([[42,5],[43,8],[43,6]], { color: 'orange' }),
+			                     L.polyline([[44,5],[45,8],[44,7]], { color: 'yellow' })
+			                   ];
+
+           var polylines = L.layerGroup(polylineArray);
+
+           // Add all polylines to the map
+           polylines.addTo(map);
+
+           // Remove polylines from map
+           //map.removeLayer(polylines);
+			
+			/*L.polyline(polylinePoints,
 			{
 				color: '#174E64',
 				weight: 3,
 				opacity: 0.5,
 				smoothFactor: 1
-			}).addTo(map);
+			}).addTo(map);*/
 			
 			if (mins > 120) {
 				ellapsed = Math.floor(mins / 60) + " hours ago";
@@ -523,6 +548,7 @@ function sysIcon(imcId) {
 	}
 }
 updatePositions();
+//every minute(60000 millis = 1 min)
 setInterval(updatePositions, 60000);
 
 var assets = {};
