@@ -388,12 +388,12 @@ function activeSystem (){
 			//console.log("[imcid,name]: "+[imcid,name]);
 			activeSys.push([imcid,name]);
 			//console.log("val: "+val);
-			console.log("activeSys: "+activeSys[val]);
+			//console.log("activeSys: "+activeSys[val]);
 			$.each(activeSys, function( key, value ) {
 				//console.log(key+" : "+value);
-				console.log(key);
+				//console.log(key);
 				sysData.push(activeSys[val].toString().split(','));
-				console.log(" sysData: "+sysData.length);
+				//console.log(" sysData: "+sysData.length);
 			});
 			
 	  	});
@@ -430,9 +430,12 @@ function updatePositions() {
 			}else{
 				name=sysData[1][1];
 			}
-			
-			for (var i  = 0; i < rows; i++){
-				polylinePoints.push([data[i].lat,data[i].lon]);
+
+			if(val==0){
+				for (var i  = 0; i < rows; i++){
+					polylinePoints.push([data[i].lat,data[i].lon]);
+					console.log("polylinePoints["+i+"]: "+polylinePoints[i]);
+				}
 			}
 			
 			L.polyline(polylinePoints,
