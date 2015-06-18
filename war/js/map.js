@@ -372,6 +372,7 @@ var desiredIcon = new SysIcon({
 L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
 
 var activeSys=[];
+var sysData=[];
 
 activeSystem();
 
@@ -384,7 +385,17 @@ function activeSystem (){
 	      $.each(data, function(val) {
 	    	var imcid = data[val].imcid;
 			var name = data[val].name;
+			//console.log("[imcid,name]: "+[imcid,name]);
 			activeSys.push([imcid,name]);
+			//console.log("val: "+val);
+			console.log("activeSys: "+activeSys[val]);
+			$.each(activeSys, function( key, value ) {
+				//console.log(key+" : "+value);
+				console.log(key);
+				sysData.push(activeSys[val].toString().split(','));
+				console.log(" sysData: "+sysData.length);
+			});
+			
 	  	});
 		}
 	});
@@ -398,6 +409,9 @@ function updatePositions() {
 	    dataType: "json",
 	    success: function(data) {
 	      $.each(data, function(val) {
+	    	//console.log(val.length);
+	    	//console.log(data[val]);
+	    	//console.log(sysData[0][1]);
 			var lat = data[val].lat;
 			var long = data[val].lon;
 			//var name = "active system";
@@ -405,31 +419,28 @@ function updatePositions() {
 			var imc_id = data[val].imc_id;
 			var ic = sysIcon(imc_id);
 			var name = "";
-			//console.log(activeSys[0]);
-			var sysData = new Array();
-			$.each( activeSys, function( key, value ) {
-				sysData[key] = activeSys.toString().split(",");
-				if(sysData[0]==imc_id){
-					name=sysData[1];
-				}
-				//alert( key + ": " + value );
-			});
 			var mins = (new Date() - updated) / 1000 / 60;
 			var ellapsed = Math.floor(mins) + " mins ago";
 			var polylinePoints = [];
 			var cols = [];
 			var rows = data.length;
+			
+			if(sysData[0][0]==imc_id){
+				name=sysData[0][1];
+			}else{
+				name=sysData[1][1];
+			}
+			
 			for (var i  = 0; i < rows; i++){
 				polylinePoints.push([data[i].lat,data[i].lon]);
-				
 			}
+			
 			L.polyline(polylinePoints,
 			{
 				color: '#174E64',
 				weight: 3,
 				opacity: 0.5,
-				smoothFactor: 1,
-				dashArray:"1,9"
+				smoothFactor: 1
 			}).addTo(map);
 			
 			if (mins > 120) {
