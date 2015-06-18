@@ -13,12 +13,9 @@ loadPoi();
 function loadPoi(){
 	var poi_json = $.getJSON( "/poi", function(data) {
 	removeMarkers();
-	console.log( "success" );
 	$.each(data, function(i, item) {
 		
 		pois[item.description] = item;
-		
-		//console.log("POI\n:"+JSON.stringify(item));
 		
     	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
     	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
@@ -48,16 +45,6 @@ function loadPoi(){
     	plotlayers.push(marker);
         record=null;
     });
-	/* test json load methods
-	})
-	.done(function() {
-	console.log( "done" );
-	})
-	.fail(function() {
-	console.log( "error" );
-	})
-	.always(function() {
-	console.log( "complete" );*/
 	});
 };
 
@@ -70,11 +57,9 @@ function removeMarkers() {
 }
 
 setInterval(function(){
-	//alert("update");
 	removeMarkers();
 	loadPoi();
-	//$("#log_alert").text("");
-	}, 60000); // 60000 milliseconds = one minute
+	}, 60000);
 
 function showCoordinates (e) {
     alert(e.latlng);
@@ -93,7 +78,6 @@ function zoomOut (e) {
 }
 
 function editMarker (e) {
-	//alert("show edit popup for "+selectedMarker);
 	console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
 	var lat=pois[selectedMarker].coordinates[0], lng=pois[selectedMarker].coordinates[1];
 	$.msgBox({ type: "prompt",
@@ -371,11 +355,7 @@ var desiredIcon = new SysIcon({
 
 L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
 
-var activeSys=[];
 var nameById={};
-var idByName={};
-
-var sysData=[];
 
 listSystems();
 
@@ -386,16 +366,7 @@ function listSystems (){
 	    dataType: "json",
 	    success: function(data) {
 	      $.each(data, function(val) {
-	    	var imcid = data[val].imcid;
-			var name = data[val].name;
-
-			nameById[imcid] = name;
-			idByName[name] = imcid;
-			
-			activeSys.push([imcid,name]);
-			$.each(activeSys, function( key, value ) {
-				sysData.push(activeSys[val].toString().split(','));
-			});			
+			nameById[data[val].imcid] = data[val].name;
 	  	});
 		}
 	});
@@ -409,40 +380,41 @@ function updatePositions() {
 		url: "api/v1/systems/active",
 		dataType: "json",
 		success: function(data) {
-		$.each(data, function(val) {
-		var coords = data[val].coordinates;
-		var name = data[val].name;
-		var updated = new Date(data[val].updated_at);
-		var ic = sysIcon(data[val].imcid);
-		var mins = (new Date() - updated) / 1000 / 60;
-		var ellapsed = Math.floor(mins) + " mins ago";
-		if (mins > 120) {
-		ellapsed = Math.floor(mins / 60) + " hours ago";
-		}
-		if (mins > 60 * 24 * 2) {
-		ellapsed = Math.floor(mins / 60 / 24) + " days ago";
-		}
-		if (markers[name] == undefined) {
-		updates[name] = updated;
-		markers[name] = L.marker(coords, {
-		icon : ic
-		});
-		markers[name].bindPopup("<b>" + name + "</b><br/>"
-		+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
-		+ "<hr/>" + updated.toLocaleString() + "<br/>("
-		+ ellapsed + ")");
-		markers[name].addTo(map);
-		} else {
-		if (updates[name] <= updated) {
-		markers[name].setLatLng(new L.LatLng(coords[0], coords[1]));
-		markers[name].bindPopup("<b>" + name + "</b><br/>"
-		+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
-		+ "<hr/>" + updated.toLocaleString() + "<br/>("
-		+ ellapsed + ")");
-		updates[name] = updated;
-		}
-		}
-		});
+			$.each(data, function(val) {
+				var coords = data[val].coordinates;
+				var name = data[val].name;
+				var updated = new Date(data[val].updated_at);
+				var ic = sysIcon(data[val].imcid);
+				var mins = (new Date() - updated) / 1000 / 60;
+				var ellapsed = Math.floor(mins) + " mins ago";
+				if (mins > 120) {
+					ellapsed = Math.floor(mins / 60) + " hours ago";
+				}
+				if (mins > 60 * 24 * 2) {
+					ellapsed = Math.floor(mins / 60 / 24) + " days ago";
+				}
+				if (markers[name] == undefined) {
+					updates[name] = updated;
+					markers[name] = L.marker(coords, {
+						icon : ic
+					});
+					markers[name].bindPopup("<b>" + name + "</b><br/>"
+							+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
+							+ "<hr/>" + updated.toLocaleString() + "<br/>("
+							+ ellapsed + ")");
+					markers[name].addTo(map);
+				} else {
+					if (updates[name] <= updated) {
+						markers[name].setLatLng(new L.LatLng(coords[0], coords[1]));
+						markers[name].bindPopup("<b>" + name + "</b><br/>"
+								+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
+								+ "<hr/>" + updated.toLocaleString() + "<br/>("
+								+ ellapsed + ")");
+						updates[name] = updated;
+						addToTail(name, coords[0], coords[1]);
+					}
+				}
+			});
 		}});
 }
 
@@ -556,6 +528,7 @@ ripplesRef.child('assets').on(
 			}
 			
 			addToTail(name, lat, lon);
+			var pos = new L.LatLng(lat, lon);
 			
 			if (markers[name] != undefined) {
 				markers[name].setLatLng(pos);
