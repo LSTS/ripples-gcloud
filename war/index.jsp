@@ -55,7 +55,6 @@
 	  <a href='#' id='logbook-login'>Logbook</a>
 	</nav>
 	<div id="notifications">
-		<div id="notifications-bottom-center"></div>
 		<div id="notifications-bottom-right"></div>
 	</div>
 	<script src="js/index.js"></script>
