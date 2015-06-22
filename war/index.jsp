@@ -21,6 +21,11 @@
 	<link rel="stylesheet" href="css/leaflet.contextmenu.css"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="stylesheet" href="css/index.css"/>
+	
+	<link href="css/animate.css" rel="stylesheet" type="text/css" />
+	<link href="css/animated-notifications.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="js/animated-notifications.js"></script>
+	
 </head>
 <body>
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
@@ -49,8 +54,12 @@
 	  %>
 	  <a href='#' id='logbook-login'>Logbook</a>
 	</nav>
+	<div id="notifications">
+		<div id="notifications-bottom-center"></div>
+		<div id="notifications-bottom-right"></div>
+	</div>
 	<script src="js/index.js"></script>
-	<div id="map"></div>
+	<div id="map"></div>	
 	<script src="js/L.Control.Locate.min.js"></script>
 	<script src="js/KML.js"></script>			
 	<script src="js/leaflet.contextmenu.js"></script>	

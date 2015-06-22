@@ -87,11 +87,19 @@ body {
 	padding-left: 20px;
 }
 #notifications {
-	float: left;
+	/*float: left;
 	width: 100%;
 	overflow: hidden;
-	height: 100%;
-	position: relative;
+	position: absolute;
+	z-index:1;*/
+	bottom: 10px;
+    float: left;
+    height: 130px;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    width: 400px;
+    z-index: 1;
 }
 #notifications-background {
 	float: left;
