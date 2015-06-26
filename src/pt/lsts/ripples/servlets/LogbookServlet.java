@@ -277,10 +277,14 @@ public class LogbookServlet extends HttpServlet {
 			MissionLog log = new MissionLog();
 			MissionLog existing = Store.ofy().load().type(MissionLog.class)
 					.id(log.date).now();
+			
+				
 			ArrayList<LogEntry> entries = new ArrayList<LogEntry>();
-			for (LogEntry le : existing.log) {
-				if (System.currentTimeMillis() - le.timestamp < 60000) {
-					entries.add(le);
+			if (existing != null) {
+				for (LogEntry le : existing.log) {
+					if (System.currentTimeMillis() - le.timestamp < 60000) {
+						entries.add(le);
+					}
 				}
 			}
 			resp.setContentType("application/json");
