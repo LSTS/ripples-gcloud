@@ -33,15 +33,13 @@ public class LogbookServlet extends HttpServlet {
 			return;
 		}
 		
-		
-
 		MissionLog log = getLogBook(req);
 
 		if (log == null) {
 			resp.sendError(400, "Logbook does not exist.");
 			return;
 		}
-
+		
 		if (req.getPathInfo().split("/").length > 2) {
 			String member = req.getPathInfo().split("/")[2].toLowerCase();
 			int indexToDelete = -1;
@@ -55,8 +53,8 @@ public class LogbookServlet extends HttpServlet {
 				}
 			}
 
-			System.out.println(indexToDelete + ", " + member);
-
+			req.setCharacterEncoding("UTF-8");
+			
 			switch (member) {
 			case "place":
 				try {
@@ -77,7 +75,6 @@ public class LogbookServlet extends HttpServlet {
 				}
 				break;
 			case "systems":
-				System.out.println(indexToDelete);
 				if (indexToDelete >= 0) {
 					try {
 						log.systems.remove(log.systems.toArray()[indexToDelete]);
@@ -226,7 +223,6 @@ public class LogbookServlet extends HttpServlet {
 
 		Store.ofy().save().entity(log);
 
-		System.out.println(log.asJson());
 		resp.setContentType("application/json");
 		resp.getWriter().write(log.asJson());
 		resp.getWriter().close();
@@ -317,17 +313,20 @@ public class LogbookServlet extends HttpServlet {
 				
 				switch (extension) {
 				case "html":
-					resp.setContentType("text/html");
+					resp.setContentType("text/html; charset=utf-8");
+					resp.setCharacterEncoding("UTF-8");
 					resp.getOutputStream().write(log.asHtml().getBytes(Charset.forName("UTF-8")));
 					resp.getOutputStream().close();
 					break;
 				case "md":
-					resp.setContentType("text/plain");
+					resp.setContentType("text/plain; charset=utf-8");
+					resp.setCharacterEncoding("UTF-8");
 					resp.getWriter().write(log.asMarkDown());
 					resp.getWriter().close();
 					break;
 				default:
-					resp.setContentType("application/json");
+					resp.setContentType("application/json; charset=utf-8");
+					resp.setCharacterEncoding("UTF-8");
 					resp.getWriter().write(log.asJson());
 					resp.getWriter().close();
 					break;
