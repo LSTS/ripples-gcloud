@@ -1,4 +1,5 @@
-var log_entry = {};
+var log_author = {};
+var log_text = {};
 
 $(window).load(function () {
 	
@@ -12,48 +13,50 @@ $('.close').click(function(){$(this).parent().fadeOut(200);});
 refresh_close();
 
 function loadData(){
-	var d = new Date();
-	var month = d.getMonth() + 1;
-	var day = d.getDate();
-	var date = d.getFullYear() + '-'
-			+ (month < 10 ? '0' : '') + month + '-'
-			+ (day < 10 ? '0' : '') + day;
-	var path = "/logbook/" +date+".json";
+	var path = "/logbook/rt";
 	
 	var log_entry_json = $.getJSON(path, function(data) {
 		$.each(data, function(i, item) {
-			log_entry[item.log] = item;
-			console.log("log_entry["+i+"]: "+log_entry[item.log]);
+
+			log_author[i]=item.author;
+			log_text[i] = item.text;
+			
+			if(log_author[i]!="" || log_text[i]!=""){
+				var note = new Notification();
+				note.init("log_popup_"+i,log_author[i],log_text[i]);
+			}
+			
 		});
-	});	
+	});
 }
 loadData();
 
+/*Check every minute new log entries to create notifications popups*/
+setInterval(loadData,60000);
+
 var Notification = function(){};
 Notification.prototype = {
-	  init: function(widget_name){
+	  init: function(widget_name, author, text){
 
 	    this.widget_name = widget_name;
-	    console.log("name: "+widget_name);
 	    
-	    var bottom_center = '<div id='+widget_name+' class="notifications-bottom-right-tab"><div id="notifications-bottom-right-tab-close" class="close"><span>x</span></div><div id="notifications-bottom-right-tab-avatar"><img src="images/logo_hub.png" width="84" height="60" /></div><div id="notifications-bottom-right-tab-right"><div id="notifications-bottom-right-tab-right-title"><span>Ripples '+widget_name+'</span> sent you a message</div><div id="notifications-bottom-right-tab-right-text">This is a sample notification that <br> will appear the right bottom corner.</div></div></div>';
+	    var bottom_center = '<div id='+widget_name+' class="notifications-bottom-right-tab">'+
+	    '<div id="notifications-bottom-right-tab-close" class="close"><span>x</span></div>'+
+	    '<a href="/log.jsp"><div id="notifications-bottom-right-tab-avatar"><img src="images/logo_hub.png" '+
+	    'width="84" height="60" /></div><div id="notifications-bottom-right-tab-right">'+
+	    '<div id="notifications-bottom-right-tab-right-title">entry from <span>'+author+'</span>'+
+	    '</div><div id="notifications-bottom-right-tab-right-text">'+text+'</div></a></div></div>';
 	    
 	    $("#notifications-bottom-right").html();
 	    $("#notifications-bottom-right").append(bottom_center);
-	    //$("#notifications-bottom-right").html('<div id="x" style="width:100x;height:10px;background-color:red"></div>');
 	    $("#"+widget_name).addClass('animated bounceInRight');
 	    refresh_close();
-	    setTimeout(function(self){self.fadeOutUp(widget_name)}, 3000, this);
+	    setTimeout(function(self){self.fadeOutUp(widget_name)}, 10000, this);
 	  },
 
 	  fadeOutUp: function(widget_name) {
-		  //console.log("#"+widget_name);
 		  $("#"+widget_name).removeClass('animated bounceInRight').addClass('animated fadeOutUp');
-		  console.log("fadeOutUp");
 	  }
 	};
-
-var note = new Notification();
-note.init("z");
 
 });
