@@ -264,7 +264,7 @@ public class LogbookServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
-		if (req.getPathInfo() == null) {
+		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
 			listLogs(req, resp);
 			resp.getWriter().close();
 			return;
