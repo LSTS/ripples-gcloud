@@ -2,6 +2,7 @@ package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,6 +15,7 @@ import pt.lsts.ripples.model.log.ActionItem;
 import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -266,12 +268,27 @@ public class LogbookServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
-		if (req.getPathInfo() == null
-				|| req.getPathInfo().split("/").length < 2) {
+		if (req.getPathInfo() == null) {
 			listLogs(req, resp);
 			resp.getWriter().close();
 			return;
-		} else {
+		}
+		else if (req.getPathInfo().equals("/rt")) {
+			MissionLog log = new MissionLog();
+			MissionLog existing = Store.ofy().load().type(MissionLog.class)
+					.id(log.date).now();
+			ArrayList<LogEntry> entries = new ArrayList<LogEntry>();
+			for (LogEntry le : existing.log) {
+				if (System.currentTimeMillis() - le.timestamp < 60000) {
+					entries.add(le);
+				}
+			}
+			resp.setContentType("application/json");
+			resp.getWriter().write(new Gson().toJson(entries));
+			resp.getWriter().close();
+			return;
+		} 
+		else if (req.getPathInfo().split("/").length >= 2) {
 			String[] pathParts = req.getPathInfo().split("[/\\.]+");
 
 			if (pathParts[1].equals("create")) {
