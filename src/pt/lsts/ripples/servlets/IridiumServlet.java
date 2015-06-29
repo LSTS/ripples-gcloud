@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,12 +16,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.iridium.ImcIridiumMessage;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.util.IridiumUtils;
 
@@ -186,6 +192,14 @@ public class IridiumServlet extends HttpServlet {
 			resp.getWriter().close();
 		} else {
 			try {
+
+				if (req.getPathInfo().substring(1).equals("messages.html")) {
+					resp.setContentType("text/html");
+					resp.getWriter().write(table());
+					resp.getWriter().close();
+					return;
+				}
+
 				Long l = Long.parseLong(req.getPathInfo().substring(1));
 				HubIridiumMsg msg = Store.ofy().load()
 						.type(HubIridiumMsg.class).id(l).now();
@@ -207,6 +221,60 @@ public class IridiumServlet extends HttpServlet {
 				resp.getWriter().close();
 			}
 		}
+	}
+
+	IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
+	
+	private String table() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		Date start = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
+		List<HubIridiumMsg> msgs = Store.ofy().load().type(HubIridiumMsg.class)
+				.filter("updated_at >= ", start)
+				.order("updated_at").list();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		sb.append("<html>\n<body>\n<table border=1><tr><th>Date</th><th>Type</th><th>Source</th><th>Destination</th><th>Data</th></tr>\n");
+
+		for (int i = 0; i < msgs.size(); i++) {
+
+			HubIridiumMsg m = msgs.get(i);
+
+			IridiumMessage msg = IridiumMessage
+					.deserialize(new HexBinaryAdapter().unmarshal(m.getMsg()));
+			
+			String type = msg.getClass().getSimpleName();
+			
+			if (msg instanceof ImcIridiumMessage) {
+				IMCMessage imcm = ((ImcIridiumMessage)msg).getMsg();
+				if (imcm instanceof MessagePart) {
+					MessagePart part = (MessagePart)imcm;
+					
+					IMCMessage result = handler.setFragment((MessagePart) imcm);
+					if (result != null)
+						type += " (part " + (1 + part.getFragNumber()) + "/"
+								+ part.getNumFrags() + ": "
+								+ result.getAbbrev() + ")";
+					else
+						type += " (part " + (1 + part.getFragNumber()) + "/"
+								+ part.getNumFrags() + ")";
+				}
+				else 
+					type += " ("+imcm.getAbbrev()+")";
+			}
+			int dst = msg.getDestination();
+			int src = msg.getSource();
+
+			String date = sdf.format(m.getCreated_at());
+			
+			String source = IMCDefinition.getInstance().getResolver().resolve(src);
+			String dest = IMCDefinition.getInstance().getResolver().resolve(dst);
+			String data = "<a href='"+m.getId()+"'>Data</a>";
+			sb.append("<tr><td>"+date+"</td><td>"+type+"</td><td>"+source+"</td><td>"+dest+"</td><td>"+data+"</td></tr>\n");
+
+		}
+		sb.append("</table>\n</body></html>\n");
+		return sb.toString();
 	}
 
 	public static void main(String[] args) throws Exception {
