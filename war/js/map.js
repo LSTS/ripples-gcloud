@@ -244,8 +244,8 @@ var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/
 var osmLayer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 23, attribution: 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'});
 
 var map = L.map('map', {
-    center: [ 41.185356, -8.704898 ],
-    zoom: 13,
+    center: [ 38.49874, -28.41476 ],
+    zoom: 11,
     layers: [osmLayer],
     contextmenu: true,
     contextmenuWidth: 140,
