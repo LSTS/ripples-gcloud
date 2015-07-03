@@ -25,12 +25,11 @@ function loadData(){
 				var note = new Notification();
 				note.init("log_popup_"+i,log_author[i],log_text[i]);
 			}
-			
 		});
 	});
 }
 loadData();
-
+$("#notifications").hide();
 /*Check every minute new log entries to create notifications popups*/
 setInterval(loadData,60000);
 
@@ -51,11 +50,20 @@ Notification.prototype = {
 	    $("#notifications-bottom-right").append(bottom_center);
 	    $("#"+widget_name).addClass('animated bounceInRight');
 	    refresh_close();
+	    
+	    if($("#notifications").css('display')=='none'){
+	    	$("#notifications").show();
+	    }
+	    
 	    setTimeout(function(self){self.fadeOutUp(widget_name)}, 10000, this);
 	  },
 
 	  fadeOutUp: function(widget_name) {
 		  $("#"+widget_name).removeClass('animated bounceInRight').addClass('animated fadeOutUp');
+		  
+		  if($("#notifications").css('display')=='block'){
+			  $("#notifications").hide();
+		  }
 	  }
 	};
 
