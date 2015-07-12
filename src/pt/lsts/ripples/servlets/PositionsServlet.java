@@ -109,7 +109,7 @@ public class PositionsServlet extends HttpServlet {
 		}
 		// log at most 1 position every 1 seconds
 		else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000) {
-			Logger.getLogger(PositionsServlet.class.getName()).log(Level.FINE,
+			Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
 					"Already have an up to date position for " + pos.imc_id);
 			return;
 		}
