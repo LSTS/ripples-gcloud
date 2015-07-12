@@ -78,6 +78,8 @@ public class UpdateFirebaseServlet extends HttpServlet {
 					sys.setName(asset.getKey());
 					sys.setCreated_at(new Date(updated_at));				
 				}
+				else if (sys.getUpdated_at().after(new Date(updated_at)))
+					return;
 				sys.setUpdated_at(new Date(updated_at));
 				sys.setCoordinates(new double[] { latDegs, lonDegs });
 				Store.ofy().save().entity(sys);

@@ -88,11 +88,14 @@ public class PositionsServlet extends HttpServlet {
 						.resolve((int) pos.imc_id));
 			sys.setCreated_at(new Date());
 		}
+		
+		System.out.println("Updating "+sys.getName()+" to "+pos.timestamp);
+		
 		sys.setUpdated_at(pos.timestamp);
 		sys.setCoordinates(new double[] { pos.lat,
 				pos.lon });
 
-		Store.ofy().save().entity(sys);
+		Store.ofy().save().entity(sys).now();
 		
 		SystemPosition existing = Store.ofy().load().type(SystemPosition.class)
 				.filter("imc_id", pos.imc_id)
@@ -101,22 +104,15 @@ public class PositionsServlet extends HttpServlet {
 			Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
 					"First position for " + pos.imc_id);
 		}
-		else if (existing.timestamp.getTime() > pos.timestamp.getTime()) {
-			Logger.getLogger(PositionsServlet.class.getName()).log(
-					Level.WARNING,
-					"Already have a more updated position for " + pos.imc_id);
-			return;
-		}
-		// log at most 1 position every 1 seconds
-		else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000) {
-			Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
-					"Already have an up to date position for " + pos.imc_id);
-			return;
-		}
+		//else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000) {
+		//	Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
+		//			"Already have an up to date position for " + pos.imc_id);
+		//	return;
+		//}
 		Logger.getLogger(PositionsServlet.class.getName()).log(
 				Level.INFO,
 				"Storing " + pos.imc_id);
 		
-		Store.ofy().save().entity(pos);		
+		Store.ofy().save().entity(pos).now();
 	}
 }

@@ -134,7 +134,7 @@ public class IridiumServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
-		if (req.getPathInfo().toUpperCase().contains("UNSUBSCRIBE")) {
+		if ((""+req.getPathInfo()).toUpperCase().contains("UNSUBSCRIBE")) {
 			resp.setContentType("text/html");
 			resp.setStatus(200);
 			
