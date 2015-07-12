@@ -70,13 +70,13 @@ public class Rock7Servlet extends HttpServlet {
 				}
 				
 				String destImei = IridiumUtils.getIMEI(msg.destination);
-				if (destImei != null) {
-					Logger.getLogger(getClass().getName()).log(Level.INFO, "Forwarding iridium message to "+msg.getDestination());
+				if (msg.destination != 65535 && destImei != null) {
+					Logger.getLogger(getClass().getName()).log(Level.INFO, " Forwarding "+msg.getClass().getSimpleName()+" to "+destImei);
 					Pair<Integer, String> res = IridiumUtils.sendviaRockBlock(destImei, msg.serialize());
 					if (res.getFirst() > 299) {
-						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error "+res.getFirst()+" orwarding message to "+msg.getDestination()+": "+res.getSecond());
-					}
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error "+res.getFirst()+" forwarding "+msg.getClass().getSimpleName()+" to "+msg.getDestination()+": "+res.getSecond());
 					resp.setStatus(res.getFirst());
+					}
 					resp.getWriter().write(res.getSecond());
 					resp.getWriter().close();
 					return;
@@ -85,6 +85,8 @@ public class Rock7Servlet extends HttpServlet {
 					IridiumUpdatesServlet.sendToSubscribers(msg);
 				}
 			}
+			else
+				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received empty message from RockBlock");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

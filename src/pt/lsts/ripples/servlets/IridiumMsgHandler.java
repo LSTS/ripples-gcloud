@@ -53,7 +53,7 @@ public class IridiumMsgHandler {
 	public static void on(DeviceUpdate devUpdate) {
 		Logger.getLogger(IridiumMsgHandler.class.getName()).info("Handling DeviceUpdate");
 		try {
-			for (Position p : devUpdate.getPositions().values())
+			for (Position p : devUpdate.getPositions().values()) 
 				setPosition(p);
 		} catch (Exception e) {
 			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.WARNING,

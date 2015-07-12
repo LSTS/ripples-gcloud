@@ -51,11 +51,17 @@ public class IridiumUpdatesServlet extends HttpServlet {
 		List<IridiumSubscription> subscribers = Store.ofy().load().type(IridiumSubscription.class).list();
 		int count = 0;
 		for (IridiumSubscription s : subscribers) {
-			// do not send to self
 			if (!s.imei.equals(imei)) {
+				Logger.getLogger(IridiumUpdatesServlet.class.getName()).log(Level.INFO, "Forwarding "+msg.getClass().getSimpleName()+" to "+s.imei);
 				IridiumUtils.sendviaRockBlock(s.imei, msg.serialize());
 				count++;
 			}
+			else {
+				Logger.getLogger(IridiumUpdatesServlet.class.getName()).log(Level.INFO, "Not forwarding Iridium message to "+s.imei+" because source is the same");
+				
+				Logger.getGlobal().log(Level.WARNING, "Not forwarding Iridium message to "+s.imei+" because source is the same");	
+			}
+			
 		}		
 		return count;
 	}

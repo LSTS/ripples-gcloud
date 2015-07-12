@@ -23,6 +23,7 @@ import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubIridiumMsg;
+import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.iridium.ImcIridiumMessage;
@@ -133,6 +134,21 @@ public class IridiumServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
+		if (req.getPathInfo().toUpperCase().contains("UNSUBSCRIBE")) {
+			resp.setContentType("text/html");
+			resp.setStatus(200);
+			
+			List<IridiumSubscription> subscribers = Store.ofy().load().type(IridiumSubscription.class).list();
+			for (IridiumSubscription s : subscribers) {
+				Store.ofy().delete().entity(s).now();
+				Logger.getGlobal().log(Level.INFO, "Removed subscription from "+s.subscriberId);
+			}
+			
+			resp.getWriter().write("UNSUBSCRIBED.");
+			resp.getWriter().close();
+			return;
+		}
+		
 		String since = req.getParameter("since");
 		String id = req.getParameter("id");
 		String data = req.getParameter("data");
@@ -168,7 +184,7 @@ public class IridiumServlet extends HttpServlet {
 			}
 		}
 		resp.setContentType("application/json");
-		Date start = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
+		Date start = new Date(System.currentTimeMillis() - 1000 * 3600 * 72);
 
 		if (since != null) {
 			try {
@@ -227,7 +243,7 @@ public class IridiumServlet extends HttpServlet {
 	
 	private String table() throws Exception {
 		StringBuilder sb = new StringBuilder();
-		Date start = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
+		Date start = new Date(System.currentTimeMillis() - 1000 * 3600 * 72);
 		List<HubIridiumMsg> msgs = Store.ofy().load().type(HubIridiumMsg.class)
 				.filter("updated_at >= ", start)
 				.order("updated_at").list();
@@ -273,14 +289,19 @@ public class IridiumServlet extends HttpServlet {
 			sb.append("<tr><td>"+date+"</td><td>"+type+"</td><td>"+source+"</td><td>"+dest+"</td><td>"+data+"</td></tr>\n");
 
 		}
-		sb.append("</table>\n</body></html>\n");
+		sb.append("</table>\n");
+		List<IridiumSubscription> subscribers = Store.ofy().load().type(IridiumSubscription.class).list();
+		for (IridiumSubscription s : subscribers)
+			sb.append("<h2>Iridium Subscriber: "+s.imei+"</h2>\n");
+		
+		sb.append("</body></html>\n");
 		return sb.toString();
 	}
 
 	public static void main(String[] args) throws Exception {
-		String dstr = "0e411e00da076d03dc9d5354510002fd0054fe2f026e01fed42077e714d541000000ffffff000000000200733101002702020073310000000000000500476f746f31030028020500476f746f31c20110274e8e003a7300e73f6937343e8973c3bf0000004001000061440100000000000000000000000000000000000000000000000000000000000028020500476f746f32c2011027f68816ad6200e73f47d3104eef72c3bf0000004001000061440100000000000000000000000000000000000000000000000000000100240303004c424c010021030600416374697665050066616c7365000028020f0053746174696f6e4b656570696e6731cd0171472e327f00e73fa5f80085ee72c3bf00";
+		String dstr = "12801f00da076d03fabc9f5540020308003030303030305165";
 		IridiumMessage msg = IridiumMessage.deserialize(new HexBinaryAdapter()
 		.unmarshal(dstr));
-		System.out.println(msg);
+		System.out.println(msg.getSource());
 	}
 }

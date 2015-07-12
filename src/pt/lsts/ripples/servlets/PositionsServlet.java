@@ -114,7 +114,7 @@ public class PositionsServlet extends HttpServlet {
 			return;
 		}
 		Logger.getLogger(PositionsServlet.class.getName()).log(
-				Level.FINE,
+				Level.INFO,
 				"Storing " + pos.imc_id);
 		
 		Store.ofy().save().entity(pos);		
