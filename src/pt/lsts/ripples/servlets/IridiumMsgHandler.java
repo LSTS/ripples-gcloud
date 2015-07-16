@@ -1,5 +1,6 @@
 package pt.lsts.ripples.servlets;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -7,6 +8,8 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.LogBookEntry;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
@@ -14,8 +17,11 @@ import pt.lsts.ripples.model.iridium.ActivateSubscription;
 import pt.lsts.ripples.model.iridium.DeactivateSubscription;
 import pt.lsts.ripples.model.iridium.DeviceUpdate;
 import pt.lsts.ripples.model.iridium.ExtendedDeviceUpdate;
+import pt.lsts.ripples.model.iridium.ImcIridiumMessage;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.model.iridium.Position;
+import pt.lsts.ripples.model.log.LogEntry;
+import pt.lsts.ripples.model.log.MissionLog;
 
 public class IridiumMsgHandler {
 
@@ -34,6 +40,9 @@ public class IridiumMsgHandler {
 		case IridiumMessage.TYPE_DEACTIVATE_SUBSCRIPTION:
 			on((DeactivateSubscription)msg);
 			break;
+		case IridiumMessage.TYPE_IMC_IRIDIUM_MESSAGE:
+			on((ImcIridiumMessage)msg);			
+			break;
 		default:
 			break;
 		}
@@ -48,6 +57,31 @@ public class IridiumMsgHandler {
 //				Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.SEVERE, "Error posting to Firebase", e);
 //			}
 //		}			
+	}
+	
+	public static  void on(ImcIridiumMessage msg) {
+		IMCMessage m = msg.getMsg();
+		switch (m.getMgid()) {
+		case LogBookEntry.ID_STATIC:
+			addLogEntry((LogBookEntry)m);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private static void addLogEntry(LogBookEntry entry) {
+		String date = new SimpleDateFormat("YYYY-MM-dd").format(new Date());
+		MissionLog l = Store.ofy().load().type(MissionLog.class).id(date).now();
+		if (l == null)
+			l = new MissionLog();
+		
+		LogEntry e = new LogEntry();
+		e.author = entry.getSourceName();
+		e.text = entry.getText();
+		e.timestamp = entry.getTimestampMillis();
+		l.log.add(e);
+		Store.ofy().save().entity(l).now();
 	}
 
 	public static void on(DeviceUpdate devUpdate) {
