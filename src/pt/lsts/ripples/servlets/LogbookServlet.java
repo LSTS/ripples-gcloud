@@ -113,9 +113,9 @@ public class LogbookServlet extends HttpServlet {
 					if (elem.isJsonPrimitive()){
 						String[] elems = new String[] {elem.getAsString()};
 						if (elems[0].contains(","))
-							elems = elems[0].split("[, ]+");
+							elems = elems[0].split(",");
 						for (String e : elems)
-							log.team.add(e);	
+							log.team.add(e.trim());	
 					}						
 					else {
 						resp.sendError(400,
