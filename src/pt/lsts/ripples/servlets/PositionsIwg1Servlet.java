@@ -1,7 +1,6 @@
 package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,9 +32,7 @@ public class PositionsIwg1Servlet extends HttpServlet {
 	// http://hub.lsts.pt/api/v1/csvTag/<day>
 	private static final SimpleDateFormat dayFormat = new SimpleDateFormat(
 			"yyyy-MM-dd") {{ setTimeZone(TimeZone.getTimeZone("UTC")); }};
-	private static DateFormat timeFormat = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss") {{ setTimeZone(TimeZone.getTimeZone("UTC")); }};
-
+			
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -44,10 +41,9 @@ public class PositionsIwg1Servlet extends HttpServlet {
 		    String systemStr = null;
 		    String pInfo = req.getPathInfo();
 		    String[] splitLst = pInfo == null ? new String[0] : req.getPathInfo().split("[/\\.]+");
-            String day;
+            
 		    if (splitLst.length < 1) {
-		        day = dayFormat.format(new Date(System.currentTimeMillis()));
-	            listSystems(req, resp);
+		        listSystems(req, resp);
 	            return;
 		    }
 		    else {
@@ -245,7 +241,7 @@ public class PositionsIwg1Servlet extends HttpServlet {
     /**
      * Retrieve a specific system (provided on the path)
      */
-    private void getSystem(String system, HttpServletRequest req,
+    public void getSystem(String system, HttpServletRequest req,
             HttpServletResponse resp) throws IOException {
 
         if (system.equals("active"))
