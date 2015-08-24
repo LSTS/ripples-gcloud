@@ -310,18 +310,18 @@ function addMarker(e) {
 
 var hybrid = L
 		.tileLayer(
-				'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
+				'http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
 				{
-					maxZoom : 22,
-					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
+					maxZoom : 16,
+					attribution : 'Map data &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
 					id : 'examples.map-i875mjb7'
 				});
 
 var streets = L
 		.tileLayer(
-				'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
+				'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
 				{
-					maxZoom : 22,
+					maxZoom : 18,
 					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
 					id : 'examples.map-20v6611k'
 				});
