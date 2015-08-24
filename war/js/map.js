@@ -4,278 +4,391 @@ var pois = {};
 var plans = {};
 var tails = {};
 var map, marker;
-var plotlayers=[];
+var plotlayers = [];
 var selectedMarker;
 
-$.ajaxSetup({ cache: false });
+var isMobile = {
+	Android : function() {
+		return navigator.userAgent.match(/Android/i);
+	},
+	BlackBerry : function() {
+		return navigator.userAgent.match(/BlackBerry/i);
+	},
+	iOS : function() {
+		return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+	},
+	Opera : function() {
+		return navigator.userAgent.match(/Opera Mini/i);
+	},
+	Windows : function() {
+		return navigator.userAgent.match(/IEMobile/i)
+				|| navigator.userAgent.match(/WPDesktop/i);
+	},
+	any : function() {
+		return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS()
+				|| isMobile.Opera() || isMobile.Windows());
+	}
+};
+
+if (isMobile.any()) {
+	alert('Mobile');
+}/* else {
+	alert('PC');
+}*/
+
+$.ajaxSetup({
+	cache : false
+});
 loadPoi();
 
-function loadPoi(){
-	var poi_json = $.getJSON( "/poi", function(data) {
-	removeMarkers();
-	$.each(data, function(i, item) {
-		
-		pois[item.description] = item;
-		
-    	var record = {"author": item.author, "description": item.description,"coordinates": [item.coordinates[0], item.coordinates[1]] };
-    	marker = new L.marker([item.coordinates[0],item.coordinates[1]],{
-    		title: item.description,
-    	    contextmenu: true,
-    	    contextmenuItems: [{
-    	    	text: 'Edit Marker',
-    	    	icon: 'images/edit.png',
-    	    	callback: editMarker,
-    	    	index: 0
-    	    	}, {
-    	    	separator: true,
-    	    	index: 1
-    	    	}]});
-    	map.addLayer(marker);
-    	marker.bindPopup(item.description);
-    	marker.on('mouseover', function (e) {
-            this.openPopup();
-        });
-        marker.on('mouseout', function (e) {
-            this.closePopup();
-        });
-        marker.on('contextmenu', function (e) {
-        	//console.log('contextmenu: '+e.target.options.title);
-        	selectedMarker = e.target.options.title;
-        });
-    	plotlayers.push(marker);
-        record=null;
-    });
+function loadPoi() {
+	var poi_json = $.getJSON("/poi", function(data) {
+		removeMarkers();
+		$.each(data, function(i, item) {
+
+			pois[item.description] = item;
+
+			var record = {
+				"author" : item.author,
+				"description" : item.description,
+				"coordinates" : [ item.coordinates[0], item.coordinates[1] ]
+			};
+			marker = new L.marker([ item.coordinates[0], item.coordinates[1] ],
+					{
+						title : item.description,
+						contextmenu : true,
+						contextmenuItems : [ {
+							text : 'Edit Marker',
+							icon : 'images/edit.png',
+							callback : editMarker,
+							index : 0
+						}, {
+							separator : true,
+							index : 1
+						} ]
+					});
+			map.addLayer(marker);
+			marker.bindPopup(item.description);
+			marker.on('mouseover', function(e) {
+				this.openPopup();
+			});
+			marker.on('mouseout', function(e) {
+				this.closePopup();
+			});
+			marker.on('contextmenu', function(e) {
+				// console.log('contextmenu: '+e.target.options.title);
+				selectedMarker = e.target.options.title;
+			});
+			plotlayers.push(marker);
+			record = null;
+		});
 	});
 };
 
 function removeMarkers() {
-	for (i=0;i<plotlayers.length;i++) {
+	for (i = 0; i < plotlayers.length; i++) {
 		map.removeLayer(plotlayers[i]);
 	}
-	plotlayers=[];
-	pois =  {};
+	plotlayers = [];
+	pois = {};
 }
 
-setInterval(function(){
+setInterval(function() {
 	removeMarkers();
 	loadPoi();
-	}, 60000);
+}, 60000);
 
-function showCoordinates (e) {
-    alert(e.latlng);
+function showCoordinates(e) {
+	alert(e.latlng);
 }
 
-function centerMap (e) {
-    map.panTo(e.latlng);
+function centerMap(e) {
+	map.panTo(e.latlng);
 }
 
-function zoomIn (e) {
-    map.zoomIn();
+function zoomIn(e) {
+	map.zoomIn();
 }
 
-function zoomOut (e) {
-    map.zoomOut();
+function zoomOut(e) {
+	map.zoomOut();
 }
 
-function editMarker (e) {
-	console.log("props for marker: "+JSON.stringify(pois[selectedMarker]));
-	var lat=pois[selectedMarker].coordinates[0], lng=pois[selectedMarker].coordinates[1];
-	$.msgBox({ type: "prompt",
-		title: "Update Point of Interest",
-		inputs: [
-		{ header: "Description:", type: "text", name: "description_text", value: pois[selectedMarker].description }],
-		buttons: [
-		{ value: "Ok" }, {value:"Cancel"}],
-		success: function (result, values) {
-    		if (result == "Ok") {
-    			//check if the form inputs are empty on submit
-				if($('input[name=description_text]').val() != ''){
-				var val = {"author": $("#log_user").text(), "description": $('input[name=description_text]').val(),"coordinates": [lat, lng] };
-	    	$.ajax({
-	            url : '/poi',
-	            dataType: 'json',
-	            type: 'POST',
-	            method: 'POST',
-	            contentType: 'application/json',
-	            async:true,
-	            crossDomain: true,
-	            data : JSON.stringify(val),
-	            cache: false,
-	            success: function( data, textStatus, jQxhr ){
-	            	//console.log(data);
-	            	pois[data.description] = data;
-	            	
-	            	console.log("POI\n:"+JSON.stringify(data));
-	            	 //alert("Point of interest inserted.");
-	            	marker = new L.marker([lat,lng],{
-	            		title:data.description,
-	            	    contextmenu: true,
-	            	    contextmenuItems: [{
-	            	    	text: 'Edit Marker',
-	            	    	icon: 'images/edit.png',
-	            	    	callback: editMarker,
-	            	    	index: 0
-	            	    	}, {
-	            	    	separator: true,
-	            	    	index: 1
-	            	    	}]}).bindPopup($('input[name=description_text]').val());
-	            	map.addLayer(marker);
-	            	marker.on('mouseover', function (e) {
-	                    this.openPopup();
-	                });
-	                marker.on('mouseout', function (e) {
-	                    this.closePopup();
-	                });
-	                marker.on('contextmenu', function (e) {
-	                	//console.log('contextmenu: '+e.target.options.title);
-	                	selectedMarker = e.target.options.title;
-	                });
-	            	plotlayers.push(marker);
-	            	val=null;
-	            },
-	            error: function( jqXhr, textStatus, errorThrown ){
-	                console.log( errorThrown );
-	            }
-	        });
-				} else {
-					alert("empty field.");
+function editMarker(e) {
+	console.log("props for marker: " + JSON.stringify(pois[selectedMarker]));
+	var lat = pois[selectedMarker].coordinates[0], lng = pois[selectedMarker].coordinates[1];
+	$
+			.msgBox({
+				type : "prompt",
+				title : "Update Point of Interest",
+				inputs : [ {
+					header : "Description:",
+					type : "text",
+					name : "description_text",
+					value : pois[selectedMarker].description
+				} ],
+				buttons : [ {
+					value : "Ok"
+				}, {
+					value : "Cancel"
+				} ],
+				success : function(result, values) {
+					if (result == "Ok") {
+						// check if the form inputs are empty on submit
+						if ($('input[name=description_text]').val() != '') {
+							var val = {
+								"author" : $("#log_user").text(),
+								"description" : $(
+										'input[name=description_text]').val(),
+								"coordinates" : [ lat, lng ]
+							};
+							$
+									.ajax({
+										url : '/poi',
+										dataType : 'json',
+										type : 'POST',
+										method : 'POST',
+										contentType : 'application/json',
+										async : true,
+										crossDomain : true,
+										data : JSON.stringify(val),
+										cache : false,
+										success : function(data, textStatus,
+												jQxhr) {
+											// console.log(data);
+											pois[data.description] = data;
+
+											console.log("POI\n:"
+													+ JSON.stringify(data));
+											// alert("Point of interest
+											// inserted.");
+											marker = new L.marker(
+													[ lat, lng ],
+													{
+														title : data.description,
+														contextmenu : true,
+														contextmenuItems : [
+																{
+																	text : 'Edit Marker',
+																	icon : 'images/edit.png',
+																	callback : editMarker,
+																	index : 0
+																},
+																{
+																	separator : true,
+																	index : 1
+																} ]
+													})
+													.bindPopup($(
+															'input[name=description_text]')
+															.val());
+											map.addLayer(marker);
+											marker.on('mouseover', function(e) {
+												this.openPopup();
+											});
+											marker.on('mouseout', function(e) {
+												this.closePopup();
+											});
+											marker
+													.on(
+															'contextmenu',
+															function(e) {
+																// console.log('contextmenu:
+																// '+e.target.options.title);
+																selectedMarker = e.target.options.title;
+															});
+											plotlayers.push(marker);
+											val = null;
+										},
+										error : function(jqXhr, textStatus,
+												errorThrown) {
+											console.log(errorThrown);
+										}
+									});
+						} else {
+							alert("empty field.");
+						}
 					}
-			}
-			//alert(v);
-		}
-		});
+					// alert(v);
+				}
+			});
 }
 
-function addMarker (e) {
+function addMarker(e) {
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
-	$.msgBox({ type: "prompt",
-		title: "Insert Point of Interest",
-		inputs: [
-		{ header: "Description:", type: "text", name: "description_text" }],
-		buttons: [
-		{ value: "Ok" }, {value:"Cancel"}],
-		success: function (result, values) {
-    		if (result == "Ok") {
-    			//check if the form inputs are empty on submit
-				if($('input[name=description_text]').val() != ''){
-				var val = {"author": $("#log_user").text(), "description": $('input[name=description_text]').val(),"coordinates": [lat, lng] };
-	    	$.ajax({
-	            url : '/poi',
-	            dataType: 'json',
-	            type: 'POST',
-	            method: 'POST',
-	            contentType: 'application/json',
-	            async:true,
-	            crossDomain: true,
-	            data : JSON.stringify(val),
-	            cache: false,
-	            success: function( data, textStatus, jQxhr ){
-	            	//console.log(data);
-	            	pois[data.description] = data;
-	            	
-	            	console.log("POI\n:"+JSON.stringify(data));
-	            	
-	                //alert("Point of interest inserted.");
-	            	marker = new L.marker([lat,lng],{
-	            		title:data.description,
-	            	    contextmenu: true,
-	            	    contextmenuItems: [{
-	            	    	text: 'Edit Marker',
-	            	    	icon: 'images/edit.png',
-	            	    	callback: editMarker,
-	            	    	index: 0
-	            	    	}, {
-	            	    	separator: true,
-	            	    	index: 1
-	            	    	}]}).bindPopup($('input[name=description_text]').val());
-	            	map.addLayer(marker);
-	            	marker.on('mouseover', function (e) {
-	                    this.openPopup();
-	                });
-	                marker.on('mouseout', function (e) {
-	                    this.closePopup();
-	                });
-	                marker.on('contextmenu', function (e) {
-	                	//console.log('contextmenu: '+e.target.options.title);
-	                	selectedMarker = e.target.options.title;
-	                });
-	            	plotlayers.push(marker);
-	            	val=null;
-	            },
-	            error: function( jqXhr, textStatus, errorThrown ){
-	                console.log( errorThrown );
-	            }
-	        });
-				} else {
-					alert("empty field.");
+	$
+			.msgBox({
+				type : "prompt",
+				title : "Insert Point of Interest",
+				inputs : [ {
+					header : "Description:",
+					type : "text",
+					name : "description_text"
+				} ],
+				buttons : [ {
+					value : "Ok"
+				}, {
+					value : "Cancel"
+				} ],
+				success : function(result, values) {
+					if (result == "Ok") {
+						// check if the form inputs are empty on submit
+						if ($('input[name=description_text]').val() != '') {
+							var val = {
+								"author" : $("#log_user").text(),
+								"description" : $(
+										'input[name=description_text]').val(),
+								"coordinates" : [ lat, lng ]
+							};
+							$
+									.ajax({
+										url : '/poi',
+										dataType : 'json',
+										type : 'POST',
+										method : 'POST',
+										contentType : 'application/json',
+										async : true,
+										crossDomain : true,
+										data : JSON.stringify(val),
+										cache : false,
+										success : function(data, textStatus,
+												jQxhr) {
+											// console.log(data);
+											pois[data.description] = data;
+
+											console.log("POI\n:"
+													+ JSON.stringify(data));
+
+											// alert("Point of interest
+											// inserted.");
+											marker = new L.marker(
+													[ lat, lng ],
+													{
+														title : data.description,
+														contextmenu : true,
+														contextmenuItems : [
+																{
+																	text : 'Edit Marker',
+																	icon : 'images/edit.png',
+																	callback : editMarker,
+																	index : 0
+																},
+																{
+																	separator : true,
+																	index : 1
+																} ]
+													})
+													.bindPopup($(
+															'input[name=description_text]')
+															.val());
+											map.addLayer(marker);
+											marker.on('mouseover', function(e) {
+												this.openPopup();
+											});
+											marker.on('mouseout', function(e) {
+												this.closePopup();
+											});
+											marker
+													.on(
+															'contextmenu',
+															function(e) {
+																// console.log('contextmenu:
+																// '+e.target.options.title);
+																selectedMarker = e.target.options.title;
+															});
+											plotlayers.push(marker);
+											val = null;
+										},
+										error : function(jqXhr, textStatus,
+												errorThrown) {
+											console.log(errorThrown);
+										}
+									});
+						} else {
+							alert("empty field.");
+						}
 					}
-			}
-			//alert(v);
-		}
-		});
+					// alert(v);
+				}
+			});
 }
 
-var hybrid = L.tileLayer(
-		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
+var hybrid = L
+		.tileLayer(
+				'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
 				{
 					maxZoom : 22,
 					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
 					id : 'examples.map-i875mjb7'
 				});
 
-var streets = L.tileLayer(
-		'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
+var streets = L
+		.tileLayer(
+				'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png',
+				{
+					maxZoom : 22,
+					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
+					id : 'examples.map-20v6611k'
+				});
+
+var Esri_OceanBasemap = L
+		.tileLayer(
+				'http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
+				{
+					attribution : 'Tiles &copy; ESRI',
+					maxZoom : 13
+				});
+
+var Esri_WorldImagery = L
+		.tileLayer(
+				'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+				{
+					attribution : 'Tiles &copy; ESRI'
+				});
+
+var osmLayer = new L.TileLayer(
+		'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		{
-			maxZoom : 22,
-			attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
-			id : 'examples.map-20v6611k'
+			maxZoom : 23,
+			attribution : 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'
 		});
 
-var Esri_OceanBasemap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; ESRI',
-	maxZoom: 13
-});
-
-var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; ESRI'
-});
-
-var osmLayer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 23, attribution: 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'});
-
 var map = L.map('map', {
-    center: [ 38.49874, -28.41476 ],
-    zoom: 11,
-    layers: [osmLayer],
-    contextmenu: true,
-    contextmenuWidth: 140,
-    contextmenuItems: [{
-        text: 'Add Marker',
-        icon: 'images/add_pin.png',
-        callback: addMarker,
-        index: 0
-    }, {
-        separator: true,
-        index: 1
-    }, {
-	      text: 'Show coordinates',
-	      callback: showCoordinates
-    }, {
-	      text: 'Center map here',
-	      callback: centerMap
-    }, '-', {
-	      text: 'Zoom in',
-	      icon: 'images/zoom-in.png',
-	      callback: zoomIn
-    }, {
-	      text: 'Zoom out',
-	      icon: 'images/zoom-out.png',
-	      callback: zoomOut
-    }]     
+	center : [ 38.49874, -28.41476 ],
+	zoom : 11,
+	layers : [ osmLayer ],
+	contextmenu : true,
+	contextmenuWidth : 140,
+	contextmenuItems : [ {
+		text : 'Add Marker',
+		icon : 'images/add_pin.png',
+		callback : addMarker,
+		index : 0
+	}, {
+		separator : true,
+		index : 1
+	}, {
+		text : 'Show coordinates',
+		callback : showCoordinates
+	}, {
+		text : 'Center map here',
+		callback : centerMap
+	}, '-', {
+		text : 'Zoom in',
+		icon : 'images/zoom-in.png',
+		callback : zoomIn
+	}, {
+		text : 'Zoom out',
+		icon : 'images/zoom-out.png',
+		callback : zoomOut
+	} ]
 });
 
-var kmlLayer = new L.KML("/kml/file.kmz", {async: true});
-                                       
+var kmlLayer = new L.KML("/kml/file.kmz", {
+	async : true
+});
+
 map.addLayer(kmlLayer);
 
 var SysIcon = L.Icon.extend({
@@ -289,41 +402,43 @@ var SysIcon = L.Icon.extend({
 	}
 });
 
-var cloudsLayer = L.tileLayer('http://{s}.tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; OpenWeatherMap',
-    maxZoom: 23,
-    opacity: 0.7,
-    maxNativeZoom: 18
-});
+var cloudsLayer = L.tileLayer(
+		'http://{s}.tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png', {
+			attribution : 'Map data &copy; OpenWeatherMap',
+			maxZoom : 23,
+			opacity : 0.7,
+			maxNativeZoom : 18
+		});
 
+var windLayer = L.tileLayer(
+		'http://{s}.tile.openweathermap.org/map/wind/{z}/{x}/{y}.png', {
+			attribution : 'Map data &copy; OpenWeatherMap',
+			maxZoom : 23,
+			opacity : 0.7,
+			maxNativeZoom : 18
+		});
 
-var windLayer = L.tileLayer('http://{s}.tile.openweathermap.org/map/wind/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; OpenWeatherMap',
-    maxZoom: 23,
-    opacity: 0.7,
-    maxNativeZoom: 18
-});
-
-var precipLayer = L.tileLayer('http://{s}.tile.openweathermap.org/map/precipitation/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; OpenWeatherMap',
-    maxZoom: 23,
-    opacity: 0.7,
-    maxNativeZoom: 18
-});
-
+var precipLayer = L.tileLayer(
+		'http://{s}.tile.openweathermap.org/map/precipitation/{z}/{x}/{y}.png',
+		{
+			attribution : 'Map data &copy; OpenWeatherMap',
+			maxZoom : 23,
+			opacity : 0.7,
+			maxNativeZoom : 18
+		});
 
 var baseLayers = {
-		"Open Street Map": osmLayer,
-		"Grayscale": streets,
-		"Terrain": hybrid,
-		"ESRI Ocean": Esri_OceanBasemap,
-		"ESRI Aerial": Esri_WorldImagery
-	};
+	"Open Street Map" : osmLayer,
+	"Grayscale" : streets,
+	"Terrain" : hybrid,
+	"ESRI Ocean" : Esri_OceanBasemap,
+	"ESRI Aerial" : Esri_WorldImagery
+};
 
 var overlays = {
 	"Cloud cover" : cloudsLayer,
 	"Wind speed" : windLayer,
-	"Precipitation": precipLayer
+	"Precipitation" : precipLayer
 }
 
 L.control.layers(baseLayers, overlays).addTo(map);
@@ -353,21 +468,24 @@ var desiredIcon = new SysIcon({
 	iconUrl : 'icons/ico_desired.png'
 });
 
-L.control.locate({keepCurrentZoomLevel: true, stopFollowingOnDrag: true}).addTo(map);
+L.control.locate({
+	keepCurrentZoomLevel : true,
+	stopFollowingOnDrag : true
+}).addTo(map);
 
-var nameById={};
+var nameById = {};
 
 listSystems();
 
-function listSystems (){
+function listSystems() {
 	$.ajax({
-	    cache: false,
-	    url: "api/v1/systems/",
-	    dataType: "json",
-	    success: function(data) {
-	      $.each(data, function(val) {
-			nameById[data[val].imcid] = data[val].name;
-	  	});
+		cache : false,
+		url : "api/v1/systems/",
+		dataType : "json",
+		success : function(data) {
+			$.each(data, function(val) {
+				nameById[data[val].imcid] = data[val].name;
+			});
 		}
 	});
 }
@@ -376,10 +494,10 @@ positionHistory();
 
 function updatePositions() {
 	$.ajax({
-		cache: false,
-		url: "api/v1/systems/active",
-		dataType: "json",
-		success: function(data) {
+		cache : false,
+		url : "api/v1/systems/active",
+		dataType : "json",
+		success : function(data) {
 			$.each(data, function(val) {
 				var coords = data[val].coordinates;
 				var name = data[val].name;
@@ -399,42 +517,47 @@ function updatePositions() {
 						icon : ic
 					});
 					markers[name].bindPopup("<b>" + name + "</b><br/>"
-							+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
-							+ "<hr/>" + updated.toLocaleString() + "<br/>("
-							+ ellapsed + ")");
+							+ coords[0].toFixed(6) + ", "
+							+ coords[1].toFixed(6) + "<hr/>"
+							+ updated.toLocaleString() + "<br/>(" + ellapsed
+							+ ")");
 					markers[name].addTo(map);
 				} else {
 					if (updates[name] <= updated) {
-						markers[name].setLatLng(new L.LatLng(coords[0], coords[1]));
+						markers[name].setLatLng(new L.LatLng(coords[0],
+								coords[1]));
 						markers[name].bindPopup("<b>" + name + "</b><br/>"
-								+ coords[0].toFixed(6) + ", " + coords[1].toFixed(6)
-								+ "<hr/>" + updated.toLocaleString() + "<br/>("
+								+ coords[0].toFixed(6) + ", "
+								+ coords[1].toFixed(6) + "<hr/>"
+								+ updated.toLocaleString() + "<br/>("
 								+ ellapsed + ")");
 						updates[name] = updated;
 						addToTail(name, coords[0], coords[1]);
 					}
 				}
 			});
-		}});
+		}
+	});
 }
 
 function positionHistory() {
 	$.ajax({
-	    cache: false,
-	    url: "positions",
-	    dataType: "json",
-	    success: function(data) {
-	      $.each(data, function(val) {
-	    	
-	    	var lat = data[val].lat;
-			var long = data[val].lon;
-			var updated = new Date(data[val].timestamp);
-			var imc_id = data[val].imc_id;
-			var name = nameById[imc_id];
-			addToTail(name, lat, long);
+		cache : false,
+		url : "positions",
+		dataType : "json",
+		success : function(data) {
+			$.each(data, function(val) {
 
-		});
-	}});
+				var lat = data[val].lat;
+				var long = data[val].lon;
+				var updated = new Date(data[val].timestamp);
+				var imc_id = data[val].imc_id;
+				var name = nameById[imc_id];
+				addToTail(name, lat, long);
+
+			});
+		}
+	});
 }
 
 function sysIconFromName(name) {
@@ -484,10 +607,10 @@ function sysIcon(imcId) {
 
 function addToTail(name, lat, lon) {
 	var pos = new L.LatLng(lat, lon);
-	
+
 	if (tails[name] == undefined) {
 		tails[name] = L.polyline({});
-		tails[name].addTo(map);				
+		tails[name].addTo(map);
 	}
 	tails[name].addLatLng(pos);
 	if (tails[name].getLatLngs().length > 120)
@@ -495,7 +618,7 @@ function addToTail(name, lat, lon) {
 }
 
 updatePositions();
-//every minute(60000 millis = 1 min)
+// every minute(60000 millis = 1 min)
 setInterval(updatePositions, 60000);
 
 var assets = {};
@@ -511,25 +634,27 @@ ripplesRef.child('assets').on(
 			var lon = position.longitude;
 
 			var plan = snapshot.val().plan;
-			
+
 			if (plan == undefined)
 				plans[name] = undefined;
-			else { 
+			else {
 				if (plan.path != undefined) {
 					if (plans[name] == undefined)
-						plans[name] = L.polyline({}, {color: 'green'}).addTo(map);
-					else 
+						plans[name] = L.polyline({}, {
+							color : 'green'
+						}).addTo(map);
+					else
 						plans[name].setLatLngs([]);
-					
+
 					for (point in plan.path) {
 						plans[name].addLatLng(L.latLng(plan.path[point]));
 					}
-				}				
+				}
 			}
-			
+
 			addToTail(name, lat, lon);
 			var pos = new L.LatLng(lat, lon);
-			
+
 			if (markers[name] != undefined) {
 				markers[name].setLatLng(pos);
 				markers[name].bindPopup("<b>" + name + "</b><br/>"
