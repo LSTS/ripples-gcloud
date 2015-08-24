@@ -26,6 +26,7 @@
 	<link href="css/animated-notifications.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="js/animated-notifications.js"></script>
 	
+	<link rel="stylesheet" href="css/control.layers.minimap.css" />
 </head>
 <body>
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
@@ -61,6 +62,9 @@
 	<div id="map"></div>	
 	<script src="js/L.Control.Locate.min.js"></script>
 	<script src="js/KML.js"></script>			
-	<script src="js/leaflet.contextmenu.js"></script>	
+	<script src="js/leaflet.contextmenu.js"></script>
+	
+	<script src="js/L.Control.Layers.Minimap.js"></script>
+	
 	<script src="js/map.js"></script>						
 </body>

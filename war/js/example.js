@@ -93,3 +93,4 @@ baselayers.OpenStreetMap.addTo(map);
 
 L.DomEvent.on(window, 'hashchange', filter);
 filter();
+

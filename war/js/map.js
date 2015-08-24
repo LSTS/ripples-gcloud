@@ -30,12 +30,6 @@ var isMobile = {
 	}
 };
 
-if (isMobile.any()) {
-	alert('Mobile');
-}/* else {
-	alert('PC');
-}*/
-
 $.ajaxSetup({
 	cache : false
 });
@@ -441,7 +435,14 @@ var overlays = {
 	"Precipitation" : precipLayer
 }
 
-L.control.layers(baseLayers, overlays).addTo(map);
+
+if (isMobile.any()) {
+	//alert('Mobile');
+	L.control.layers(baseLayers, overlays).addTo(map);
+} else {
+	//alert('PC');
+	L.control.layers.minimap(baseLayers, overlays).addTo(map);
+}
 
 var argosIcon = new SysIcon({
 	iconUrl : 'icons/ico_argos.png'
