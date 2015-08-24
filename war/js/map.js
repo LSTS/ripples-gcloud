@@ -441,6 +441,7 @@ if (isMobile.any()) {
 	L.control.layers(baseLayers, overlays).addTo(map);
 } else {
 	//alert('PC');
+	L.control.weather().addTo(map);
 	L.control.layers.minimap(baseLayers, overlays).addTo(map);
 }
 
