@@ -39,9 +39,10 @@ $(document).ready(function() {
  *
  * Jan Pieter Waagmeester <jieter@jieter.nl>
  */
-var cloneLayer = require('leaflet-clonelayer');
 
-require('leaflet.sync');
+/*var cloneLayer = require('leaflet-clonelayer');
+
+require('leaflet.sync');*/
 
 L.Control.Layers.Minimap = L.Control.Layers.extend({
 	options: {
