@@ -349,8 +349,8 @@ var osmLayer = new L.TileLayer(
 		});
 
 var map = L.map('map', {
-	center : [ 38.49874, -28.41476 ],
-	zoom : 11,
+	center: [ 41.185356, -8.704898 ],
+	zoom: 13,
 	layers : [ osmLayer ],
 	contextmenu : true,
 	contextmenuWidth : 140,
