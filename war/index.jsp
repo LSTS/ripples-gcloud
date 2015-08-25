@@ -59,11 +59,12 @@
 		<div id="notifications-bottom-right"></div>
 	</div>
 	<script src="js/index.js"></script>
-	<div id="map"></div>	
+	<div id="map"></div>
 	<script src="js/L.Control.Locate.min.js"></script>
 	<script src="js/KML.js"></script>			
 	<script src="js/leaflet.contextmenu.js"></script>
 	<script src="js/Leaflet.Weather.js"></script> 
 	<script src="js/L.Control.Layers.Minimap.js"></script>
+	<script src="js/Leaflet.layerscontrol-minimap.js"></script>	
 	<script src="js/map.js"></script>						
 </body>
