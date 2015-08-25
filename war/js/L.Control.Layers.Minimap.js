@@ -334,7 +334,7 @@ module.exports = cloneLayer;
                 originalMap._syncMaps.forEach(function (toSync) {
                     toSync.setView(originalMap.getCenter(), originalMap.getZoom(), {
                         animate: false,
-                        reset: false
+                        reset: true
                     });
                 });
             }, this);
