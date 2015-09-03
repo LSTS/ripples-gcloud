@@ -93,7 +93,8 @@ setInterval(function() {
 }, 60000);
 
 function showCoordinates(e) {
-	alert(e.latlng);
+	//alert(e.latlng);
+	var marker = new L.marker(e.latlng).bindPopup("Pos: "+e.latlng.lat+", "+e.latlng.lng).addTo(map).openPopup();
 }
 
 function centerMap(e) {
