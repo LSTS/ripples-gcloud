@@ -6,6 +6,7 @@ var tails = {};
 var map, marker;
 var plotlayers = [];
 var selectedMarker;
+var originLat, originLng, originZoom, currentLat, currentLng, currentZoom;
 
 var isMobile = {
 	Android : function() {
@@ -99,14 +100,36 @@ function showCoordinates(e) {
 
 function centerMap(e) {
 	map.panTo(e.latlng);
+	updateCookiePos();
+	console.log();
+	console.log("cookie data -(centerMap) - Lat: "+$.cookie('savedLat')+" Lng: "+$.cookie('savedLng')+" Zoom: "+$.cookie('savedZoom'));
+	alert("The current Map coordinates are stored.");
 }
 
 function zoomIn(e) {
 	map.zoomIn();
+	//updateCookiePos();
 }
 
 function zoomOut(e) {
 	map.zoomOut();
+	//updateCookiePos();
+}
+
+function getCookiePos(){
+	$.cookie('savedLat', map.getCenter().lat, { expires: 1 });
+	$.cookie('savedLng', map.getCenter().lng, { expires: 1 });
+	$.cookie('savedZoom', map.getZoom(), { expires: 1 });
+}
+
+function clearCookiePos(){
+	$.removeCookie('savedLat');
+	$.removeCookie('savedLng');
+	$.removeCookie('savedZoom');
+}
+function updateCookiePos(){
+	clearCookiePos();
+	getCookiePos();
 }
 
 function editMarker(e) {
@@ -349,9 +372,34 @@ var osmLayer = new L.TileLayer(
 			attribution : 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'
 		});
 
+originLat=41.185356;
+originLng=-8.704898;
+originZoom=13;
+
+/*if(!currentLat && !currentLng && !currentZoom){
+	currentLat=originLat;
+	currentLng=originLng;
+	currentZoom=originZoom;
+}*/
+
+if($.cookie('savedLat')!='' && $.cookie('savedLng')!='' && $.cookie('savedZoom')!='')
+{
+	currentLat=$.cookie('savedLat');
+	currentLng=$.cookie('savedLng');
+	currentZoom=$.cookie('savedZoom');
+}else{
+	currentLat=originLat;
+	currentLng=originLng;
+	currentZoom=originZoom;
+}
+
+console.log("Origin data - Lat: "+originLat+" Lng: "+originLng+" Zoom: "+originZoom);
+console.log("Current data - Lat: "+currentLat+" Lng: "+currentLng+" Zoom: "+currentZoom);
+console.log("cookie data - Lat: "+$.cookie('savedLat')+" Lng: "+$.cookie('savedLng')+" Zoom: "+$.cookie('savedZoom'));
+
 var map = L.map('map', {
-	center: [ 41.185356, -8.704898 ],
-	zoom: 13,
+	center: [ currentLat, currentLng ],
+	zoom: currentZoom,
 	layers : [ osmLayer ],
 	contextmenu : true,
 	contextmenuWidth : 140,
@@ -379,6 +427,12 @@ var map = L.map('map', {
 		callback : zoomOut
 	} ]
 });
+
+/*console.log("map.getCenter(): "+map.getCenter());
+console.log("map.getCenter().lat: "+map.getCenter().lat);
+console.log("map.getCenter().lng: "+map.getCenter().lng);*/
+
+//getCookiePos();
 
 var kmlLayer = new L.KML("/kml/file.kmz", {
 	async : true
