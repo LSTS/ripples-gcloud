@@ -8,6 +8,10 @@ var plotlayers = [];
 var selectedMarker;
 var originLat, originLng, originZoom, currentLat, currentLng, currentZoom;
 
+originLat=41.185356;
+originLng=-8.704898;
+originZoom=13;
+
 var isMobile = {
 	Android : function() {
 		return navigator.userAgent.match(/Android/i);
@@ -372,16 +376,6 @@ var osmLayer = new L.TileLayer(
 			attribution : 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'
 		});
 
-originLat=41.185356;
-originLng=-8.704898;
-originZoom=13;
-
-/*if(!currentLat && !currentLng && !currentZoom){
-	currentLat=originLat;
-	currentLng=originLng;
-	currentZoom=originZoom;
-}*/
-
 if($.cookie('savedLat')!='' && $.cookie('savedLng')!='' && $.cookie('savedZoom')!='')
 {
 	currentLat=$.cookie('savedLat');
@@ -428,11 +422,9 @@ var map = L.map('map', {
 	} ]
 });
 
-/*console.log("map.getCenter(): "+map.getCenter());
-console.log("map.getCenter().lat: "+map.getCenter().lat);
-console.log("map.getCenter().lng: "+map.getCenter().lng);*/
-
-//getCookiePos();
+if(typeof currentLat==='undefined' || typeof currentLng==='undefined' || typeof currentZoom==='undefined'){
+	map.locate({setView: true, maxZoom: 13});
+}
 
 var kmlLayer = new L.KML("/kml/file.kmz", {
 	async : true
