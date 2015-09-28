@@ -3,7 +3,7 @@
 var API_KEY = window.GoogleSamples.Config.gcmAPIKey;
 var GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
 
-var curlCommandDiv = document.querySelector('.js-curl-command');
+//var curlCommandDiv = document.querySelector('.js-curl-command');
 var isPushEnabled = false;
 
 // This method handles the removal of subscriptionId
@@ -61,6 +61,29 @@ function showCurlCommand(mergedEndpoint) {
     '" --header Content-Type:"application/json" ' + GCM_ENDPOINT +
     ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
 
+  /*$.ajax({
+      url: GCM_ENDPOINT,
+      type: "POST",
+      dataType: "jsonp",
+      crossDomain: true,
+      contentType: "application/json; charset=utf-8",
+      data: JSON.stringify({"registration_ids" : subscriptionId}),
+      cache: false,
+      beforeSend: function (xhr) {
+          //Authorization header
+          xhr.setRequestHeader("Authorization", "Basic" + API_KEY);
+          xhr.setRequestHeader("X-Mobile", "false");
+      },
+      success: function (data) {
+    	  console.log("Message sent to gsm server.");
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+    	  console.log("XHR Error.");
+      }
+	  }).fail(function () {
+		  console.log("Message failed to be sent.");
+	  });*/
+  
   console.log(curlCommand);
 }
 

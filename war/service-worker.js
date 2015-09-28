@@ -1,11 +1,25 @@
 'use strict';
 
+console.log("SW startup");
+
+self.addEventListener('install', function(event) {
+  console.log("SW installed");
+});
+
+self.addEventListener('activate', function(event) {
+  console.log("SW activated");
+});
+
+self.addEventListener('fetch', function(event) {
+  console.log("Caught a fetch!");
+});
+
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
   var title = 'Yay a message.';
   var body = 'We have received a push message.';
-  var icon = '/images/icon-192x192.png';
+  var icon = '/images/logo_hub.png';
   var tag = 'simple-push-demo-notification-tag';
 
   event.waitUntil(
@@ -16,7 +30,6 @@ self.addEventListener('push', function(event) {
     })
   );
 });
-
 
 self.addEventListener('notificationclick', function(event) {
   console.log('On notification click: ', event.notification.tag);
