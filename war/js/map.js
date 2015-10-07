@@ -376,55 +376,23 @@ var osmLayer = new L.TileLayer(
 			attribution : 'Map data &copy; OpenStreetMap contributors, CC-BY-SA'
 		});
 
-if($.cookie('savedLat')!='' && $.cookie('savedLng')!='' && $.cookie('savedZoom')!='')
+if(currentLat==undefined && currentLng==undefined && currentZoom==undefined)
 {
 	currentLat=$.cookie('savedLat');
 	currentLng=$.cookie('savedLng');
 	currentZoom=$.cookie('savedZoom');
+	
+	create_map(currentLat,currentLng,currentZoom);
+	
 }else{
-	currentLat=originLat;
-	currentLng=originLng;
-	currentZoom=originZoom;
+	create_map(originLat,originLng,originZoom);
 }
+
 
 console.log("Origin data - Lat: "+originLat+" Lng: "+originLng+" Zoom: "+originZoom);
 console.log("Current data - Lat: "+currentLat+" Lng: "+currentLng+" Zoom: "+currentZoom);
 console.log("cookie data - Lat: "+$.cookie('savedLat')+" Lng: "+$.cookie('savedLng')+" Zoom: "+$.cookie('savedZoom'));
 
-var map = L.map('map', {
-	center: [ currentLat, currentLng ],
-	zoom: currentZoom,
-	layers : [ osmLayer ],
-	contextmenu : true,
-	contextmenuWidth : 140,
-	contextmenuItems : [ {
-		text : 'Add Marker',
-		icon : 'images/add_pin.png',
-		callback : addMarker,
-		index : 0
-	}, {
-		separator : true,
-		index : 1
-	}, {
-		text : 'Show coordinates',
-		callback : showCoordinates
-	}, {
-		text : 'Center map here',
-		callback : centerMap
-	}, '-', {
-		text : 'Zoom in',
-		icon : 'images/zoom-in.png',
-		callback : zoomIn
-	}, {
-		text : 'Zoom out',
-		icon : 'images/zoom-out.png',
-		callback : zoomOut
-	} ]
-});
-
-if(typeof currentLat==='undefined' || typeof currentLng==='undefined' || typeof currentZoom==='undefined'){
-	map.locate({setView: true, maxZoom: 13});
-}
 
 var kmlLayer = new L.KML("/kml/file.kmz", {
 	async : true
@@ -482,6 +450,47 @@ var overlays = {
 	"Precipitation" : precipLayer
 }
 
+function create_map(lat,lng,zoom){
+	
+	console.log("create_map - lat: "+lat+" lng: "+lng+" zoom: "+zoom);
+	if(lat==undefined && lng==undefined && zoom==undefined)
+	{
+		lat=originLat;
+		lng=originLng;
+		zoom=originZoom;
+	}
+	
+	map = L.map('map', {
+		center: [lat,lng],
+		zoom: zoom,
+		layers : [ osmLayer ],
+		contextmenu : true,
+		contextmenuWidth : 140,
+		contextmenuItems : [ {
+			text : 'Add Marker',
+			icon : 'images/add_pin.png',
+			callback : addMarker,
+			index : 0
+		}, {
+			separator : true,
+			index : 1
+		}, {
+			text : 'Show coordinates',
+			callback : showCoordinates
+		}, {
+			text : 'Center map here',
+			callback : centerMap
+		}, '-', {
+			text : 'Zoom in',
+			icon : 'images/zoom-in.png',
+			callback : zoomIn
+		}, {
+			text : 'Zoom out',
+			icon : 'images/zoom-out.png',
+			callback : zoomOut
+		} ]
+	});
+}
 
 if (isMobile.any()) {
 	//alert('Mobile');
