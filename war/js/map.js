@@ -501,6 +501,14 @@ if (isMobile.any()) {
 	L.control.layers.minimap(baseLayers, overlays).addTo(map);
 }
 
+var osmGeocoder = new L.Control.OSMGeocoder({
+    collapsed: false,
+    position: 'topleft',
+    text: 'Locate',
+	});
+
+map.addControl(osmGeocoder);
+
 var argosIcon = new SysIcon({
 	iconUrl : 'icons/ico_argos.png'
 });

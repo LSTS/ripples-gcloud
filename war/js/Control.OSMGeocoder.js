@@ -13,6 +13,7 @@ L.Control.OSMGeocoder = L.Control.extend({
 		callback: function (results) {
             if (results.length == 0) {
                 console.log("ERROR: didn't find a result");
+                alert("Can't find that location.");
                 return;
             }
 			var bbox = results[0].boundingbox,
