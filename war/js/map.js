@@ -536,7 +536,14 @@ var desiredIcon = new SysIcon({
 
 L.control.locate({
 	keepCurrentZoomLevel : true,
-	stopFollowingOnDrag : true
+	stopFollowingOnDrag : true,
+	icon: 'fa fa-map-marker',  // class for icon, fa-location-arrow or fa-map-marker
+    iconLoading: 'fa fa-spinner fa-spin',  // class for loading icon
+    metric: true,  // use metric or imperial units
+    onLocationError: function(err) {alert(err.message)},  // define an error callback function
+    onLocationOutsideMapBounds:  function(context) { // called when outside map boundaries
+            alert(context.options.strings.outsideMapBoundsMsg);
+    }
 }).addTo(map);
 
 var nameById = {};
