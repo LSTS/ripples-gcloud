@@ -23,8 +23,8 @@
 	<link rel="stylesheet" href="css/L.Control.Locate.min.css"/>
 	<link rel="stylesheet" href="css/leaflet.contextmenu.css"/>
 	<link rel="stylesheet" href="css/Control.OSMGeocoder.css" />
+	<link rel="stylesheet" href="css/Leaflet.Coordinates-0.1.5.css"/>
 	<link rel="stylesheet" href="css/index.css"/>
-	
 	<link href="css/animate.css" rel="stylesheet" type="text/css" />
 	<link href="css/animated-notifications.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="js/animated-notifications.js"></script>
@@ -68,6 +68,7 @@
 	<script src="js/leaflet.contextmenu.js"></script>
 	<script src="js/Leaflet.Weather.js"></script>
 	<script src="js/Control.OSMGeocoder.js"></script>
+	<script src="js/Leaflet.Coordinates-0.1.5.src.js"></script>
 	<script src="js/L.Control.Layers.Minimap.js"></script>
 	<script src="js/Leaflet.layerscontrol-minimap.js"></script>	
 	<script src="js/map.js"></script>						

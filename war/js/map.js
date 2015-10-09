@@ -99,7 +99,7 @@ setInterval(function() {
 
 function showCoordinates(e) {
 	//alert(e.latlng);
-	var marker = new L.marker(e.latlng).bindPopup("Pos: "+e.latlng.lat+", "+e.latlng.lng).addTo(map).openPopup();
+	var mCoords = new L.marker(e.latlng).bindPopup("Lat: "+e.latlng.lat+" Lng:"+e.latlng.lng).addTo(map).openPopup();
 }
 
 function centerMap(e) {
@@ -499,6 +499,13 @@ if (isMobile.any()) {
 	//alert('PC');
 	L.control.weather().addTo(map);
 	L.control.layers.minimap(baseLayers, overlays).addTo(map);
+	var mouse_coordinates = new L.control.coordinates({
+		position:"topleft",
+		labelTemplateLat:"Lat: {y}",
+		labelTemplateLng:"Lng: {x}",
+		useLatLngOrder:true
+	});
+	map.addControl(mouse_coordinates);
 }
 
 var osmGeocoder = new L.Control.OSMGeocoder({
