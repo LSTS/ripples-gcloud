@@ -58,6 +58,7 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("<link rel=\"stylesheet\" href=\"../bootstrap/dist/css/bootstrap.min.css\">");
 		out.println("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>");
 		out.println("<script src=\"../bootstrap/dist/js/bootstrap.min.js\"></script>");
+		out.println("<style>#wrapper {border: 1px #e4e4e4 solid;margin-top: 30px;padding: 20px;border-radius: 4px;box-shadow: 0 0 6px #ccc;background-color: #fff;}</style>");
 		out.println("</head>");
 		out.println("<body bgcolor=\"white\">");
 
@@ -72,7 +73,7 @@ public class Raia2Servlet extends HttpServlet {
 
 		out.println("<script> $(function() {$('#buoy-table a:first').tab('show'); }) </script>");
 
-		out.println("<div class=\"container\">");
+		out.println("<div id=\"wrapper\" class=\"container\">");
 
 		out.println("<h2>Buoy Data</h2>");
 
@@ -85,56 +86,157 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("<div class=\"tab-content\">");
 
 		out.println("<div class=\"tab-pane\" id=\"1\">");
-		out.println("<table class=\"table table-condensed table-bordered table-striped volumes\">");
+		out.println("<table class=\"table\">");
 		out.println("<tr>");
-		out.println("<td>ID</td>");
-		out.println("<td>IP</td>");
-		out.println("<td>Battery (%)</td>");
-		out.println("<td>Date</td>");
+		out.println("<td>");
+		out.println("<h3>Overview</h3>");
+		
+		out.println("<table class=\"table table-hover\">");
+		out.println("<tr>");
+		out.println("<td width=\"12%\">System: </td>");
+		out.println("<td>data.id</td>");
+		out.println("<td width=\"12%\">Position: </td>");
+		out.println("<td>N41 / W8</td>");
 		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Date: </td>");
+		out.println("<td>data.date</td>");
+		out.println("<td>Software version: </td>");
+		out.println("<td>v001</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Uptime: </td>");
+		out.println("<td>8 hours, 47 minutes and 14 seconds </td>");
+		out.println("<td>Power: </td>");
+		out.println("<td>data.battery</td>");
+		out.println("</tr>");
+		out.println("</table>");
 
-		for (BuoyAddress data : buoyData) {
+		/*for (BuoyAddress data : buoyData) {
 			out.println("<tr>");
 			out.println("<td>" + data.id + "</td>");
 			out.println("<td>" + data.ip + "</td>");
 			out.println("<td>" + data.battery + "</td>");
 			out.println("<td>" + data.date + "</td>");
 			out.println("</tr>");
-		}
+		}*/
 
+		out.println("</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>");
+		out.println("<h3>Data</h3>");
+		
+		out.println("<table class=\"table table-hover\">");
+		out.println("<tr>");
+		out.println("<td width=\"12%\">IP: </td>");
+		out.println("<td >data.ip</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Sensor list: </td>");
+		out.println("<td >data 1</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		
+		out.println("</td>");
+		out.println("</tr>");
 		out.println("</table>");
 		out.println("</div>");//class=\"tab-pane\" id=\"1\"
 
 		out.println("<div class=\"tab-pane\" id=\"2\">");
-		out.println("<table class=\"table table-condensed table-bordered table-striped volumes\">");
+		out.println("<table class=\"table\">");
 		out.println("<tr>");
-		out.println("<td>ID</td>");
-		out.println("<td>IP</td>");
-		out.println("<td>Battery (%)</td>");
-		out.println("<td>Date</td>");
+		out.println("<td>");
+		out.println("<h3>Overview</h3>");
+		
+		out.println("<table class=\"table table-hover\">");
+		out.println("<tr>");
+		out.println("<td width=\"12%\">System: </td>");
+		out.println("<td>raia buoy A</td>");
+		out.println("<td width=\"12%\">Position: </td>");
+		out.println("<td>N41 / W8</td>");
 		out.println("</tr>");
 		out.println("<tr>");
-		out.println("<td>data.id A</td>");
-		out.println("<td>data.ip A</td>");
-		out.println("<td>data.battery A</td>");
-		out.println("<td>data.date A</td>");
+		out.println("<td>Date: </td>");
+		out.println("<td>current</td>");
+		out.println("<td>Software version: </td>");
+		out.println("<td>v001</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Uptime: </td>");
+		out.println("<td>8 hours, 47 minutes and 14 seconds </td>");
+		out.println("<td>Power: </td>");
+		out.println("<td>100%</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		
+		out.println("</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>");
+		out.println("<h3>Data</h3>");
+		
+		out.println("<table class=\"table table-hover\">");
+		out.println("<tr>");
+		out.println("<td width=\"12%\">IP: </td>");
+		out.println("<td >127.0.0.0</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Sensor list: </td>");
+		out.println("<td >data A</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		
+		out.println("</td>");
 		out.println("</tr>");
 		out.println("</table>");
 		out.println("</div>");//class=\"tab-pane\" id=\"2\"
 		
 		out.println("<div class=\"tab-pane\" id=\"3\">");
-		out.println("<table class=\"table table-condensed table-bordered table-striped volumes\">");
+		out.println("<table class=\"table\">");
 		out.println("<tr>");
-		out.println("<td>ID</td>");
-		out.println("<td>IP</td>");
-		out.println("<td>Battery (%)</td>");
-		out.println("<td>Date</td>");
+		out.println("<td>");
+		out.println("<h3>Overview</h3>");
+		
+		out.println("<table class=\"table table-hover\">");
+		out.println("<tr>");
+		out.println("<td width=\"12%\">System: </td>");
+		out.println("<td>raia buoy B</td>");
+		out.println("<td width=\"12%\">Position: </td>");
+		out.println("<td>N41 / W8</td>");
 		out.println("</tr>");
 		out.println("<tr>");
-		out.println("<td>data.id B</td>");
-		out.println("<td>data.ip B</td>");
-		out.println("<td>data.battery B</td>");
-		out.println("<td>data.date B</td>");
+		out.println("<td>Date: </td>");
+		out.println("<td>current</td>");
+		out.println("<td>Software version: </td>");
+		out.println("<td>v002</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Uptime: </td>");
+		out.println("<td>8 hours, 47 minutes and 14 seconds </td>");
+		out.println("<td>Power: </td>");
+		out.println("<td>100%</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		
+		out.println("</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>");
+		out.println("<h3>Data</h3>");
+		
+		out.println("<table class=\"table table-hover\">");
+		out.println("<tr>");
+		out.println("<td width=\"12%\">IP: </td>");
+		out.println("<td >127.0.0.0</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>Sensor list: </td>");
+		out.println("<td >data B</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		
+		out.println("</td>");
 		out.println("</tr>");
 		out.println("</table>");
 		out.println("</div>");//class=\"tab-pane\" id=\"3\"
