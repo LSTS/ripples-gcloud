@@ -20,86 +20,132 @@ public class Raia2Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		resp.setContentType("text/plain");
-		//resp.getWriter().write(req.getParameter("id"));
-		//resp.getWriter().write(req.getParameter("ip"));
-		
+		// resp.getWriter().write(req.getParameter("id"));
+		// resp.getWriter().write(req.getParameter("ip"));
+
 		BuoyAddress data = new BuoyAddress();
 		data.id = req.getParameter("id");
 		data.ip = req.getParameter("ip");
 		data.battery = req.getParameter("battery");
 		data.date = req.getParameter("date");
-		
+
 		Store.ofy().save().entity(data).now();
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		
-        resp.setContentType("text/html");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter out = resp.getWriter();
-		//load
-		
-		List<BuoyAddress> buoyData = Store.ofy().load().type(BuoyAddress.class).list();
-		
-		//resp.setContentType("text/plain");
-		//resp.getWriter().println(d.ip+" : "+d.id);
-		
+
+		resp.setContentType("text/html");
+		resp.setCharacterEncoding("UTF-8");
+		PrintWriter out = resp.getWriter();
+		// load
+
+		List<BuoyAddress> buoyData = Store.ofy().load().type(BuoyAddress.class)
+				.list();
+
+		// resp.setContentType("text/plain");
+		// resp.getWriter().println(d.ip+" : "+d.id);
+
 		out.println("<!DOCTYPE html><html>");
-        out.println("<head>");
-        out.println("<meta charset=\"UTF-8\" />");
-        
-        out.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-        //<meta name="viewport" content="width=device-width, initial-scale=1">
+		out.println("<head>");
+		out.println("<meta charset=\"UTF-8\" />");
 
-        out.println("<title> RAIA v2</title>");
-        /*out.println("<style> #test {margin-top: 50px; margin-left: auto; margin-right: auto; width: 70%; text-align: center;} "
-        		  + "table, th, td { margin: 0 auto; border: 1px solid black; border-collapse: collapse; border-spacing: 50px;} td { padding: 10px;} </style>");*/
-        out.println("<link rel=\"stylesheet\" href=\"../bootstrap/dist/css/bootstrap.min.css\">");
-        out.println("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>");
-        out.println("<script src=\"../bootstrap/dist/js/bootstrap.min.js\"></script>");
-        out.println("</head>");
-        out.println("<body bgcolor=\"white\">");
+		out.println("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
 
-        // note that all links are created to be relative. this
-        // ensures that we can move the web application that this
-        // servlet belongs to to a different place in the url
-        // tree and not have any harmful side effects.
+		out.println("<title> RAIA v2</title>");
 
-        // XXX
-        // making these absolute till we work out the
-        // addition of a PathInfo issue
+		out.println("<link rel=\"stylesheet\" href=\"../bootstrap/dist/css/bootstrap.min.css\">");
+		out.println("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>");
+		out.println("<script src=\"../bootstrap/dist/js/bootstrap.min.js\"></script>");
+		out.println("</head>");
+		out.println("<body bgcolor=\"white\">");
 
-        //out.println("<div id='test'>");
-        out.println("<div class=\"container\">");
+		// note that all links are created to be relative. this
+		// ensures that we can move the web application that this
+		// servlet belongs to to a different place in the url
+		// tree and not have any harmful side effects.
 
-        out.println("<h2>Buoy Data</h2>");
-        //out.println("<table>");
-        out.println("<table class=\"table\">");
-        out.println("<tr>");
-        out.println("<td>ID</td>");
-        out.println("<td>IP</td>");
-        out.println("<td>Battery (%)</td>");
-        out.println("<td>Date</td>");
-        out.println("</tr>");
-        
-        for (BuoyAddress data : buoyData) {
-        	out.println("<tr>");
-        	out.println("<td>"+data.id+"</td>");
-        	out.println("<td>"+data.ip+"</td>");
-        	out.println("<td>"+data.battery+"</td>");
-        	out.println("<td>"+data.date+"</td>");
-        	out.println("</tr>");
-        }
-        
-        out.println("</table>");
-        
-        out.println("</div>");
-        
-        out.println("</body>");
-        out.println("</html>");
+		// XXX
+		// making these absolute till we work out the
+		// addition of a PathInfo issue
+
+		out.println("<script> $(function() {$('#buoy-table a:first').tab('show'); }) </script>");
+
+		out.println("<div class=\"container\">");
+
+		out.println("<h2>Buoy Data</h2>");
+
+		out.println("<ul class=\"nav nav-tabs\" id=\"buoy-table\">");
+		out.println("<li><a href=\"#1\" data-toggle=\"tab\">Buoy 1</a></li>");
+		out.println("<li><a href=\"#2\" data-toggle=\"tab\">Dummy A</a></li>");
+		out.println("<li><a href=\"#3\" data-toggle=\"tab\">Dummy B</a></li>");
+		out.println("</ul>");
+
+		out.println("<div class=\"tab-content\">");
+
+		out.println("<div class=\"tab-pane\" id=\"1\">");
+		out.println("<table class=\"table table-condensed table-bordered table-striped volumes\">");
+		out.println("<tr>");
+		out.println("<td>ID</td>");
+		out.println("<td>IP</td>");
+		out.println("<td>Battery (%)</td>");
+		out.println("<td>Date</td>");
+		out.println("</tr>");
+
+		for (BuoyAddress data : buoyData) {
+			out.println("<tr>");
+			out.println("<td>" + data.id + "</td>");
+			out.println("<td>" + data.ip + "</td>");
+			out.println("<td>" + data.battery + "</td>");
+			out.println("<td>" + data.date + "</td>");
+			out.println("</tr>");
+		}
+
+		out.println("</table>");
+		out.println("</div>");//class=\"tab-pane\" id=\"1\"
+
+		out.println("<div class=\"tab-pane\" id=\"2\">");
+		out.println("<table class=\"table table-condensed table-bordered table-striped volumes\">");
+		out.println("<tr>");
+		out.println("<td>ID</td>");
+		out.println("<td>IP</td>");
+		out.println("<td>Battery (%)</td>");
+		out.println("<td>Date</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>data.id A</td>");
+		out.println("<td>data.ip A</td>");
+		out.println("<td>data.battery A</td>");
+		out.println("<td>data.date A</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		out.println("</div>");//class=\"tab-pane\" id=\"2\"
 		
+		out.println("<div class=\"tab-pane\" id=\"3\">");
+		out.println("<table class=\"table table-condensed table-bordered table-striped volumes\">");
+		out.println("<tr>");
+		out.println("<td>ID</td>");
+		out.println("<td>IP</td>");
+		out.println("<td>Battery (%)</td>");
+		out.println("<td>Date</td>");
+		out.println("</tr>");
+		out.println("<tr>");
+		out.println("<td>data.id B</td>");
+		out.println("<td>data.ip B</td>");
+		out.println("<td>data.battery B</td>");
+		out.println("<td>data.date B</td>");
+		out.println("</tr>");
+		out.println("</table>");
+		out.println("</div>");//class=\"tab-pane\" id=\"3\"
+
+		out.println("</div>");//class=\"tab-content\"
+
+		out.println("</div>");//class=\"container\"
+
+		out.println("</body>");
+		out.println("</html>");
+
 	}
-	
+
 }
