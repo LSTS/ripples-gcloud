@@ -58,7 +58,7 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("<link rel=\"stylesheet\" href=\"../bootstrap/dist/css/bootstrap.min.css\">");
 		out.println("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>");
 		out.println("<script src=\"../bootstrap/dist/js/bootstrap.min.js\"></script>");
-		out.println("<style>#wrapper {border: 1px #e4e4e4 solid;margin-top: 3%;padding: 2%;border-radius: 4px;box-shadow: 0 0 6px #ccc;background-color: #fff;min-width: 300px; width:55%} @media only screen and (max-width: 300px) {table .table-hover tr td{float:left;width:240px;height:100px;list-style: none;}}</style>");
+		out.println("<style>#wrapper {border: 1px #e4e4e4 solid;margin-top: 3%;padding: 2%;border-radius: 4px;box-shadow: 0 0 6px #ccc;background-color: #fff;min-width: 300px; width:55%} @media only screen and (max-width: 360px) {table .table-hover tr td{float:left;width:240px;height:100px;list-style: none;}}</style>");
 		out.println("</head>");
 		out.println("<body bgcolor=\"white\">");
 
