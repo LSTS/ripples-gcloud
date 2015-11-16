@@ -84,8 +84,8 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("</ul>");
 
 		out.println("<div class=\"tab-content\">");
-
 		out.println("<div class=\"tab-pane\" id=\"1\">");
+		for (BuoyAddress data : buoyData) {
 		out.println("<table class=\"table\">");
 		out.println("<tr>");
 		out.println("<td>");
@@ -94,13 +94,13 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("<table class=\"table table-hover\">");
 		out.println("<tr>");
 		out.println("<td width=\"12%\">System: </td>");
-		out.println("<td>data.id</td>");
+		out.println("<td>"+data.id+"</td>");
 		out.println("<td width=\"12%\">Position: </td>");
 		out.println("<td>N41 / W8</td>");
 		out.println("</tr>");
 		out.println("<tr>");
 		out.println("<td>Date: </td>");
-		out.println("<td>data.date</td>");
+		out.println("<td>"+data.date+"</td>");
 		out.println("<td>Software version: </td>");
 		out.println("<td>v001</td>");
 		out.println("</tr>");
@@ -108,10 +108,10 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("<td>Uptime: </td>");
 		out.println("<td>8 hours, 47 minutes and 14 seconds </td>");
 		out.println("<td>Power: </td>");
-		out.println("<td>data.battery</td>");
+		out.println("<td>"+data.battery+"</td>");
 		out.println("</tr>");
 		out.println("</table>");
-
+		
 		/*for (BuoyAddress data : buoyData) {
 			out.println("<tr>");
 			out.println("<td>" + data.id + "</td>");
@@ -130,7 +130,7 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("<table class=\"table table-hover\">");
 		out.println("<tr>");
 		out.println("<td width=\"12%\">IP: </td>");
-		out.println("<td >data.ip</td>");
+		out.println("<td>"+data.ip+"</td>");
 		out.println("</tr>");
 		out.println("<tr>");
 		out.println("<td>Sensor list: </td>");
@@ -141,8 +141,9 @@ public class Raia2Servlet extends HttpServlet {
 		out.println("</td>");
 		out.println("</tr>");
 		out.println("</table>");
+		}
 		out.println("</div>");//class=\"tab-pane\" id=\"1\"
-
+		
 		out.println("<div class=\"tab-pane\" id=\"2\">");
 		out.println("<table class=\"table\">");
 		out.println("<tr>");
