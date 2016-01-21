@@ -9,7 +9,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Ripples Map</title>
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
@@ -20,9 +22,9 @@
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 	<link rel="stylesheet" href="css/L.Control.Locate.min.css"/>
 	<link rel="stylesheet" href="css/leaflet.contextmenu.css"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" href="css/Control.OSMGeocoder.css" />
+	<link rel="stylesheet" href="css/Leaflet.Coordinates-0.1.5.css"/>
 	<link rel="stylesheet" href="css/index.css"/>
-	
 	<link href="css/animate.css" rel="stylesheet" type="text/css" />
 	<link href="css/animated-notifications.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="js/animated-notifications.js"></script>
@@ -64,7 +66,9 @@
 	<script src="js/L.Control.Locate.min.js"></script>
 	<script src="js/KML.js"></script>			
 	<script src="js/leaflet.contextmenu.js"></script>
-	<script src="js/Leaflet.Weather.js"></script> 
+	<script src="js/Leaflet.Weather.js"></script>
+	<script src="js/Control.OSMGeocoder.js"></script>
+	<script src="js/Leaflet.Coordinates-0.1.5.src.js"></script>
 	<script src="js/L.Control.Layers.Minimap.js"></script>
 	<script src="js/Leaflet.layerscontrol-minimap.js"></script>	
 	<script src="js/map.js"></script>						
