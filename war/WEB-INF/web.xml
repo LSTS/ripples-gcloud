@@ -167,6 +167,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/wavypos/*</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>DataStoreServlet</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.datastore.DataStoreTest</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DataStoreServlet</servlet-name>
+		<url-pattern>/datastore/*</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
