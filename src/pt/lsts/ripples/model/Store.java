@@ -20,6 +20,7 @@ public class Store {
 		ObjectifyService.factory().register(PointOfInterest.class);
 		ObjectifyService.factory().register(BuoyAddress.class);
 		ObjectifyService.factory().register(IridiumSubscription.class);
+		ObjectifyService.factory().register(HistoricDatum.class);
 	}
 	
 	public static Objectify ofy() {
