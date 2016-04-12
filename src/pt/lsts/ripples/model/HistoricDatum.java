@@ -14,13 +14,13 @@ public class HistoricDatum {
 	public long imc_id;
 	
 	@Index
-	public int sample_type;
+	public long sample_type;
 	
 	@Index
 	public Date timestamp;
 
 	public double lat;
 	public double lon;
-	public double z;
-	public IMCMessage sample;	
+	public double z;		
 }
+
