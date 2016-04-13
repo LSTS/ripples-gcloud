@@ -21,6 +21,9 @@ public class Store {
 		ObjectifyService.factory().register(BuoyAddress.class);
 		ObjectifyService.factory().register(IridiumSubscription.class);
 		ObjectifyService.factory().register(HistoricDatum.class);
+		ObjectifyService.factory().register(CTDSample.class);
+		ObjectifyService.factory().register(TelemetrySample.class);
+		ObjectifyService.factory().register(EventSample.class);
 	}
 	
 	public static Objectify ofy() {

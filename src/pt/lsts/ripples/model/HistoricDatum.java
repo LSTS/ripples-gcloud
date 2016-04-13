@@ -10,7 +10,7 @@ import com.googlecode.objectify.annotation.Index;
 public class HistoricDatum {
 
 	@Id
-	private long uid;
+	private Long uid;
 	
 	@Index
 	public long imc_id;
