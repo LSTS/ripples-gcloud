@@ -3,13 +3,15 @@ package pt.lsts.ripples.model;
 import java.util.Date;
 
 import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
-
-import pt.lsts.imc.IMCMessage;
 
 @Entity
 public class HistoricDatum {
 
+	@Id
+	private long uid;
+	
 	@Index
 	public long imc_id;
 	
