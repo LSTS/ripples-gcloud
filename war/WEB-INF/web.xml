@@ -169,7 +169,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	
 	<servlet>
 		<servlet-name>DataStoreServlet</servlet-name>
-		<servlet-class>pt.lsts.ripples.servlets.datastore.DataStoreTest</servlet-class>
+		<servlet-class>pt.lsts.ripples.servlets.datastore.DataStoreServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>DataStoreServlet</servlet-name>
