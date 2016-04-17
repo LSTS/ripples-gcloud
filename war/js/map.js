@@ -12,6 +12,8 @@ originLat=41.185356;
 originLng=-8.704898;
 originZoom=13;
 
+// Sletvik Field Station NTNU :Lat: 63.59150018435369 Lng:9.53839123249054
+
 var isMobile = {
 	Android : function() {
 		return navigator.userAgent.match(/Android/i);
@@ -540,6 +542,10 @@ var targetIcon = new SysIcon({
 var desiredIcon = new SysIcon({
 	iconUrl : 'icons/ico_desired.png'
 });
+var extSysIcon = new SysIcon({
+	iconUrl : 'icons/ico_external.png'
+});
+
 
 L.control.locate({
 	keepCurrentZoomLevel : true,
@@ -660,6 +666,10 @@ function sysIcon(imcId) {
 	if (imcId >= 0x8401 && imcId <= 0x841a)
 		return spotIcon;
 
+	// External System
+	if (imcId > 0x0000 + 0xFFFF)
+		return extSysIcon;
+	
 	var sys_type = (imcId & sys_selector) >> 13;
 
 	switch (sys_type) {
