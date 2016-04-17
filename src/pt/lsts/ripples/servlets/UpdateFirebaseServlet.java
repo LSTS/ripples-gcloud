@@ -17,6 +17,7 @@ import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
+import pt.lsts.ripples.util.SystemUtils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -102,7 +103,7 @@ public class UpdateFirebaseServlet extends HttpServlet {
 	private long getId(String assetName) {
 		Address addr = Store.ofy().load().type(Address.class).filter("name", assetName).first().now();
 		if (addr == null)
-			return -1;		
+			return SystemUtils.generateIdFromNameHash(assetName); // -1;		
 		return addr.imc_id;
 	}
 }
