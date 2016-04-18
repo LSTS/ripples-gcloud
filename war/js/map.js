@@ -713,7 +713,7 @@ setInterval(updatePositions, 60000);
 
 var assets = {};
 var lastPositions = {};
-var ripplesRef = new Firebase('https://neptus.firebaseIO-demo.com/');
+var ripplesRef = new Firebase('https://neptus.firebaseio.com/');
 ripplesRef.child('assets').on(
 		'child_changed',
 		function(snapshot) {

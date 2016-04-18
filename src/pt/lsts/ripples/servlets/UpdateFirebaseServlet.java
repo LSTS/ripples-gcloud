@@ -50,7 +50,7 @@ public class UpdateFirebaseServlet extends HttpServlet {
 	private void updateFirebase(HttpServletResponse resp) throws Exception {
 		//TODO update from https://neptus.firebaseio-demo.com/.json		
 		JsonParser parser = new JsonParser();
-		URL url = new URL("https://neptus.firebaseio-demo.com/.json");
+		URL url = new URL("https://neptus.firebaseio.com/.json");
 		
 		JsonElement root = parser.parse(new JsonReader(new InputStreamReader(url.openConnection().getInputStream())));
 		Set<Entry<String, JsonElement>> assets = root.getAsJsonObject().get("assets").getAsJsonObject().entrySet();
