@@ -65,7 +65,7 @@ public class UpdateFirebaseServlet extends HttpServlet {
 				double latDegs = position.getAsJsonObject().get("latitude").getAsDouble();
 				double lonDegs = position.getAsJsonObject().get("longitude").getAsDouble();
 				
-				long id = getId(asset.getKey());
+				long id = SystemUtils.getOrGuessId(asset.getKey());
 				
 				if (id == -1) {
 					Logger.getGlobal().log(Level.WARNING, "Unknown system: "+asset.getKey());
@@ -98,12 +98,5 @@ public class UpdateFirebaseServlet extends HttpServlet {
 				continue;
 			}
 		}	
-	}
-	
-	private long getId(String assetName) {
-		Address addr = Store.ofy().load().type(Address.class).filter("name", assetName).first().now();
-		if (addr == null)
-			return SystemUtils.generateIdFromNameHash(assetName); // -1;		
-		return addr.imc_id;
 	}
 }
