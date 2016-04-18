@@ -126,6 +126,9 @@ public class AddressesServlet extends HttpServlet {
 
 			Address existing = Store.ofy().load().type(Address.class).id(id)
 					.now();
+			if (existing == null) {
+			    existing = Store.ofy().load().type(Address.class).filter("name", name).first().now();
+			}
 
 			Address address = new Address();
 			address.imc_id = id;
