@@ -33,7 +33,7 @@
 </head>
 <body>
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
-	<script type='text/javascript' src='https://cdn.firebase.com/js/client/1.0.17/firebase.js'></script>
+	<script type='text/javascript' src='https://cdn.firebase.com/js/client/2.4.2/firebase.js'></script>
 	
 	<nav id='menu-ui' class='menu-ui'>
 	  <%
