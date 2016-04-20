@@ -3,8 +3,8 @@ package pt.lsts.ripples.servlets;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Map.Entry;
 import java.util.Date;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,19 +13,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.lsts.ripples.model.Address;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
 import pt.lsts.ripples.util.SystemUtils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-
-@SuppressWarnings("serial")
 public class UpdateFirebaseServlet extends HttpServlet {
 
+	private static final long serialVersionUID = -4806879026752593995L;
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -48,7 +47,6 @@ public class UpdateFirebaseServlet extends HttpServlet {
 	}
 
 	private void updateFirebase(HttpServletResponse resp) throws Exception {
-		//TODO update from https://neptus.firebaseio-demo.com/.json		
 		JsonParser parser = new JsonParser();
 		URL url = new URL("https://neptus.firebaseio.com/.json");
 		
