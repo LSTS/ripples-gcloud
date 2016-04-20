@@ -77,9 +77,14 @@ public class PositionsServlet extends HttpServlet {
 	public static void addPosition(SystemPosition pos) {
 		
 		HubSystem sys = Store.ofy().load().type(HubSystem.class).id(pos.imc_id).now();
+		
+		
 		if (sys == null) {
+			
+			
 			sys = new HubSystem();
 			sys.setImcid(pos.imc_id);
+			System.out.println("Creating new system with imc id "+sys.imcid);
 			Address addr = Store.ofy().load().type(Address.class).id(pos.imc_id).now();
 			if (addr != null)
 				sys.setName(addr.name);
@@ -88,6 +93,8 @@ public class PositionsServlet extends HttpServlet {
 						.resolve((int) pos.imc_id));
 			sys.setCreated_at(new Date());
 		}
+		
+		System.out.println("System found for "+pos.imc_id+" is "+sys+" which has "+sys.imcid);
 		
 		System.out.println("Updating "+sys.getName()+" to "+pos.timestamp);
 		
