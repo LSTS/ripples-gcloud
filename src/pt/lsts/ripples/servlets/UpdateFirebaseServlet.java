@@ -26,24 +26,17 @@ public class UpdateFirebaseServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -4806879026752593995L;
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/plain");
-		
-		if (req.getPathInfo() != null
-				&& req.getPathInfo().startsWith("/update")) {
-			try {
-				updateFirebase(resp);
-				resp.getWriter().println("Assets updated from firebase.");
-				resp.getWriter().close();
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-						"Error accessing firebase API", e);
-			}
+
+		try {
+			updateFirebase(resp);
+			resp.getWriter().println("Assets updated from firebase.");
+			resp.getWriter().close();
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error accessing firebase API", e);
 		}
-		else {
-			resp.sendError(400);
-		}
+
 	}
 
 	private void updateFirebase(HttpServletResponse resp) throws Exception {
