@@ -5,6 +5,9 @@ package pt.lsts.ripples.util;
 
 import java.util.logging.Logger;
 
+import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.imc.net.IMCProtocol;
+import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.Store;
 
@@ -50,5 +53,31 @@ public class SystemUtils {
 			System.out.printf("name=%30s :: id=0x%16X  | 0x%8X\n", name, id, (id >> 32) & ~(-1L << 32));
 			System.out.printf("name=%30s :: id=%16d  | %16d\n", name, id, (id >> 32) & ~(-1L << 32));
 		}
+		
+		// 41N11'6.67'' 8W42'25.14'' 0.0
+		double lat = 41.185186;
+		double lon = -8.706983;
+		UDPTransport udp = new UDPTransport();
+		RemoteSensorInfo msg = new RemoteSensorInfo();
+		msg.setSrc(22);
+		msg.setId("MOV1");
+		msg.setSensorClass("ship");
+		msg.setLat(Math.toRadians(lat));
+		msg.setLon(Math.toRadians(lon));
+		int n = 0;
+		while (true) {
+		    n = (n+1) % 10;
+            msg.setTimestampMillis(System.currentTimeMillis());
+            msg.setLat(Math.toRadians(lat + n / 1E3));
+            msg.setLon(Math.toRadians(lon + n / 1E3));            
+            udp.sendMessage("127.0.0.1", 6001, msg);
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 	}
 }
