@@ -545,6 +545,15 @@ var desiredIcon = new SysIcon({
 var extSysIcon = new SysIcon({
 	iconUrl : 'icons/ico_external.png'
 });
+var planeSysIcon = new SysIcon({
+	iconUrl : 'icons/ico_plane.png'
+});
+var shipSysIcon = new SysIcon({
+	iconUrl : 'icons/ico_ship.png'
+});
+var asvIcon = new SysIcon({
+	iconUrl : 'icons/ico_usv.png'
+});
 
 
 L.control.locate({
@@ -654,6 +663,18 @@ function sysIconFromName(name) {
 		return uavIcon;
 	case "CCU":
 		return ccuIcon;
+	case "USV":
+		return usvIcon;
+	case "STATICSENSOR":
+	case "MOBILESENSOR":
+		return spotIcon;
+	case "MANNED_SHIP":
+		return shipIcon;
+	case "MANNED_AIRPLANE":
+		return planeIcon;
+	case "MANNED_CAR":
+	case "UGV":
+	case "PERSON":
 	default:
 		return unknownIcon;
 	}
@@ -681,7 +702,7 @@ function sysIcon(imcId) {
 		case 1:
 			return unknownIcon; // rov
 		case 2:
-			return unknownIcon; // asv
+			return asvIcon; // asv
 		case 3:
 			return uavIcon;
 		default:
