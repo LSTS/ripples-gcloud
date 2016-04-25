@@ -75,7 +75,7 @@ public class UpdateFirebaseServlet extends HttpServlet {
 				sys.setName(asset.getKey());
 				sys.setUpdated_at(new Date(updated_at));
 				sys.setCoordinates(new double[] { latDegs, lonDegs });
-				Store.ofy().save().entity(sys);
+				Store.ofy().save().entity(sys).now();
 				
 				SystemPosition pos = new SystemPosition();
 				pos.imc_id = id;
