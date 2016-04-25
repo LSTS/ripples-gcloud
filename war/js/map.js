@@ -545,13 +545,13 @@ var desiredIcon = new SysIcon({
 var extSysIcon = new SysIcon({
 	iconUrl : 'icons/ico_external.png'
 });
-var planeSysIcon = new SysIcon({
+var planeIcon = new SysIcon({
 	iconUrl : 'icons/ico_plane.png'
 });
-var shipSysIcon = new SysIcon({
+var shipIcon = new SysIcon({
 	iconUrl : 'icons/ico_ship.png'
 });
-var asvIcon = new SysIcon({
+var usvIcon = new SysIcon({
 	iconUrl : 'icons/ico_usv.png'
 });
 
@@ -656,7 +656,7 @@ function positionHistory() {
 }
 
 function sysIconFromName(name) {
-	switch (name) {
+	switch (name.toUpperCase()) {
 	case "UUV":
 		return auvIcon;
 	case "UAV":
@@ -768,6 +768,7 @@ ripplesRef.child('assets').on(
 
 			if (markers[name] != undefined) {
 				markers[name].setLatLng(pos);
+				markers[name].setIcon(sysIconFromName(type));
 				markers[name].bindPopup("<b>" + name + "</b><br/>"
 						+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
 						+ new Date().toLocaleString());
