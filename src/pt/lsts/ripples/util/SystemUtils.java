@@ -36,7 +36,8 @@ public class SystemUtils {
             address.imc_id = id;
             address.name = assetName;
             Store.ofy().save().entity(address);
-            Logger.getLogger(SystemUtils.class.getName()).info("Created a new address entry for " + address.name);	        
+            Logger.getLogger(SystemUtils.class.getName()).info("Created a new address entry for " + address.name);
+            addr = address;
 	    }
 	    else
 	    	id = addr.imc_id;
