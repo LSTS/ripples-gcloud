@@ -772,6 +772,8 @@ ripplesRef.child('assets').on(
 				markers[name].bindPopup("<b>" + name + "</b><br/>"
 						+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
 						+ new Date().toLocaleString());
+				if ("Gunnerus" === name)
+					markers[name].setIcon(targetIcon);
 			} else {
 				markers[name] = L.marker([ lat, lon ], {
 					icon : sysIconFromName(type)
