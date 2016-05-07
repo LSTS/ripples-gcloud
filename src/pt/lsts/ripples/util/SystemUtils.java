@@ -6,7 +6,6 @@ package pt.lsts.ripples.util;
 import java.util.logging.Logger;
 
 import pt.lsts.imc.RemoteSensorInfo;
-import pt.lsts.imc.net.IMCProtocol;
 import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.Store;

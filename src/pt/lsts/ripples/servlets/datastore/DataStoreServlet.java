@@ -182,6 +182,8 @@ public class DataStoreServlet extends HttpServlet {
 				listHistoricData(req, resp, MAX_RESULTS, "lsf");
 			else if (req.getPathInfo().equalsIgnoreCase("/xml"))
 				listHistoricData(req, resp, MAX_RESULTS, "xml");
+			else if (req.getPathInfo().equalsIgnoreCase("/html"))
+				listHistoricData(req, resp, MAX_RESULTS, "html");
 			else {
 				PrintWriter out = resp.getWriter();
 				printInvalid(resp, out);
@@ -210,9 +212,9 @@ public class DataStoreServlet extends HttpServlet {
 	private void printInvalid(HttpServletResponse resp, PrintWriter out) {
 		resp.setContentType("text/plain");
 		out.println("Invalid request. Examples:");
-		out.println("/json?type=100&source=30&since="+(System.currentTimeMillis()/1000-3600));
+		out.println("/json?type=100&source=30&since="+(System.currentTimeMillis()-3600*1000));
 		out.println("/xml");
-		out.println("/lsf&since="+(System.currentTimeMillis()/1000-3600));
+		out.println("/lsf&since="+(System.currentTimeMillis()-3600*1000));
 		resp.setStatus(400);
 		out.close();
 	}
@@ -299,17 +301,22 @@ public class DataStoreServlet extends HttpServlet {
 				.list();			
 
 		DataStore store = new DataStore();
-		for (HistoricDatum datum : historicData)
-			store.addSample(convert(datum));
 		HistoricData data;
-		try {
-			 data = store.pollData(0, 65000);
-		}
-		catch (Exception e) {
-			throw new ServletException(e);
+		
+		if (historicData.isEmpty())
+			data = new HistoricData();
+		else {
+			for (HistoricDatum datum : historicData)
+				store.addSample(convert(datum));
+			try {
+				data = store.pollData(0, 65000);
+			}
+			catch (Exception e) {
+				throw new ServletException(e);
+			}
 		}
 		
-		switch (type) {
+		switch (contenttype) {
 		case "json":
 			resp.setContentType("application/json");
 			resp.getWriter().println(data.asJSON(true));
@@ -320,16 +327,16 @@ public class DataStoreServlet extends HttpServlet {
 			resp.getWriter().println(data.asXml(false));
 			resp.getWriter().close();
 			break;
-		case "lsf":
+		case "html":
+			resp.setContentType("text/html");
+			resp.getWriter().println(IMCUtil.getAsHtml(data));
+			resp.getWriter().close();
+			break;
+		default:
 			resp.setContentType("application/lsf");
 			IMCOutputStream ios = new IMCOutputStream(resp.getOutputStream());
 			ios.writeMessage(data);
 			resp.getOutputStream().close();
-			break;
-		default:
-			resp.setContentType("application/html");
-			resp.getWriter().println(IMCUtil.getAsHtml(data));
-			resp.getWriter().close();
 			break;
 		}
 	}
@@ -344,14 +351,19 @@ public class DataStoreServlet extends HttpServlet {
 		resp.setStatus(200);
 
 		DataStore store = new DataStore();
-		for (HistoricDatum datum : historicData)
-			store.addSample(convert(datum));
 		HistoricData data;
-		try {
-			 data = store.pollData(0, 65000);
-		}
-		catch (Exception e) {
-			throw new ServletException(e);
+		
+		if (historicData.isEmpty())
+			data = new HistoricData();
+		else {
+			for (HistoricDatum datum : historicData)
+				store.addSample(convert(datum));
+			try {
+				data = store.pollData(0, 65000);
+			}
+			catch (Exception e) {
+				throw new ServletException(e);
+			}
 		}
 		
 		switch (type) {
@@ -366,7 +378,7 @@ public class DataStoreServlet extends HttpServlet {
 			resp.getWriter().close();
 			break;
 		case "html":
-			resp.setContentType("application/html");
+			resp.setContentType("text/html");
 			resp.getWriter().println(IMCUtil.getAsHtml(data));
 			resp.getWriter().close();
 			break;
