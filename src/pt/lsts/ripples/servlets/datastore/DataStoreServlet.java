@@ -20,17 +20,19 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import pt.lsts.imc.HistoricCTD;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.HistoricEvent;
+import pt.lsts.imc.HistoricEvent.TYPE;
 import pt.lsts.imc.HistoricTelemetry;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.historic.DataSample;
+import pt.lsts.imc.historic.DataStore;
 import pt.lsts.ripples.model.CTDSample;
 import pt.lsts.ripples.model.EventSample;
 import pt.lsts.ripples.model.HistoricDatum;
@@ -40,7 +42,7 @@ import pt.lsts.ripples.model.TelemetrySample;
 public class DataStoreServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static final int MAX_RESULTS = 10;
+	private static final int MAX_RESULTS = 500;
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -69,6 +71,41 @@ public class DataStoreServlet extends HttpServlet {
 		out.close();
 	}
 
+	private DataSample convert(HistoricDatum datum) {
+		DataSample sample = new DataSample();
+		sample.setLatDegs(datum.lat);
+		sample.setLonDegs(datum.lon);
+		sample.setzMeters(datum.z);
+		sample.setSource((int)datum.imc_id);
+		sample.setTimestampMillis(datum.timestamp.getTime());
+
+		if (datum instanceof CTDSample) {
+			CTDSample ctdDatum = (CTDSample)datum;
+			HistoricCTD ctd = new HistoricCTD();
+			ctd.setConductivity(ctdDatum.conductivity);
+			ctd.setDepth(ctdDatum.depth);
+			ctd.setTemperature(ctdDatum.temperature);
+			sample.setSample(ctd);
+		}
+		else if (datum instanceof TelemetrySample) {
+			TelemetrySample telDatum = (TelemetrySample)datum;
+			HistoricTelemetry tel = new HistoricTelemetry();
+			tel.setRoll((int)(telDatum.roll * 65535 / 360));
+			tel.setPitch((int)(telDatum.pitch * 65535 / 360));
+			tel.setYaw((int)(telDatum.yaw * 65535 / 360));
+			tel.setSpeed((short) (telDatum.speed * 10));
+			sample.setSample(tel);
+		}
+		else if (datum instanceof EventSample) {
+			EventSample evtDatum = (EventSample) datum;
+			HistoricEvent evt = new HistoricEvent();
+			evt.setText(evtDatum.text);
+			evt.setType(evtDatum.error? TYPE.ERROR : TYPE.INFO);
+			sample.setSample(evt);
+		}
+		
+		return sample;
+	}
 	private HistoricDatum convert(DataSample sample) {
 		HistoricDatum datum;
 		int type = -1;
@@ -130,27 +167,52 @@ public class DataStoreServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+		String type = "lsf";
+		
 		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
-
-			listHistoricData(req, resp, MAX_RESULTS);
+			listHistoricData(req, resp, MAX_RESULTS, type);
 			resp.getWriter().close();
 			return;
-		} 
-		else if (req.getPathInfo().equals("/search")) {
-			if (parameterMatch(req,  Arrays.asList("type", "source", "since")))
-				listHistoricData2(req, resp, MAX_RESULTS);
+		}
+		
+		if (!req.getParameterNames().hasMoreElements()) {
+			if (req.getPathInfo().equalsIgnoreCase("/json"))
+				listHistoricData(req, resp, MAX_RESULTS, "json");		
+			else if (req.getPathInfo().equalsIgnoreCase("/lsf"))
+				listHistoricData(req, resp, MAX_RESULTS, "lsf");
+			else if (req.getPathInfo().equalsIgnoreCase("/xml"))
+				listHistoricData(req, resp, MAX_RESULTS, "xml");
 			else {
 				PrintWriter out = resp.getWriter();
 				printInvalid(resp, out);
+				resp.getWriter().close();
 			}
-			resp.getWriter().close();
+			return;
 		}
+					
+		if (!parameterMatch(req,  Arrays.asList("type", "source", "since"))) {
+			PrintWriter out = resp.getWriter();
+			printInvalid(resp, out);
+			resp.getWriter().close();
+			return;
+		}
+		
+		if (req.getPathInfo().equalsIgnoreCase("/json"))
+			filterHistoricData(req, resp, MAX_RESULTS, "json");		
+		else if (req.getPathInfo().equalsIgnoreCase("/imc"))
+			filterHistoricData(req, resp, MAX_RESULTS, "imc");
+		else if (req.getPathInfo().equalsIgnoreCase("/xml"))
+			filterHistoricData(req, resp, MAX_RESULTS, "xml");
+		else if (req.getPathInfo().equalsIgnoreCase("/html"))
+			filterHistoricData(req, resp, MAX_RESULTS, "html");
 	}
 
 	private void printInvalid(HttpServletResponse resp, PrintWriter out) {
 		resp.setContentType("text/plain");
-		out.println("Invalid search parameters.");
-		out.println("Example: /search?type=100&source=30&since=1460640963000");
+		out.println("Invalid request. Examples:");
+		out.println("/json?type=100&source=30&since="+(System.currentTimeMillis()/1000-3600));
+		out.println("/xml");
+		out.println("/lsf&since="+(System.currentTimeMillis()/1000-3600));
 		resp.setStatus(400);
 		out.close();
 	}
@@ -170,11 +232,9 @@ public class DataStoreServlet extends HttpServlet {
 		return true;
 	}
 
-	private void listHistoricData2(HttpServletRequest req, HttpServletResponse resp, int limit) throws ServletException, IOException {
-		resp.setContentType("application/json");
-		PrintWriter out = resp.getWriter();
+	private void filterHistoricData(HttpServletRequest req, HttpServletResponse resp, int limit, String contenttype) throws ServletException, IOException {
+		resp.setContentType("text/plain");
 		resp.setStatus(200);
-		int countTotal = Store.ofy().load().type(HistoricDatum.class).count();
 		ArrayList<Filter> list = new ArrayList<>();
 
 		String type = req.getParameter("type");
@@ -186,7 +246,7 @@ public class DataStoreServlet extends HttpServlet {
 						typeValue);
 				list.add(typeFilter);
 			} catch (NumberFormatException e) {
-				printInvalid(resp, out);
+				printInvalid(resp, resp.getWriter());
 				return;
 			}
 		}
@@ -201,28 +261,29 @@ public class DataStoreServlet extends HttpServlet {
 						systemValue);
 				list.add(systemFilter);
 			} catch (NumberFormatException e) {
-				printInvalid(resp, out);
+				printInvalid(resp, resp.getWriter());
 				return;
 			}
 		}
-
+		DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 		String since = req.getParameter("since");
-		if (since != null) {
-			try {
-				long sinceValue = Long.parseLong(since);
-				DateFormat formatter = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy", Locale.ENGLISH);
-				Date date = new Date(sinceValue);
+		if (since == null)
+			since = ""+(System.currentTimeMillis()-3600*1000)/1000;
 
-				formatter.format(date);
-				Filter sinceFilter = new FilterPredicate("timestamp",
-						FilterOperator.GREATER_THAN_OR_EQUAL,
-						date);
-				list.add(sinceFilter);
-			} catch (NumberFormatException e) {
-				printInvalid(resp, out);
-				return;
-			}
+		try {
+			long sinceValue = Long.parseLong(since);
 
+			Date date = new Date(sinceValue);
+
+			formatter.format(date);
+			Filter sinceFilter = new FilterPredicate("timestamp",
+					FilterOperator.GREATER_THAN_OR_EQUAL,
+					date);
+			list.add(sinceFilter);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			printInvalid(resp, resp.getWriter());
+			return;
 		}
 
 		Filter filter = null;
@@ -234,45 +295,87 @@ public class DataStoreServlet extends HttpServlet {
 		List<HistoricDatum> historicData = Store.ofy().load().type(HistoricDatum.class)
 				.filter(filter)
 				.order("-timestamp")
-				.list();
+				.limit(MAX_RESULTS)
+				.list();			
 
-		int count = historicData.size();
-
-		ArrayList<HistoricDatum> entries = new ArrayList<>();
-
-		for (HistoricDatum hd : historicData) {
-			entries.add(hd);
+		DataStore store = new DataStore();
+		for (HistoricDatum datum : historicData)
+			store.addSample(convert(datum));
+		HistoricData data;
+		try {
+			 data = store.pollData(0, 65000);
 		}
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd_HH:mm:ss").create();
-
-		out.println(gson.toJson(entries));
-		out.println("Showing " + count + " samples of "+ countTotal +" total in the cloud store...");
-		out.close();
-
+		catch (Exception e) {
+			throw new ServletException(e);
+		}
+		
+		switch (type) {
+		case "json":
+			resp.setContentType("application/json");
+			resp.getWriter().println(data.asJSON(true));
+			resp.getWriter().close();
+			break;
+		case "xml":
+			resp.setContentType("application/xml");
+			resp.getWriter().println(data.asXml(false));
+			resp.getWriter().close();
+			break;
+		case "lsf":
+			resp.setContentType("application/lsf");
+			IMCOutputStream ios = new IMCOutputStream(resp.getOutputStream());
+			ios.writeMessage(data);
+			resp.getOutputStream().close();
+			break;
+		default:
+			resp.setContentType("application/html");
+			resp.getWriter().println(IMCUtil.getAsHtml(data));
+			resp.getWriter().close();
+			break;
+		}
 	}
 
-	private void listHistoricData(HttpServletRequest req, HttpServletResponse resp, int limit) throws ServletException, IOException {
-		resp.setContentType("application/json");
-		PrintWriter out = resp.getWriter();
-		resp.setStatus(200);
+	private void listHistoricData(HttpServletRequest req, HttpServletResponse resp, int limit, String type) throws ServletException, IOException {
 
-		int countTotal = Store.ofy().load().type(HistoricDatum.class).count();
 		List<HistoricDatum> historicData = Store.ofy().load().type(HistoricDatum.class)
 				.order("-timestamp")
 				.limit(limit)
 				.list();
 
-		int count = historicData.size();
+		resp.setStatus(200);
 
-		ArrayList<HistoricDatum> entries = new ArrayList<>();
-
-		for (HistoricDatum hd : historicData) {
-			entries.add(hd);
+		DataStore store = new DataStore();
+		for (HistoricDatum datum : historicData)
+			store.addSample(convert(datum));
+		HistoricData data;
+		try {
+			 data = store.pollData(0, 65000);
 		}
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd_HH:mm:ss").create();
-
-		out.println(gson.toJson(entries));
-		out.println("Showing " + count + " samples of "+ countTotal +" in the cloud store...");
-		out.close();
+		catch (Exception e) {
+			throw new ServletException(e);
+		}
+		
+		switch (type) {
+		case "json":
+			resp.setContentType("application/json");
+			resp.getWriter().println(data.asJSON(true));
+			resp.getWriter().close();
+			break;
+		case "xml":
+			resp.setContentType("application/xml");
+			resp.getWriter().println(data.asXml(false));
+			resp.getWriter().close();
+			break;
+		case "html":
+			resp.setContentType("application/html");
+			resp.getWriter().println(IMCUtil.getAsHtml(data));
+			resp.getWriter().close();
+			break;
+		default:
+			resp.setContentType("application/lsf");
+			IMCOutputStream ios = new IMCOutputStream(resp.getOutputStream());
+			ios.writeMessage(data);
+			resp.getOutputStream().close();
+			break;		
+		}		
 	}
 }
