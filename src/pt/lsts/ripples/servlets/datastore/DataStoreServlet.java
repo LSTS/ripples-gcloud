@@ -2,13 +2,10 @@ package pt.lsts.ripples.servlets.datastore;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -207,6 +204,8 @@ public class DataStoreServlet extends HttpServlet {
 			filterHistoricData(req, resp, MAX_RESULTS, "xml");
 		else if (req.getPathInfo().equalsIgnoreCase("/html"))
 			filterHistoricData(req, resp, MAX_RESULTS, "html");
+		else if (req.getPathInfo().equalsIgnoreCase("/lsf"))
+			filterHistoricData(req, resp, MAX_RESULTS, "lsf");
 	}
 
 	private void printInvalid(HttpServletResponse resp, PrintWriter out) {
@@ -267,19 +266,15 @@ public class DataStoreServlet extends HttpServlet {
 				return;
 			}
 		}
-		DateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 		String since = req.getParameter("since");
 		if (since == null)
 			since = ""+(System.currentTimeMillis()-3600*1000)/1000;
 
 		try {
 			long sinceValue = Long.parseLong(since);
-
 			Date date = new Date(sinceValue);
-
-			formatter.format(date);
 			Filter sinceFilter = new FilterPredicate("timestamp",
-					FilterOperator.GREATER_THAN_OR_EQUAL,
+					FilterOperator.GREATER_THAN,
 					date);
 			list.add(sinceFilter);
 		} catch (NumberFormatException e) {
@@ -303,8 +298,10 @@ public class DataStoreServlet extends HttpServlet {
 		DataStore store = new DataStore();
 		HistoricData data;
 		
-		if (historicData.isEmpty())
+		if (historicData.isEmpty()) {
 			data = new HistoricData();
+			data.setBaseTime(System.currentTimeMillis()/1000);
+		}
 		else {
 			for (HistoricDatum datum : historicData)
 				store.addSample(convert(datum));
@@ -353,8 +350,10 @@ public class DataStoreServlet extends HttpServlet {
 		DataStore store = new DataStore();
 		HistoricData data;
 		
-		if (historicData.isEmpty())
+		if (historicData.isEmpty()) {
 			data = new HistoricData();
+			data.setBaseTime(System.currentTimeMillis()/1000);
+		}
 		else {
 			for (HistoricDatum datum : historicData)
 				store.addSample(convert(datum));
