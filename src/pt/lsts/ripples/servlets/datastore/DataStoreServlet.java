@@ -22,6 +22,7 @@ import pt.lsts.imc.HistoricCTD;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.HistoricEvent;
 import pt.lsts.imc.HistoricEvent.TYPE;
+import pt.lsts.imc.HistoricSample;
 import pt.lsts.imc.HistoricTelemetry;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
@@ -99,6 +100,9 @@ public class DataStoreServlet extends HttpServlet {
 			evt.setText(evtDatum.text);
 			evt.setType(evtDatum.error? TYPE.ERROR : TYPE.INFO);
 			sample.setSample(evt);
+		}
+		else {
+			System.err.println("Unrecongnized type of datum: "+datum.getClass().getSimpleName());
 		}
 		
 		return sample;
@@ -291,7 +295,7 @@ public class DataStoreServlet extends HttpServlet {
 
 		List<HistoricDatum> historicData = Store.ofy().load().type(HistoricDatum.class)
 				.filter(filter)
-				.order("-timestamp")
+				.order("timestamp")
 				.limit(MAX_RESULTS)
 				.list();			
 
@@ -303,8 +307,10 @@ public class DataStoreServlet extends HttpServlet {
 			data.setBaseTime(System.currentTimeMillis()/1000);
 		}
 		else {
-			for (HistoricDatum datum : historicData)
-				store.addSample(convert(datum));
+			for (HistoricDatum datum : historicData) {
+				if (datum.getClass() != HistoricDatum.class)
+					store.addSample(convert(datum));
+			}				
 			try {
 				data = store.pollData(0, 65000);
 			}
@@ -313,29 +319,7 @@ public class DataStoreServlet extends HttpServlet {
 			}
 		}
 		
-		switch (contenttype) {
-		case "json":
-			resp.setContentType("application/json");
-			resp.getWriter().println(data.asJSON(true));
-			resp.getWriter().close();
-			break;
-		case "xml":
-			resp.setContentType("application/xml");
-			resp.getWriter().println(data.asXml(false));
-			resp.getWriter().close();
-			break;
-		case "html":
-			resp.setContentType("text/html");
-			resp.getWriter().println(IMCUtil.getAsHtml(data));
-			resp.getWriter().close();
-			break;
-		default:
-			resp.setContentType("application/lsf");
-			IMCOutputStream ios = new IMCOutputStream(resp.getOutputStream());
-			ios.writeMessage(data);
-			resp.getOutputStream().close();
-			break;
-		}
+		serveHistoricData(data, contenttype, resp);
 	}
 
 	private void listHistoricData(HttpServletRequest req, HttpServletResponse resp, int limit, String type) throws ServletException, IOException {
@@ -356,7 +340,8 @@ public class DataStoreServlet extends HttpServlet {
 		}
 		else {
 			for (HistoricDatum datum : historicData)
-				store.addSample(convert(datum));
+				if (datum.getClass() != HistoricDatum.class)
+					store.addSample(convert(datum));
 			try {
 				data = store.pollData(0, 65000);
 			}
@@ -365,7 +350,11 @@ public class DataStoreServlet extends HttpServlet {
 			}
 		}
 		
-		switch (type) {
+		serveHistoricData(data, type, resp);	
+	}
+	
+	private void serveHistoricData(HistoricData data, String contentType, HttpServletResponse resp) throws IOException {
+		switch (contentType) {
 		case "json":
 			resp.setContentType("application/json");
 			resp.getWriter().println(data.asJSON(true));
@@ -378,6 +367,13 @@ public class DataStoreServlet extends HttpServlet {
 			break;
 		case "html":
 			resp.setContentType("text/html");
+			resp.getWriter().println("<h3>Number of samples: "+data.getData().size()+"</h3>");
+			resp.getWriter().println("<h3>Message size: "+data.getPayloadSize()+"</h3>");
+			resp.getWriter().println("<h3>Last time: "+new Date((long)(data.getBaseTime()*1000))+"</h3>");
+			int t = 0;
+			if (!data.getData().isEmpty())
+				t = ((HistoricSample)data.getData().lastElement()).getT();
+			resp.getWriter().println("<h3>Initial time: "+new Date((long)((data.getBaseTime()+t)*1000))+"</h3>");
 			resp.getWriter().println(IMCUtil.getAsHtml(data));
 			resp.getWriter().close();
 			break;
@@ -387,6 +383,6 @@ public class DataStoreServlet extends HttpServlet {
 			ios.writeMessage(data);
 			resp.getOutputStream().close();
 			break;		
-		}		
+		}	
 	}
 }
