@@ -168,6 +168,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet-mapping>
 	
 	<servlet>
+		<servlet-name>WavyUpdateServlet</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.raia.WavyUpdateServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>WavyUpdateServlet</servlet-name>
+		<url-pattern>/wavy/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>DataStoreServlet</servlet-name>
 		<servlet-class>pt.lsts.ripples.servlets.datastore.DataStoreServlet</servlet-class>
 	</servlet>
