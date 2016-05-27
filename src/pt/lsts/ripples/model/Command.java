@@ -2,6 +2,7 @@ package pt.lsts.ripples.model;
 
 import java.util.Date;
 
+import com.google.appengine.api.datastore.Blob;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -24,7 +25,5 @@ public class Command {
 	@Index
 	public Date timestamp;
 	
-	public String command;
-
-
+	public Blob cmd = null;
 }

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -67,12 +68,11 @@ public class CommandStoreServlet extends HttpServlet {
 
 	private Command convert(RemoteCommand sample) {
 		Command ret = new Command();
-		ret.command = sample.asJSON();
+		ret.cmd = new Blob(sample.toByteArray());
 		ret.imc_id_dest = sample.getDst();
 		ret.imc_id_source = sample.getSrc();
 		ret.timeout = sample.getTimeout();
 		ret.timestamp = sample.getDate();
-
 		return ret;
 	}
 

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -29,9 +30,11 @@ import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.RemoteCommand;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.ripples.model.CTDSample;
+import pt.lsts.ripples.model.Command;
 import pt.lsts.ripples.model.EventSample;
 import pt.lsts.ripples.model.HistoricDatum;
 import pt.lsts.ripples.model.Store;
@@ -45,22 +48,27 @@ public class DataStoreServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		resp.setContentType("text/plain");
+		resp.setContentType("text/plain");	
 		PrintWriter out = resp.getWriter();
 
 		ArrayList<DataSample> samples = new ArrayList<>();
 
 		try {
 			IMCInputStream in = new IMCInputStream(req.getInputStream(), IMCDefinition.getInstance());
-			while (req.getInputStream().available() > 0)
-				samples.addAll(process(in.readMessage()));
+			IMCMessage msg = in.readMessage();
 			in.close();
+			
+			while (req.getInputStream().available() > 0)
+				samples.addAll(process(msg));
+			
+			ArrayList<Command> cmds = extractCommands(msg);
+			
 			ArrayList<HistoricDatum> data = new ArrayList<>();
-			for (DataSample sample : samples) {
+			for (DataSample sample : samples)
 				data.add(convert(sample));
-			}
 			Store.ofy().save().entities(data).now();
-			out.println("Added " + samples.size() + " samples to cloud store.");
+			out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands to cloud store.");
+			
 			resp.setStatus(200);
 		} catch (Exception e) {
 			e.printStackTrace(out);
@@ -76,7 +84,6 @@ public class DataStoreServlet extends HttpServlet {
 		sample.setzMeters(datum.z);
 		sample.setSource((int)datum.imc_id);
 		sample.setTimestampMillis(datum.timestamp.getTime());
-
 		if (datum instanceof CTDSample) {
 			CTDSample ctdDatum = (CTDSample)datum;
 			HistoricCTD ctd = new HistoricCTD();
@@ -107,6 +114,7 @@ public class DataStoreServlet extends HttpServlet {
 		
 		return sample;
 	}
+	
 	private HistoricDatum convert(DataSample sample) {
 		HistoricDatum datum;
 		int type = -1;
@@ -164,6 +172,35 @@ public class DataStoreServlet extends HttpServlet {
 			throw new Exception("Message type is not supported: "+msg.getAbbrev());
 		}
 	}
+	
+	private Command convert(RemoteCommand sample) {
+		Command ret = new Command();
+		ret.cmd = new Blob(sample.toByteArray());
+		ret.imc_id_dest = sample.getDst();
+		ret.imc_id_source = sample.getSrc();
+		ret.timeout = sample.getTimeout();
+		ret.timestamp = sample.getDate();
+		return ret;
+	}
+
+	private ArrayList<Command> extractCommands(IMCMessage msg) throws Exception {
+		ArrayList<Command> ret = new ArrayList<>();
+		switch(msg.getMgid()) {
+		case HistoricData.ID_STATIC:
+			HistoricData hist = new HistoricData(msg);
+			for (RemoteCommand rcmd : DataSample.parseCommands(hist)) {
+				if (rcmd.getTimeout() * 1000 > System.currentTimeMillis())
+					ret.add(convert(rcmd));
+				else
+					System.out.println("Discarding expired command: "+ret);
+			}
+			return ret;
+		default:
+			throw new Exception("Message type is not supported: "+msg.getAbbrev());
+		}
+	}
+	
+	
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -303,8 +340,11 @@ public class DataStoreServlet extends HttpServlet {
 		HistoricData data;
 		
 		if (historicData.isEmpty()) {
+			HistoricDatum lastSample = Store.ofy().load().type(HistoricDatum.class).order("-timestamp").first().now();
 			data = new HistoricData();
-			data.setBaseTime(System.currentTimeMillis()/1000);
+			data.setBaseTime(System.currentTimeMillis() / 1000);
+			if (lastSample != null)
+				data.setBaseTime(lastSample.timestamp.getTime() / 1000);
 		}
 		else {
 			for (HistoricDatum datum : historicData) {
