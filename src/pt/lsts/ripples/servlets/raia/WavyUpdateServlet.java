@@ -1,6 +1,7 @@
 package pt.lsts.ripples.servlets.raia;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -33,17 +34,13 @@ public class WavyUpdateServlet extends HttpServlet {
 			resp.setContentType("text/plain");
 
 			String query = req.getQueryString();
-			if (query == null) {
-				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				return;
-			}
+			if (query == null) 
+				throw new Exception("You must provide a query string!");
 
-			String[] parts = query.split("|");
-			if (parts.length != 7) {
-				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				return;
-			}
-
+			String[] parts = URLDecoder.decode(query, "UTF-8").split("\\|");
+			if (parts.length != 7)
+				throw new Exception("Number of parts received ("+parts.length+") is not 7");
+			
 			int id = Integer.parseInt(parts[0].split("=")[1]);
 
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
@@ -84,10 +81,14 @@ public class WavyUpdateServlet extends HttpServlet {
 			PositionsServlet.addPosition(pos);
 			resp.getWriter().close();
 		} catch (Exception e) {
-			resp.setStatus(405);
-			resp.getWriter().write("Invalid request: " + req.getQueryString() + "\n\n");
+			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			e.printStackTrace(resp.getWriter());
 			e.printStackTrace();
+			
+			resp.getWriter()
+			.write("\n\nExpecting request of type " + req.getServletPath()
+					+ "?v=id|HH:MM:SS|Latitude|Longitude|BattVoltage|BattPercentage|Altitude\n\n");				
+
 			resp.getWriter().close();
 			return;
 		}
