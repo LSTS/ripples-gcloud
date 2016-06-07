@@ -54,12 +54,12 @@ public class DataStoreServlet extends HttpServlet {
 		ArrayList<DataSample> samples = new ArrayList<>();
 
 		try {
+			
 			IMCInputStream in = new IMCInputStream(req.getInputStream(), IMCDefinition.getInstance());
 			IMCMessage msg = in.readMessage();
 			in.close();
 			
-			while (req.getInputStream().available() > 0)
-				samples.addAll(process(msg));
+			samples.addAll(process(msg));
 			
 			ArrayList<Command> cmds = extractCommands(msg);
 			
@@ -67,6 +67,7 @@ public class DataStoreServlet extends HttpServlet {
 			for (DataSample sample : samples)
 				data.add(convert(sample));
 			Store.ofy().save().entities(data).now();
+			System.out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands to cloud store.");
 			out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands to cloud store.");
 			
 			resp.setStatus(200);
@@ -423,6 +424,6 @@ public class DataStoreServlet extends HttpServlet {
 			ios.writeMessage(data);
 			resp.getOutputStream().close();
 			break;		
-		}	
+		}
 	}
 }
