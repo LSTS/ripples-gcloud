@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,6 +20,7 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 
+import pt.lsts.imc.Abort;
 import pt.lsts.imc.HistoricCTD;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.HistoricEvent;
@@ -31,6 +33,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.RemoteCommand;
+import pt.lsts.imc.RemoteData;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.ripples.model.CTDSample;
@@ -48,13 +51,12 @@ public class DataStoreServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		resp.setContentType("text/plain");	
-		PrintWriter out = resp.getWriter();
-
+		resp.setContentType("application/lsf");	
+		
 		ArrayList<DataSample> samples = new ArrayList<>();
 
 		try {
-			
+			resp.setStatus(200);
 			IMCInputStream in = new IMCInputStream(req.getInputStream(), IMCDefinition.getInstance());
 			IMCMessage msg = in.readMessage();
 			in.close();
@@ -67,16 +69,35 @@ public class DataStoreServlet extends HttpServlet {
 			for (DataSample sample : samples)
 				data.add(convert(sample));
 			Store.ofy().save().entities(data).now();
-			System.out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands to cloud store.");
-			out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands to cloud store.");
+			System.out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands from "+msg.getSourceName()+" to cloud store.");
 			
-			resp.setStatus(200);
+			IMCMessage m = dataFor(msg.getSrc());
+			IMCOutputStream ios = new IMCOutputStream(resp.getOutputStream());
+			ios.writeMessage(m);
+			resp.getOutputStream().close();
+			
 		} catch (Exception e) {
+			resp.setStatus(500);	
+			PrintWriter out = resp.getWriter();
 			e.printStackTrace(out);
-			resp.setStatus(500);
+			out.close();				
 		}
-		out.close();
 	}
+	
+	private IMCMessage dataFor(int dst) {
+		HistoricData data = new HistoricData();
+		data.setDst(dst);
+		RemoteCommand command = new RemoteCommand();
+		command.setCmd(new Abort());
+		command.setDestination(dst);
+		command.setTimeout((System.currentTimeMillis() + 60000) / 1000.0);
+		Vector<RemoteData> cmds = data.getData();
+		cmds.add(command);
+		data.setData(cmds);
+		return data;
+	}
+	
+	
 
 	private DataSample convert(HistoricDatum datum) {
 		DataSample sample = new DataSample();
