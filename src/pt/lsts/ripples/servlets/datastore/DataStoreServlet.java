@@ -1,5 +1,6 @@
 package pt.lsts.ripples.servlets.datastore;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 
-import pt.lsts.imc.Abort;
 import pt.lsts.imc.HistoricCTD;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.HistoricEvent;
@@ -69,6 +69,8 @@ public class DataStoreServlet extends HttpServlet {
 			for (DataSample sample : samples)
 				data.add(convert(sample));
 			Store.ofy().save().entities(data).now();
+			Store.ofy().save().entities(cmds).now();
+			
 			System.out.println("Added " + samples.size() + " samples and "+cmds.size()+" commands from "+msg.getSourceName()+" to cloud store.");
 			
 			IMCMessage m = dataFor(msg.getSrc());
@@ -87,17 +89,18 @@ public class DataStoreServlet extends HttpServlet {
 	private IMCMessage dataFor(int dst) {
 		HistoricData data = new HistoricData();
 		data.setDst(dst);
-		RemoteCommand command = new RemoteCommand();
-		command.setCmd(new Abort());
-		command.setDestination(dst);
-		command.setTimeout((System.currentTimeMillis() + 60000) / 1000.0);
 		Vector<RemoteData> cmds = data.getData();
-		cmds.add(command);
+		for (Command cmd : Store.ofy().load().type(Command.class).filter("imc_id_dest==", dst).iterable()) {
+			try {
+				cmds.add(convert(cmd));
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}			
+		}
 		data.setData(cmds);
 		return data;
 	}
-	
-	
 
 	private DataSample convert(HistoricDatum datum) {
 		DataSample sample = new DataSample();
@@ -202,6 +205,17 @@ public class DataStoreServlet extends HttpServlet {
 		ret.imc_id_source = sample.getSrc();
 		ret.timeout = sample.getTimeout();
 		ret.timestamp = sample.getDate();
+		return ret;
+	}
+	
+	private RemoteCommand convert(Command cmd) throws IOException {
+		RemoteCommand ret = new RemoteCommand();
+		IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(cmd.cmd.getBytes()), IMCDefinition.getInstance());
+		ret.setCmd(iis.readMessage());
+		iis.close();
+		ret.setDestination((int)cmd.imc_id_dest);
+		ret.setTimeout(cmd.timeout);
+		ret.setTimestamp(cmd.timestamp.getTime()/1000.0);
 		return ret;
 	}
 
