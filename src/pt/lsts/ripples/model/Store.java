@@ -25,6 +25,7 @@ public class Store {
 		ObjectifyService.factory().register(TelemetrySample.class);
 		ObjectifyService.factory().register(EventSample.class);
 		ObjectifyService.factory().register(Command.class);
+		ObjectifyService.factory().register(DataRoute.class);
 	}
 	
 	public static Objectify ofy() {

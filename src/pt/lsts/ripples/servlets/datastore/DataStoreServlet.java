@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -38,6 +39,7 @@ import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.ripples.model.CTDSample;
 import pt.lsts.ripples.model.Command;
+import pt.lsts.ripples.model.DataRoute;
 import pt.lsts.ripples.model.EventSample;
 import pt.lsts.ripples.model.HistoricDatum;
 import pt.lsts.ripples.model.Store;
@@ -63,12 +65,28 @@ public class DataStoreServlet extends HttpServlet {
 			in.close();
 
 			samples.addAll(process(msg));
-
 			ArrayList<Command> cmds = extractCommands(msg);
+			
+			
 
 			ArrayList<HistoricDatum> data = new ArrayList<>();
 			for (DataSample sample : samples)
 				data.add(convert(sample));
+			
+			HashSet<Integer> differentSources = new HashSet<>();
+			for (HistoricDatum d : data) {
+				if (d.imc_id != msg.getSrc())
+					differentSources.add((int)d.imc_id);
+			}
+			
+			for (Command c : cmds) {
+				if (c.imc_id_source != msg.getSrc())
+					differentSources.add((int)c.imc_id_source);
+			}
+			
+			for (int sys : differentSources)
+				addRoute(sys, msg.getSrc());
+			
 			Store.ofy().save().entities(data).now();
 			Store.ofy().save().entities(cmds).now();
 
@@ -101,17 +119,29 @@ public class DataStoreServlet extends HttpServlet {
 		HistoricData data = new HistoricData();
 		data.setDst(dst);
 		Vector<RemoteData> cmds = data.getData();
-		for (Command cmd : Store.ofy().load().type(Command.class).filter("imc_id_dest", dst).iterable()) {
-			
-			try {
-				if (cmd.timeout * 1000 > System.currentTimeMillis())
-					cmds.add(convert(cmd));
-				if (remove)
-					Store.ofy().delete().entity(cmd);
-			} catch (Exception e) {
-				e.printStackTrace();
+		
+		ArrayList<Integer> dests = new ArrayList<>();
+		dests.add(dst);
+		dests.addAll(reachableDestinations(dst));
+
+		String names = "";
+		
+		for (int destination : dests) {
+			for (Command cmd : Store.ofy().load().type(Command.class).filter("imc_id_dest", destination).iterable()) {
+				try {
+					if (cmd.timeout * 1000 > System.currentTimeMillis())
+						cmds.add(convert(cmd));
+					if (remove)
+						Store.ofy().delete().entity(cmd);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+			names += " "+IMCDefinition.getInstance().getResolver().resolve(destination);
 		}
+		
+		System.out.println("Sending to "+IMCDefinition.getInstance().getResolver().resolve(dst)+" commands for"+names);
+		
 
 		data.setData(cmds);
 		return data;
@@ -459,5 +489,39 @@ public class DataStoreServlet extends HttpServlet {
 			resp.getOutputStream().close();
 			break;
 		}
+	}
+	
+	private void addRoute(int system, int gateway) {
+		DataRoute route = null;
+		List<DataRoute> routes = Store.ofy().load().type(DataRoute.class).
+				filter("gateway", (long)gateway).filter("system", (long)system).list();
+		
+		if (routes.isEmpty()) {
+			route = new DataRoute();
+			route.gateway = gateway;
+			route.system = system;
+			route.timestamp = System.currentTimeMillis();			
+		}
+		else {
+			route = routes.get(0);
+			route.timestamp = System.currentTimeMillis();
+		}
+		
+		Store.ofy().save().entity(route);
+	}
+	
+	private List<Integer> reachableDestinations(int system) {
+		List<DataRoute> destinations = Store.ofy().load().type(DataRoute.class).filter("gateway", (long)system).list();
+		List<Integer> ret = new ArrayList<>();
+		
+		long curTime = System.currentTimeMillis();
+		for (DataRoute route : destinations) {
+			if (curTime - route.timestamp > 300 * 1000)
+				Store.ofy().delete().entity(route);
+			else
+				ret.add((int)route.system);
+		}
+		
+		return ret;
 	}
 }
