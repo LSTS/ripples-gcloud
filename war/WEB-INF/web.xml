@@ -173,7 +173,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>WavyUpdateServlet</servlet-name>
-		<url-pattern>/wavy/*</url-pattern>
+		<url-pattern>/w/*</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>

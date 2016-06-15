@@ -17,6 +17,7 @@ import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
+import pt.lsts.ripples.util.FirebaseUtils;
 
 /**
  * Systems service, according to HUB API V1.
@@ -95,9 +96,7 @@ public class PositionsServlet extends HttpServlet {
 		}
 		
 		System.out.println("System found for "+pos.imc_id+" is "+sys+" which has "+sys.imcid);
-		
 		System.out.println("Updating "+sys.getName()+" to "+pos.timestamp);
-		
 		sys.setUpdated_at(pos.timestamp);
 		sys.setCoordinates(new double[] { pos.lat,
 				pos.lon });
@@ -111,15 +110,17 @@ public class PositionsServlet extends HttpServlet {
 			Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
 					"First position for " + pos.imc_id);
 		}
-		//else if (pos.timestamp.getTime() - existing.timestamp.getTime() < 1000) {
-		//	Logger.getLogger(PositionsServlet.class.getName()).log(Level.INFO,
-		//			"Already have an up to date position for " + pos.imc_id);
-		//	return;
-		//}
 		Logger.getLogger(PositionsServlet.class.getName()).log(
 				Level.INFO,
 				"Storing " + pos.imc_id);
 		
 		Store.ofy().save().entity(pos).now();
+		
+		try {
+			FirebaseUtils.updateFirebase(sys);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -17,6 +17,7 @@ import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.iridium.DeviceUpdate;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.util.IridiumUtils;
 
