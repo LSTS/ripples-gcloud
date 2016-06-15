@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
 import pt.lsts.ripples.model.IridiumSubscription;
@@ -22,6 +23,7 @@ import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.model.iridium.Position;
 import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
+import pt.lsts.ripples.servlets.datastore.HistoricDataProcessor;
 
 public class IridiumMsgHandler {
 
@@ -64,6 +66,14 @@ public class IridiumMsgHandler {
 		switch (m.getMgid()) {
 		case LogBookEntry.ID_STATIC:
 			addLogEntry((LogBookEntry)m);
+			break;
+		case HistoricData.ID_STATIC:
+			try {
+				HistoricDataProcessor.processData(new HistoricData(m));
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 			break;
 		default:
 			break;

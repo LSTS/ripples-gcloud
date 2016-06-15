@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -49,13 +48,12 @@ public class DataStoreServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static final int MAX_RESULTS = 500;
-
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		resp.setContentType("application/lsf");
 
-		ArrayList<DataSample> samples = new ArrayList<>();
 		IMCMessage retrievedCommands = null;
 
 		try {
@@ -64,35 +62,9 @@ public class DataStoreServlet extends HttpServlet {
 			IMCMessage msg = in.readMessage();
 			in.close();
 
-			samples.addAll(process(msg));
-			ArrayList<Command> cmds = extractCommands(msg);
+			if (msg.getMgid() == HistoricData.ID_STATIC)
+				HistoricDataProcessor.processData(new HistoricData(msg));
 			
-			
-
-			ArrayList<HistoricDatum> data = new ArrayList<>();
-			for (DataSample sample : samples)
-				data.add(convert(sample));
-			
-			HashSet<Integer> differentSources = new HashSet<>();
-			for (HistoricDatum d : data) {
-				if (d.imc_id != msg.getSrc())
-					differentSources.add((int)d.imc_id);
-			}
-			
-			for (Command c : cmds) {
-				if (c.imc_id_source != msg.getSrc())
-					differentSources.add((int)c.imc_id_source);
-			}
-			
-			for (int sys : differentSources)
-				addRoute(sys, msg.getSrc());
-			
-			Store.ofy().save().entities(data).now();
-			Store.ofy().save().entities(cmds).now();
-
-			System.out.println("Added " + samples.size() + " samples and " + cmds.size() + " commands from "
-					+ msg.getSourceName() + " to cloud store.");
-
 			retrievedCommands = dataFor(msg.getSrc(), true);
 			IMCOutputStream ios = new IMCOutputStream(resp.getOutputStream());
 			ios.writeMessage(retrievedCommands);
@@ -111,7 +83,6 @@ public class DataStoreServlet extends HttpServlet {
 					ex.printStackTrace();
 				}
 			}
-
 		}
 	}
 
@@ -140,8 +111,7 @@ public class DataStoreServlet extends HttpServlet {
 			names += " "+IMCDefinition.getInstance().getResolver().resolve(destination);
 		}
 		
-		System.out.println("Sending to "+IMCDefinition.getInstance().getResolver().resolve(dst)+" commands for"+names);
-		
+		System.out.println("Sending to "+IMCDefinition.getInstance().getResolver().resolve(dst)+" commands for"+names);		
 
 		data.setData(cmds);
 		return data;
@@ -182,64 +152,7 @@ public class DataStoreServlet extends HttpServlet {
 		return sample;
 	}
 
-	private HistoricDatum convert(DataSample sample) {
-		HistoricDatum datum;
-		int type = -1;
-		if (sample.getSample() != null)
-			type = sample.getSample().getMgid();
-
-		switch (sample.getSample().getMgid()) {
-		case HistoricCTD.ID_STATIC: {
-			HistoricCTD original = new HistoricCTD(sample.getSample());
-			CTDSample converted = new CTDSample();
-			converted.conductivity = original.getConductivity();
-			converted.temperature = original.getTemperature();
-			converted.depth = original.getDepth();
-			datum = converted;
-			break;
-		}
-		case HistoricEvent.ID_STATIC: {
-			HistoricEvent original = new HistoricEvent(sample.getSample());
-			EventSample converted = new EventSample();
-			converted.text = original.getText();
-			converted.error = original.getType() == HistoricEvent.TYPE.ERROR;
-			datum = converted;
-			break;
-		}
-		case HistoricTelemetry.ID_STATIC:
-			HistoricTelemetry original = new HistoricTelemetry(sample.getSample());
-			TelemetrySample converted = new TelemetrySample();
-			converted.altitude = original.getAltitude();
-			converted.roll = (original.getRoll() / 65535.0) * 360;
-			converted.pitch = (original.getPitch() / 65535.0) * 360;
-			converted.yaw = (original.getYaw() / 65535.0) * 360;
-			converted.speed = original.getSpeed() / 10.0;
-			datum = converted;
-			break;
-		default:
-			datum = new HistoricDatum();
-			break;
-		}
-
-		datum.lat = sample.getLatDegs();
-		datum.lon = sample.getLonDegs();
-		datum.z = sample.getzMeters();
-		datum.timestamp = new Date(sample.getTimestampMillis());
-		datum.imc_id = sample.getSource();
-		datum.sample_type = type;
-
-		return datum;
-	}
-
-	private ArrayList<DataSample> process(IMCMessage msg) throws Exception {
-		switch (msg.getMgid()) {
-		case HistoricData.ID_STATIC:
-			return DataSample.parseSamples(new HistoricData(msg));
-		default:
-			throw new Exception("Message type is not supported: " + msg.getAbbrev());
-		}
-	}
-
+	
 	private Command convert(RemoteCommand sample) {
 		Command ret = new Command();
 		ret.cmd = new Blob(sample.getCmd().toByteArray());
@@ -491,24 +404,7 @@ public class DataStoreServlet extends HttpServlet {
 		}
 	}
 	
-	private void addRoute(int system, int gateway) {
-		DataRoute route = null;
-		List<DataRoute> routes = Store.ofy().load().type(DataRoute.class).
-				filter("gateway", (long)gateway).filter("system", (long)system).list();
-		
-		if (routes.isEmpty()) {
-			route = new DataRoute();
-			route.gateway = gateway;
-			route.system = system;
-			route.timestamp = System.currentTimeMillis();			
-		}
-		else {
-			route = routes.get(0);
-			route.timestamp = System.currentTimeMillis();
-		}
-		
-		Store.ofy().save().entity(route);
-	}
+	
 	
 	private List<Integer> reachableDestinations(int system) {
 		List<DataRoute> destinations = Store.ofy().load().type(DataRoute.class).filter("gateway", (long)system).list();
