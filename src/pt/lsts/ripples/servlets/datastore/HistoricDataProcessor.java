@@ -142,6 +142,9 @@ public class HistoricDataProcessor {
 	
 	private static void addRoute(int system, int gateway) {
 		DataRoute route = null;
+		if (gateway <= 0)
+			return;
+		
 		List<DataRoute> routes = Store.ofy().load().type(DataRoute.class).
 				filter("gateway", (long)gateway).filter("system", (long)system).list();
 		
