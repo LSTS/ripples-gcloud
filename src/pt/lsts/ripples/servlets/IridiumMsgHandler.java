@@ -123,7 +123,7 @@ public class IridiumMsgHandler {
 		pos.lat = Math.toDegrees(p.latRads);
 		pos.lon = Math.toDegrees(p.lonRads);
 		pos.timestamp = new Date((long)(p.timestamp * 1000));
-		PositionsServlet.addPosition(pos);
+		PositionsServlet.addPosition(pos, false);
 	}
 
 	public static void on(String imei, ActivateSubscription sub) {

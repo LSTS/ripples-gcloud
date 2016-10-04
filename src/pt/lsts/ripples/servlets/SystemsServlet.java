@@ -59,7 +59,7 @@ public class SystemsServlet extends HttpServlet {
 			pos.lat = s.getCoordinates()[0];
 			pos.lon = s.getCoordinates()[1];
 			pos.timestamp = s.getUpdated_at();
-			PositionsServlet.addPosition(pos);
+			PositionsServlet.addPosition(pos, false);
 			
 			Logger.getLogger(getClass().getName()).log(Level.FINE, "System " + s.getName() + " was updated.");
 			resp.setStatus(200);

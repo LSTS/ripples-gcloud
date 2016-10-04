@@ -75,7 +75,7 @@ public class PositionsServlet extends HttpServlet {
 		resp.getWriter().close();
 	}
 
-	public static void addPosition(SystemPosition pos) {
+	public static void addPosition(SystemPosition pos, boolean skipFirebase) {
 		
 		HubSystem sys = Store.ofy().load().type(HubSystem.class).id(pos.imc_id).now();
 		
@@ -116,11 +116,12 @@ public class PositionsServlet extends HttpServlet {
 		
 		Store.ofy().save().entity(pos).now();
 		
-		try {
-			FirebaseUtils.updateFirebase(sys);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+		if (!skipFirebase) {
+			try {
+				FirebaseUtils.updateFirebase(sys);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

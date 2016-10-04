@@ -82,7 +82,7 @@ public class UpdateFirebaseServlet extends HttpServlet {
 				pos.lat = latDegs;
 				pos.lon = lonDegs;
 				pos.timestamp = new Date(updated_at);
-				PositionsServlet.addPosition(pos);
+				PositionsServlet.addPosition(pos, true);
 			}
 			catch (Exception e) {
 				System.err.println(asset.getKey());

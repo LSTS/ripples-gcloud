@@ -111,7 +111,7 @@ public class UpdateSpotsServlet extends HttpServlet {
 			sys.setCoordinates(new double[] { pos.lat, pos.lon });
 			Store.ofy().save().entity(sys);
 			Logger.getLogger(getClass().getName()).log(Level.INFO, "Stored position for "+name+": "+pos.timestamp);
-			PositionsServlet.addPosition(pos);
+			PositionsServlet.addPosition(pos, false);
 		}
 	}
 

@@ -98,7 +98,7 @@ public class WavyPositions extends HttpServlet {
 			sys.setUpdated_at(pos.timestamp);
 			sys.setCoordinates(new double[] { pos.lat, pos.lon });
 			Store.ofy().save().entity(sys);
-			PositionsServlet.addPosition(pos);
+			PositionsServlet.addPosition(pos, false);
 			
 			Logger.getLogger(getClass().getName()).log(Level.INFO, "Date: "+d+", lat: "+lat+", lon: "+lon+", voltage: "+voltage+", percent: "+percent+", ID: "+findId(phone));
 			resp.getWriter().write("\nDate: "+d+", lat: "+lat+", lon: "+lon+", voltage: "+voltage+", percent: "+percent+", ID: "+findId(phone)+"\n");

@@ -1,6 +1,7 @@
 package pt.lsts.ripples.servlets.datastore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,8 @@ public class HistoricDataProcessor {
 		ArrayList<DataSample> samples = new ArrayList<>();
 		
 		samples.addAll(process(msg));
+		Collections.sort(samples);
+		
 		ArrayList<Command> cmds = extractCommands(msg);
 		
 		ArrayList<HistoricDatum> data = new ArrayList<>();

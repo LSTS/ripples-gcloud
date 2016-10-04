@@ -17,7 +17,6 @@ import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
 import pt.lsts.ripples.servlets.PositionsServlet;
-import pt.lsts.ripples.util.FirebaseUtils;
 
 public class WavyUpdateServlet extends HttpServlet {
 
@@ -84,7 +83,7 @@ public class WavyUpdateServlet extends HttpServlet {
 			sys.setUpdated_at(pos.timestamp);
 			sys.setCoordinates(new double[] { pos.lat, pos.lon });
 			Store.ofy().save().entity(sys);
-			PositionsServlet.addPosition(pos);
+			PositionsServlet.addPosition(pos, false);
 			resp.setStatus(HttpServletResponse.SC_OK);			
 			
 		} catch (Exception e) {

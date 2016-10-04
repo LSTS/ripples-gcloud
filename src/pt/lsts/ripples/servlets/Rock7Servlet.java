@@ -13,15 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import com.firebase.client.utilities.Pair;
+
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
-import pt.lsts.ripples.model.iridium.DeviceUpdate;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.util.IridiumUtils;
-
-import com.firebase.client.utilities.Pair;
 
 public class Rock7Servlet extends HttpServlet {
 
