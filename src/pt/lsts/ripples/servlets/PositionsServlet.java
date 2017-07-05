@@ -81,8 +81,6 @@ public class PositionsServlet extends HttpServlet {
 		
 		
 		if (sys == null) {
-			
-			
 			sys = new HubSystem();
 			sys.setImcid(pos.imc_id);
 			System.out.println("Creating new system with imc id "+sys.imcid);

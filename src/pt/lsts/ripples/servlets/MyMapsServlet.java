@@ -22,7 +22,7 @@ public class MyMapsServlet extends HttpServlet {
 	    resp.setStatus(200);
 	    resp.setContentType("text/plain");
 	    
-	    URL mapsUrl = new URL("https://www.google.com/maps/d/u/0/kml?mid=z4oHb_uriB5A.kotTY2ygE76o");
+	    URL mapsUrl = new URL("https://www.google.com/maps/d/u/0/kml?mid=1rKOJGR6AGG2-Gz9la2pyyZHux1w");
 	    URLConnection conn = mapsUrl.openConnection();
 	    conn.setUseCaches(false);
 	    ZipInputStream zis = new ZipInputStream(conn.getInputStream());
