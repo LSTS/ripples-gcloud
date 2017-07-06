@@ -160,6 +160,13 @@ var Esri_WorldImagery = L
 					attribution : 'Tiles &copy; ESRI'
 				});
 
+var ThunderForest1 = L
+		.tileLayer(
+			'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=c4d207cad22c4f65b9adb1adbbaef141',
+			{
+				attribution : 'Tiles &copy; ThunderForest'
+			});
+
 var osmLayer = new L.TileLayer(
 		'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		{
@@ -233,6 +240,7 @@ var baseLayers = {
 	"Open Street Map" : osmLayer,
 	"Grayscale" : streets,
 	"Terrain" : hybrid,
+	"Outdoors" : ThunderForest1,
 	"ESRI Ocean" : Esri_OceanBasemap,
 	"ESRI Aerial" : Esri_WorldImagery
 };
@@ -246,6 +254,7 @@ var overlays = {
 }
 
 map.addLayer(transasLayer);
+map.addLayer(kmlLayer);
 
 function create_map(lat,lng,zoom){
 	
