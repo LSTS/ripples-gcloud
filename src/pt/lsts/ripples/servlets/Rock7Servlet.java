@@ -39,40 +39,52 @@ public class Rock7Servlet extends HttpServlet {
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 
+	protected void forward(IridiumMessage msg) {
+
+	}
+
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String data = req.getParameter("data");
 		String imei = req.getParameter("imei");
-		String transmit_time = req.getParameter("transmit_time");
+		Date transmit_time = new Date();
+
+		byte[] dataArr = hexAdapter.unmarshal(data);
+		IridiumMessage msg = null;
 		try {
-			byte[] dataArr = hexAdapter.unmarshal(data);
-			IridiumMessage msg = IridiumMessage.deserialize(dataArr);
+			transmit_time = dateFormat.parse(req.getParameter("transmit_time"));
+			msg = IridiumMessage.deserialize(dataArr);
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Non standard iridium message has been received.",
+					e);
+		}
 
-			if (msg != null) {
-				HubIridiumMsg m = new HubIridiumMsg();
-				m.setMsg(data);
-				m.setType(msg.getMessageType());
-				m.setCreated_at(dateFormat.parse(transmit_time));
-				m.setUpdated_at(new Date());
-				Store.ofy().save().entity(m);
+		if (msg != null) {
+			HubIridiumMsg m = new HubIridiumMsg();
+			m.setMsg(data);
+			m.setType(msg.getMessageType());
+			m.setCreated_at(transmit_time);
+			m.setUpdated_at(new Date());
+			Store.ofy().save().entity(m);
 
-				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received message from RockBlock");
+			Logger.getLogger(getClass().getName()).log(Level.INFO, "Received message from RockBlock");
 
-				IridiumMsgHandler.setMessage(imei, msg);
+			IridiumMsgHandler.setMessage(imei, msg);
 
-				HubSystem system = Store.ofy().load().type(HubSystem.class).id(msg.getSource()).now();
-				Address addr = Store.ofy().load().type(Address.class).id(msg.getSource()).now();
+			HubSystem system = Store.ofy().load().type(HubSystem.class).id(msg.getSource()).now();
+			Address addr = Store.ofy().load().type(Address.class).id(msg.getSource()).now();
 
-				if (system != null && !imei.equals(system.getIridium())) {
-					system.setIridium(imei);
-					Store.ofy().save().entity(system);
-				}
+			if (system != null && !imei.equals(system.getIridium())) {
+				system.setIridium(imei);
+				Store.ofy().save().entity(system);
+			}
 
-				if (addr != null && !imei.equals(addr.imei)) {
-					addr.imei = imei;
-					Store.ofy().save().entity(addr);
-				}
+			if (addr != null && !imei.equals(addr.imei)) {
+				addr.imei = imei;
+				Store.ofy().save().entity(addr);
+			}
 
+			try {
 				String destImei = IridiumUtils.getIMEI(msg.destination);
 				if (msg.destination != 65535 && destImei != null) {
 					Logger.getLogger(getClass().getName()).log(Level.INFO,
@@ -90,13 +102,18 @@ public class Rock7Servlet extends HttpServlet {
 				} else {
 					IridiumUpdatesServlet.sendToSubscribers(msg);
 				}
-			} else
-				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received empty message from RockBlock");
-		} catch (IllegalArgumentException e) {
-			// try to parse report
+			} catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Exception while forwarding message", e);
+			}
+		} 
+		else {
+			Logger.getLogger(getClass().getName()).log(Level.INFO, "Received custom text message from RockBlock");
 			Matcher matcher = p.matcher(data);
 			if (!matcher.matches()) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Text message not understood: " + data);
+				resp.getWriter().write("Text message not understood: " + data);
+				resp.setStatus(300);
+				resp.getWriter().close();			
 				return;
 			}
 			String type = matcher.group(1);
@@ -111,7 +128,7 @@ public class Rock7Servlet extends HttpServlet {
 			date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
 			String latParts[] = latMins.split(" ");
 			String lonParts[] = lonMins.split(" ");
-			
+
 			double lat = Double.parseDouble(latParts[0]);
 			lat += (lat > 0) ? Double.parseDouble(latParts[1]) / 60.0 : -Double.parseDouble(latParts[1]) / 60.0;
 			double lon = Double.parseDouble(lonParts[0]);
@@ -131,8 +148,7 @@ public class Rock7Servlet extends HttpServlet {
 			PositionsServlet.addPosition(position, false);
 			System.out.println(vehicle + " sent report (" + type + ") at time " + date.getTime() + ". Position: " + lat
 					+ " / " + lon);
-		} catch (Exception e) {
-			e.printStackTrace();
+
 		}
 
 		resp.getWriter().write("200 OK");
