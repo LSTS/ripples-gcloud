@@ -8,8 +8,8 @@ var plotlayers = [];
 var selectedMarker;
 var originLat, originLng, originZoom, currentLat, currentLng, currentZoom;
 
-originLat=38.47495993034475;
-originLng=-8.87154579162597;
+originLat=41.184774;
+originLng=-8.704476;
 originZoom=12;
 
 var isMobile = {
@@ -269,31 +269,16 @@ function create_map(lat,lng,zoom){
 	map = L.map('map', {
 		center: [lat,lng],
 		zoom: zoom,
+		zoomSnap: 0.25,
 		layers : [ osmLayer ],
 		contextmenu : true,
 		contextmenuWidth : 140,
 		contextmenuItems : [ {
-			//text : 'Add Marker',
-			//icon : 'images/add_pin.png',
-			//callback : addMarker,
-			//index : 0
-		//}, {
-		//	separator : true,
-		//	index : 1
-		//}, {
 			text : 'Show coordinates',
 			callback : showCoordinates
 		}, {
 			text : 'Center map here',
 			callback : centerMap
-//		}, '-', {
-//			text : 'Zoom in',
-//			icon : 'images/zoom-in.png',
-//			callback : zoomIn
-//		}, {
-//			text : 'Zoom out',
-//			icon : 'images/zoom-out.png',
-//			callback : zoomOut
 		} ]
 	});
 }
@@ -303,7 +288,7 @@ if (isMobile.any()) {
 	L.control.layers(baseLayers, overlays).addTo(map);
 } else {
 	//alert('PC');
-	L.control.weather().addTo(map);
+	//L.control.weather().addTo(map);
 	L.control.layers.minimap(baseLayers, overlays).addTo(map);
 	var mouse_coordinates = new L.control.coordinates({
 		position:"topleft",
@@ -313,14 +298,6 @@ if (isMobile.any()) {
 	});
 	map.addControl(mouse_coordinates);
 }
-
-//var osmGeocoder = new L.Control.OSMGeocoder({
-//    collapsed: false,
-//    position: 'topleft',
-//    text: 'Locate',
-//	});
-
-//map.addControl(osmGeocoder);
 
 var argosIcon = new SysIcon({
 	iconUrl : 'icons/ico_argos.png'
@@ -539,52 +516,89 @@ setInterval(updatePositions, 60000);
 var assets = {};
 var lastPositions = {};
 var ripplesRef = new Firebase('https://neptus.firebaseio.com/');
-ripplesRef.child('assets').on(
-		'child_changed',
-		function(snapshot) {
-			var position = snapshot.val().position;
-			var name = snapshot.name();
-			var type = snapshot.val().type;
-			var lat = position.latitude;
-			var lon = position.longitude;
+ripplesRef.child('assets').on('child_changed', updateAsset)
+ripplesRef.child('assets').on('child_added', updateAsset)
+ripplesRef.child('ships').on('child_changed', updateShip);
+ripplesRef.child('ships').on('child_added', updateShip);
 
-			var plan = snapshot.val().plan;
+function updateAsset(snapshot) {
+	var position = snapshot.val().position;
+	var name = snapshot.key();
+	var type = snapshot.val().type;
+	var lat = position.latitude;
+	var lon = position.longitude;
+	var date = snapshot.val().updated_at;
 
-			if (plan == undefined)
-				plans[name] = undefined;
-			else {
-				if (plan.path != undefined) {
-					if (plans[name] == undefined)
-						plans[name] = L.polyline({}, {
-							color : 'green'
-						}).addTo(map);
-					else
-						plans[name].setLatLngs([]);
+	if (new Date().getTime() - date > 1000 * 60 * 60)
+		return;
+	
+	var plan = snapshot.val().plan;
 
-					for (point in plan.path) {
-						plans[name].addLatLng(L.latLng(plan.path[point]));
-					}
-				}
+	if (plan == undefined)
+		plans[name] = undefined;
+	else {
+		if (plan.path != undefined) {
+			if (plans[name] == undefined)
+				plans[name] = L.polyline({}, {
+					color : 'green'
+				}).addTo(map);
+			else
+				plans[name].setLatLngs([]);
+
+			for (point in plan.path) {
+				plans[name].addLatLng(L.latLng(plan.path[point]));
 			}
+		}
+	}
 
-			addToTail(name, lat, lon);
-			var pos = new L.LatLng(lat, lon);
+	addToTail(name, lat, lon);
+	var pos = new L.LatLng(lat, lon);
 
-			if (markers[name] != undefined) {
-				markers[name].setLatLng(pos);
-				markers[name].setIcon(sysIconFromName(type));
-				markers[name].bindPopup("<b>" + name + "</b><br/>"
-						+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
-						+ new Date().toLocaleString());
-				if ("Gunnerus" === name)
-					markers[name].setIcon(targetIcon);
-			} else {
-				markers[name] = L.marker([ lat, lon ], {
-					icon : sysIconFromName(type)
-				}).bindPopup(
-						"<b>" + name + "</b><br/>" + lat.toFixed(6) + ", "
-								+ lon.toFixed(6) + "<hr/>"
-								+ new Date().toLocaleString());
-				markers[name].addTo(map);
-			}
-		});
+	if (markers[name] != undefined) {
+		markers[name].setLatLng(pos);
+		markers[name].setIcon(sysIconFromName(type));
+		markers[name].bindPopup("<b>" + name + "</b><br/>"
+				+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
+				+ new Date().toLocaleString());
+		if ("Gunnerus" === name)
+			markers[name].setIcon(targetIcon);
+	} else {
+		markers[name] = L.marker([ lat, lon ], {
+			icon : sysIconFromName(type)
+		}).bindPopup(
+				"<b>" + name + "</b><br/>" + lat.toFixed(6) + ", "
+						+ lon.toFixed(6) + "<hr/>"
+						+ new Date(date).toLocaleString());
+		markers[name].addTo(map);
+	}
+}
+
+function updateShip(snapshot) {
+	var position = snapshot.val().position;
+	var name = snapshot.key();
+	var type = snapshot.val().type;
+	var lat = position.latitude;
+	var lon = position.longitude;
+	var date = snapshot.val().updated_at;
+	
+	if (new Date().getTime() - date > 1000 * 60 * 20)
+		return;
+		
+	addToTail(name, lat, lon);
+	var pos = new L.LatLng(lat, lon);
+
+	if (markers[name] != undefined) {
+		markers[name].setLatLng(pos);
+		markers[name].bindPopup("<b>" + name + "</b><br/>"
+				+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
+				+ new Date().toLocaleString());				
+	} else {
+		markers[name] = L.marker([ lat, lon ], {
+			icon : shipIcon
+		}).bindPopup(
+				"<b>" + name + "</b><br/>" + lat.toFixed(6) + ", "
+						+ lon.toFixed(6) + "<hr/>"
+						+ new Date(date).toLocaleString());
+		markers[name].addTo(map);
+	}
+}
