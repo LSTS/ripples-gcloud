@@ -16,7 +16,15 @@
     <url>/fbase/update</url>
     <description>Update the device positions fetching the current state on Firebase DB</description>
     <schedule>every 1 mins</schedule>
-  </cron -->
+  
+  </cron 
+    <cron>
+    <url>/addresses/update</url>
+    <description>Update the IMC addresses</description>
+    <schedule>every 3 hours</schedule>
+  </cron>
+  
+  -->
   
   <cron>
     <url>/iridiumUpdates</url>
@@ -24,9 +32,4 @@
     <schedule>every 5 mins</schedule>
   </cron>
   
-  <cron>
-    <url>/addresses/update</url>
-    <description>Update the IMC addresses</description>
-    <schedule>every 3 hours</schedule>
-  </cron>
 </cronentries>

@@ -29,37 +29,37 @@ public class IridiumUtils {
 		return addr.imei;
 	}
 
-	public static Pair<Integer, String> sendviaRockBlock(String destImei,
-			byte[] data) throws Exception {
-		
-		Credentials cred = Store.ofy().load().type(Credentials.class)
-				.id("rockblock").now();
+	public static Integer getImcId(String imei) {
+		Address addr = Store.ofy().load().type(Address.class).filter("imei ==", imei).first().safe();
+		if (addr == null)
+			return null;
+		return addr.imc_id.intValue();
+	}
+
+	public static Pair<Integer, String> sendviaRockBlock(String destImei, byte[] data) throws Exception {
+
+		Credentials cred = Store.ofy().load().type(Credentials.class).id("rockblock").now();
 
 		if (cred == null) {
-			Logger.getLogger(IridiumUtils.class.getName())
-			.log(Level.SEVERE,
+			Logger.getLogger(IridiumUtils.class.getName()).log(Level.SEVERE,
 					"Could not find credentials for RockBlock. Iridium message will not be delivered.");
 			return new Pair<Integer, String>(500, "Could not find credentials for RockBlock");
 		}
-		
+
 		URL url = new URL("http://secure.rock7mobile.com/rockblock/MT");
 
 		String content = "imei=" + URLEncoder.encode(destImei, "UTF-8");
 		content += "&username=" + URLEncoder.encode(cred.login, "UTF-8");
 		content += "&password=" + URLEncoder.encode(cred.password, "UTF-8");
-		content += "&data="
-				+ URLEncoder.encode(new HexBinaryAdapter().marshal(data),
-						"UTF-8");
+		content += "&data=" + URLEncoder.encode(new HexBinaryAdapter().marshal(data), "UTF-8");
 
 		URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 		FetchOptions options = FetchOptions.Builder.validateCertificate();
 		HTTPRequest request = new HTTPRequest(url, HTTPMethod.POST, options);
-		request.setHeader(new HTTPHeader("content-Type",
-				"application/x-www-form-urlencoded"));
+		request.setHeader(new HTTPHeader("content-Type", "application/x-www-form-urlencoded"));
 		request.setPayload(content.getBytes());
 		HTTPResponse response = fetcher.fetch(request);
-		return new Pair<Integer, String>(response.getResponseCode(),
-				new String(response.getContent()));
+		return new Pair<Integer, String>(response.getResponseCode(), new String(response.getContent()));
 	}
 
 }

@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.SoiState;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
@@ -24,10 +25,22 @@ import pt.lsts.ripples.model.iridium.Position;
 import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
 import pt.lsts.ripples.servlets.datastore.HistoricDataProcessor;
+import pt.lsts.ripples.util.IridiumUtils;
 
 public class IridiumMsgHandler {
 
 	public static void setMessage(String imei, IridiumMessage msg) {
+		Integer id = msg.getSource();
+		
+		try {
+			id = IridiumUtils.getImcId(imei);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (id != null)
+			msg.setSource(id);
+		
 		on(msg);
 		switch (msg.message_type) {
 		case IridiumMessage.TYPE_DEVICE_UPDATE:
@@ -63,6 +76,7 @@ public class IridiumMsgHandler {
 	
 	public static  void on(ImcIridiumMessage msg) {
 		IMCMessage m = msg.getMsg();
+		m.setSrc(msg.getSource());
 		switch (m.getMgid()) {
 		case LogBookEntry.ID_STATIC:
 			addLogEntry((LogBookEntry)m);
@@ -75,9 +89,17 @@ public class IridiumMsgHandler {
 				e.printStackTrace();
 			}
 			break;
+		case SoiState.ID_STATIC:
+			incoming((SoiState)m);
+			break;
 		default:
 			break;
 		}
+	}
+	
+	private static void incoming(SoiState state) {
+		System.out.println("Received the following state from "+state.getSourceName()+":");
+		System.out.println(state.asJSON());				
 	}
 	
 	private static void addLogEntry(LogBookEntry entry) {

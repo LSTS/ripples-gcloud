@@ -66,7 +66,6 @@ public class Rock7Servlet extends HttpServlet {
 			m.setCreated_at(transmit_time);
 			m.setUpdated_at(new Date());
 			Store.ofy().save().entity(m);
-
 			Logger.getLogger(getClass().getName()).log(Level.INFO, "Received message from RockBlock");
 
 			IridiumMsgHandler.setMessage(imei, msg);

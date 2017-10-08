@@ -201,31 +201,6 @@ var SysIcon = L.Icon.extend({
 	}
 });
 
-var cloudsLayer = L.tileLayer(
-		'http://{s}.tile.openweathermap.org/map/clouds/{z}/{x}/{y}.png', {
-			attribution : 'Map data &copy; OpenWeatherMap',
-			maxZoom : 23,
-			opacity : 0.7,
-			maxNativeZoom : 18
-		});
-
-var windLayer = L.tileLayer(
-		'http://{s}.tile.openweathermap.org/map/wind/{z}/{x}/{y}.png', {
-			attribution : 'Map data &copy; OpenWeatherMap',
-			maxZoom : 23,
-			opacity : 0.7,
-			maxNativeZoom : 18
-		});
-
-var precipLayer = L.tileLayer(
-		'http://{s}.tile.openweathermap.org/map/precipitation/{z}/{x}/{y}.png',
-		{
-			attribution : 'Map data &copy; OpenWeatherMap',
-			maxZoom : 23,
-			opacity : 0.7,
-			maxNativeZoom : 18
-		});
-
 var transasLayer = L.tileLayer(
 		'http://wms.transas.com/TMS/1.0.0/TX97-transp/{z}/{x}/{y}.png?token=9e53bcb2-01d0-46cb-8aff-512e681185a4',
 		{
@@ -246,9 +221,6 @@ var baseLayers = {
 };
 
 var overlays = {
-	"Cloud cover" : cloudsLayer,
-	"Wind speed" : windLayer,
-	"Precipitation" : precipLayer,
 	"Nautical Charts" : transasLayer,
 	"KML Layer": kmlLayer
 }
@@ -272,6 +244,7 @@ function create_map(lat,lng,zoom){
 		zoomSnap: 0.25,
 		layers : [ osmLayer ],
 		contextmenu : true,
+		drawControl: true,
 		contextmenuWidth : 140,
 		contextmenuItems : [ {
 			text : 'Show coordinates',
