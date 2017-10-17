@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import com.firebase.client.utilities.Pair;
@@ -106,47 +107,54 @@ public class Rock7Servlet extends HttpServlet {
 			}
 		} 
 		else {
-			Logger.getLogger(getClass().getName()).log(Level.INFO, "Received custom text message from RockBlock");
-			Matcher matcher = p.matcher(data);
-			if (!matcher.matches()) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Text message not understood: " + data);
-				resp.getWriter().write("Text message not understood: " + data);
-				resp.setStatus(300);
-				resp.getWriter().close();			
-				return;
+			try {
+				data = new String(DatatypeConverter.parseHexBinary(data));	
+				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received custom text message from RockBlock: "+data);
+				
+				Matcher matcher = p.matcher(data);
+				if (!matcher.matches()) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Text message not understood: " + data);
+					resp.getWriter().write("Text message not understood: " + data);
+					resp.setStatus(300);
+					resp.getWriter().close();			
+					return;
+				}
+				String type = matcher.group(1);
+				String vehicle = matcher.group(2);
+				String timeOfDay = matcher.group(3);
+				String latMins = matcher.group(4);
+				String lonMins = matcher.group(5);
+				GregorianCalendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+				String[] timeParts = timeOfDay.split(":");
+				date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+				date.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+				date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+				String latParts[] = latMins.split(" ");
+				String lonParts[] = lonMins.split(" ");
+
+				double lat = Double.parseDouble(latParts[0]);
+				lat += (lat > 0) ? Double.parseDouble(latParts[1]) / 60.0 : -Double.parseDouble(latParts[1]) / 60.0;
+				double lon = Double.parseDouble(lonParts[0]);
+				lon += (lon > 0) ? Double.parseDouble(lonParts[1]) / 60.0 : -Double.parseDouble(lonParts[1]) / 60.0;
+
+				int source = IMCDefinition.getInstance().getResolver().resolve(vehicle);
+
+				if (source == -1) {
+					System.err.println("Received report from unknown system name: " + vehicle);
+					return;
+				}
+				SystemPosition position = new SystemPosition();
+				position.imc_id = source;
+				position.lat = lat;
+				position.lon = lon;
+				position.timestamp = date.getTime();
+				PositionsServlet.addPosition(position, false);
+				System.out.println(vehicle + " sent report (" + type + ") at time " + date.getTime() + ". Position: " + lat
+						+ " / " + lon);
 			}
-			String type = matcher.group(1);
-			String vehicle = matcher.group(2);
-			String timeOfDay = matcher.group(3);
-			String latMins = matcher.group(4);
-			String lonMins = matcher.group(5);
-			GregorianCalendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-			String[] timeParts = timeOfDay.split(":");
-			date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
-			date.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
-			date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
-			String latParts[] = latMins.split(" ");
-			String lonParts[] = lonMins.split(" ");
-
-			double lat = Double.parseDouble(latParts[0]);
-			lat += (lat > 0) ? Double.parseDouble(latParts[1]) / 60.0 : -Double.parseDouble(latParts[1]) / 60.0;
-			double lon = Double.parseDouble(lonParts[0]);
-			lon += (lon > 0) ? Double.parseDouble(lonParts[1]) / 60.0 : -Double.parseDouble(lonParts[1]) / 60.0;
-
-			int source = IMCDefinition.getInstance().getResolver().resolve(vehicle);
-
-			if (source == -1) {
-				System.err.println("Received report from unknown system name: " + vehicle);
-				return;
+			catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Could not parse custom message as text", e);
 			}
-			SystemPosition position = new SystemPosition();
-			position.imc_id = source;
-			position.lat = lat;
-			position.lon = lon;
-			position.timestamp = date.getTime();
-			PositionsServlet.addPosition(position, false);
-			System.out.println(vehicle + " sent report (" + type + ") at time " + date.getTime() + ". Position: " + lat
-					+ " / " + lon);
 
 		}
 
