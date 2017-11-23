@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import pt.lsts.ripples.model.Address;
+import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.JsonUtils;
 import pt.lsts.ripples.model.Store;
 
@@ -126,6 +127,10 @@ public class AddressesServlet extends HttpServlet {
 
 			Address existing = Store.ofy().load().type(Address.class).id(id)
 					.now();
+			
+			HubSystem system = Store.ofy().load().type(HubSystem.class).id(id)
+					.now();
+			
 			if (existing == null) {
 			    existing = Store.ofy().load().type(Address.class).filter("name", name).first().now();
 			}
@@ -135,8 +140,14 @@ public class AddressesServlet extends HttpServlet {
 			address.name = name;
 			if (existing != null)
 				address.imei = existing.imei;
+			
+			
 
 			Store.ofy().save().entity(address);
+			if (system != null && !system.name.equals(address.name)) {
+				system.name = address.name;
+				Store.ofy().save().entity(system);
+			}
 			count++;
 			if (existing == null)
 				Logger.getLogger(getClass().getName()).info("Created a new address entry for " + address.name);
