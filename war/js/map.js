@@ -207,9 +207,21 @@ var transasLayer = L.tileLayer(
 			attribution : 'Map data &copy; Transas Nautical Charts',
 			maxZoom : 21,
 			opacity : 0.7,
-			maxNativeZoom : 18,
+			maxNativeZoom : 17,
 			tms: true
 		});
+
+var densityLayer = L.tileLayer(
+		'https://tiles2.marinetraffic.com/ais/density_tiles2015/{z}/{x}/tile_{z}_{x}_{y}.png',
+		{
+			attribution : 'Map data &copy; MarineTraffic',
+			maxZoom : 21,
+			opacity : 0.5,
+			maxNativeZoom : 10,
+			layerVisibility : false
+		});
+
+
 
 var baseLayers = {
 	"Open Street Map" : osmLayer,
@@ -222,11 +234,13 @@ var baseLayers = {
 
 var overlays = {
 	"Nautical Charts" : transasLayer,
-	"KML Layer": kmlLayer
+	"KML Layer": kmlLayer,
+	"Ship Traffic": densityLayer
 }
 
 map.addLayer(transasLayer);
-map.addLayer(kmlLayer);
+//map.addLayer(kmlLayer);
+//map.addLayer(densityLayer);
 
 function create_map(lat,lng,zoom){
 	
