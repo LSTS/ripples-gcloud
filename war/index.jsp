@@ -16,6 +16,7 @@
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
 	<script src="js/jquery.cookie.js"></script>
+	
 	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic' rel='stylesheet' type='text/css'>
 	<script type='text/javascript' src='js/jquery.msgBox.js'></script>
 	<link rel="stylesheet" href="css/msgBoxLight.css" />
@@ -30,11 +31,20 @@
 	<script type="text/javascript" src="js/animated-notifications.js"></script>
 	<link href="css/Leaflet.Weather.css" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" href="css/control.layers.minimap.css" />
-</head>
-<body>
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
 	<script type='text/javascript' src='https://cdn.firebase.com/js/client/2.4.2/firebase.js'></script>
-	
+	<script type='text/javascript' src='js/tracksymbol.js'></script>
+	<script src="js/L.Control.Locate.min.js"></script>
+	<script src="js/KML.js"></script>			
+	<script src="js/leaflet.contextmenu.js"></script>
+	<script src="js/Leaflet.Weather.js"></script>
+	<script src="js/Control.OSMGeocoder.js"></script>
+	<script src="js/Leaflet.Coordinates-0.1.5.src.js"></script>
+	<script src="js/L.Control.Layers.Minimap.js"></script>
+	<script src="js/Leaflet.layerscontrol-minimap.js"></script>	
+
+</head>
+<body>
 	<nav id='menu-ui' class='menu-ui'>
 	  <%
 	    String logbookUsername = request.getParameter("logbookUsername");
@@ -63,13 +73,6 @@
 	</div>
 	<script src="js/index.js"></script>
 	<div id="map"></div>
-	<script src="js/L.Control.Locate.min.js"></script>
-	<script src="js/KML.js"></script>			
-	<script src="js/leaflet.contextmenu.js"></script>
-	<script src="js/Leaflet.Weather.js"></script>
-	<script src="js/Control.OSMGeocoder.js"></script>
-	<script src="js/Leaflet.Coordinates-0.1.5.src.js"></script>
-	<script src="js/L.Control.Layers.Minimap.js"></script>
-	<script src="js/Leaflet.layerscontrol-minimap.js"></script>	
+	
 	<script src="js/map.js"></script>						
 </body>

@@ -1,4 +1,5 @@
 var markers = {};
+var ships = {};
 var updates = {};
 var pois = {};
 var plans = {};
@@ -561,31 +562,94 @@ function updateAsset(snapshot) {
 }
 
 function updateShip(snapshot) {
+
+	if (!snapshot.val().position) {
+		return;
+	}
+
 	var position = snapshot.val().position;
 	var name = snapshot.key();
 	var type = snapshot.val().type;
 	var lat = position.latitude;
 	var lon = position.longitude;
+	var speed = position.speed;
+	var mmsi = position.mmsi;
+	if (position.heading < 360)
+		var heading = position.heading * Math.PI / 180.0;
+	var cog = position.cog * Math.PI / 180.0;
 	var date = snapshot.val().updated_at;
-	
+	var fillColor = '#0000ff';
+
+	switch (type) {
+		case 'Fishing':
+		case '30':
+			type = 'Fishing';
+			fillColor = '#0fff00';
+			break;
+		case 'CargoHazardousA':
+		case 'CargoHazardousB':
+		case 'CargoHazardousC':
+		case '80':
+			type = 'Hazardous Cargo';
+			fillColor = '#ff0000';
+			break;
+		case '75':
+		case '76':
+		case '77':
+		case '78':
+		case '79':
+			type = 'Cargo';
+			fillColor = '#ffcccc';
+			break;
+		case 'Tug':			
+			fillColor = '#ffff00';
+			break;
+		case 'Tanker':			
+			fillColor = '#cc9900';
+			break;
+		default:
+			fillColor = '#cccccc';
+			break;
+	}
+
 	if (new Date().getTime() - date > 1000 * 60 * 20)
 		return;
 		
 	addToTail(name, lat, lon);
+
 	var pos = new L.LatLng(lat, lon);
 
-	if (markers[name] != undefined) {
-		markers[name].setLatLng(pos);
-		markers[name].bindPopup("<b>" + name + "</b><br/>"
-				+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
-				+ new Date().toLocaleString());				
-	} else {
-		markers[name] = L.marker([ lat, lon ], {
-			icon : shipIcon
-		}).bindPopup(
-				"<b>" + name + "</b><br/>" + lat.toFixed(6) + ", "
-						+ lon.toFixed(6) + "<hr/>"
-						+ new Date(date).toLocaleString());
-		markers[name].addTo(map);
+	if (ships[name] != undefined) {
+		ships[name].setLatLng(pos);
+		ships[name].setCourse(cog);
+		ships[name].setHeading(heading);
+		ships[name].setSpeed(speed);
 	}
+	else {
+		ships[name] = L.trackSymbol(pos, {
+			icon : shipIcon,
+			fill: true,
+    		fillColor: fillColor,
+    		fillOpacity: 0.7,
+    		stroke: true,
+    		color: '#000000',
+   			opacity: 1.0,
+   			weight: 1.0,
+    		speed: speed,
+    		course: cog,
+			heading: cog,
+			speed: speed
+		});
+		ships[name].addTo(map);
+	}
+
+	
+
+	ships[name].bindPopup("<b>" + name + "</b><br/>"
+		+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<br/>"
+		+ "type: "+type+ "<br/>"
+		+ "speed: "+speed.toFixed(1)+ "<hr/>"
+		+ "<a href=\"https://www.marinetraffic.com/en/ais/details/ships/mmsi:"+mmsi+"\" target=\"_blank\">more info</a><hr/>"
+		+ new Date().toLocaleString());			
 }
+

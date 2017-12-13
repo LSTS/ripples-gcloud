@@ -3,6 +3,7 @@ package pt.lsts.ripples.servlets;
 import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +55,17 @@ public class AddressesServlet extends HttpServlet {
 				return;
 			}
 		}
+		else if ("/clear".equals(req.getPathInfo())) {
+			try {
+				resetAddresses();
+				resp.setStatus(200);
+	
+			} catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error fetching addresses", e);
+				resp.setStatus(500);
+				return;
+			}
+		}
 		
 		resp.setContentType("application/json");
 		resp.getWriter().write(
@@ -101,6 +113,20 @@ public class AddressesServlet extends HttpServlet {
 			}			
 		}	
 		Logger.getLogger(getClass().getName()).info("Stored " + count + " addresses in the datastore.");
+	}
+	
+	private void resetAddresses() throws Exception {
+		Logger.getLogger(getClass().getSimpleName()).warning("Deleting all stored systems!");
+		
+		List<HubSystem> systems = Store.ofy().load().type(HubSystem.class).list();
+		Store.ofy().delete().entities(systems);
+		
+		List<Address> addresses = Store.ofy().load().type(Address.class).list();
+		Store.ofy().delete().entities(addresses);
+		
+		updateAddresses();
+		setWavyAddresses();
+		
 	}
 	
 	private void updateAddresses() throws Exception {
