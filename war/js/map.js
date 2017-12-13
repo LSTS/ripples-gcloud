@@ -572,7 +572,7 @@ function updateShip(snapshot) {
 	var type = snapshot.val().type;
 	var lat = position.latitude;
 	var lon = position.longitude;
-	var speed = position.speed;
+	var speed = position.speed * 0.51444444444;
 	var mmsi = position.mmsi;
 	if (position.heading < 360)
 		var heading = position.heading * Math.PI / 180.0;
@@ -645,10 +645,10 @@ function updateShip(snapshot) {
 
 	
 
-	ships[name].bindPopup("<b>" + name + "</b><br/>"
+	ships[name].bindPopup("<b>" + name + "</b><hr/>"
+		+ type+ "<br/>"
 		+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<br/>"
-		+ "type: "+type+ "<br/>"
-		+ "speed: "+speed.toFixed(1)+ "<hr/>"
+		+ speed.toFixed(1)+ " m/s<br/>"
 		+ "<a href=\"https://www.marinetraffic.com/en/ais/details/ships/mmsi:"+mmsi+"\" target=\"_blank\">more info</a><hr/>"
 		+ new Date().toLocaleString());			
 }
