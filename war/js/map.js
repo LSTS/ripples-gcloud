@@ -574,9 +574,10 @@ function updateShip(snapshot) {
 	var lon = position.longitude;
 	var speed = position.speed * 0.51444444444;
 	var mmsi = position.mmsi;
-	if (position.heading < 360)
-		var heading = position.heading * Math.PI / 180.0;
+	var heading = position.heading * Math.PI / 180.0;
 	var cog = position.cog * Math.PI / 180.0;
+	if (heading > 360)
+		heading = cog;
 	var date = snapshot.val().updated_at;
 	var fillColor = '#0000ff';
 
@@ -637,7 +638,7 @@ function updateShip(snapshot) {
    			weight: 1.0,
     		speed: speed,
     		course: cog,
-			heading: cog,
+			heading: heading,
 			speed: speed
 		});
 		ships[name].addTo(map);
