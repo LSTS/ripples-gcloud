@@ -260,6 +260,7 @@ function create_map(lat,lng,zoom){
 		layers : [ osmLayer ],
 		contextmenu : true,
 		drawControl: true,
+		measureControl: true,
 		contextmenuWidth : 140,
 		contextmenuItems : [ {
 			text : 'Show coordinates',
