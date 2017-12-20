@@ -11,6 +11,9 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.SoiCommand;
+import pt.lsts.imc.SoiCommand.COMMAND;
+import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.IridiumSubscription;
@@ -73,6 +76,9 @@ public class IridiumMsgHandler {
 		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
 				"Received IMC msg of type "+m.getClass().getSimpleName()+" from "+msg.getSource());		
 		
+		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+				m.getMgid()+" vs "+SoiPlan.ID_STATIC);		
+				
 		switch (m.getMgid()) {
 		case LogBookEntry.ID_STATIC:
 			addLogEntry((LogBookEntry)m);
@@ -85,36 +91,39 @@ public class IridiumMsgHandler {
 				e.printStackTrace();
 			}
 			break;
-		case SoiPlan.ID_STATIC:
-			incoming((SoiPlan)m);
+		case SoiCommand.ID_STATIC:
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+					"Intercepted SOI Command");					
+			incoming((SoiCommand)m);
 			break;
 		default:
 			break;
 		}
 	}
 	
-	private static void incoming(SoiPlan plan) {
-		HubSystem srcSystem = Store.ofy().load().type(HubSystem.class).id(plan.getSrc()).now();
-		HubSystem dstSystem = Store.ofy().load().type(HubSystem.class).id(plan.getSrc()).now();
+	private static void incoming(SoiCommand cmd) {
+		HubSystem vehicle = null;
 		
-		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-				"SoiPlan "+srcSystem+", "+dstSystem+", "+plan);
-		
-		if (srcSystem != null) {
-			FirebaseUtils.updateFirebase(srcSystem.getName(), plan);
-			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-					"Received plan for "+srcSystem+": "+plan);
+		if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.REQUEST) {
+			vehicle = Store.ofy().load().type(HubSystem.class).id(cmd.getDst()).now();			
 		}
-		else if (dstSystem != null) {
-			FirebaseUtils.updateFirebase(dstSystem.getName(), plan);
-			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-					"Received plan for "+dstSystem+": "+plan);
+		else if (cmd.getCommand() == COMMAND.GET_PLAN && cmd.getType() == TYPE.SUCCESS) {
+			vehicle = Store.ofy().load().type(HubSystem.class).id(cmd.getSrc()).now();
+		}
+		else if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.SUCCESS) {
+			vehicle = Store.ofy().load().type(HubSystem.class).id(cmd.getSrc()).now();
+		}
 
-		}
-		else {
+		if (vehicle == null) {
 			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.WARNING,
-					"Could not determine plan's vehicle: "+plan);
-		}		
+					"Command ignored: "+cmd);
+			return;
+		}
+		
+		SoiPlan plan = cmd.getPlan();
+		FirebaseUtils.updateFirebase(vehicle.getName(), plan);
+		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+				"Received plan for "+vehicle+": "+plan);
 	}
 	
 	private static void addLogEntry(LogBookEntry entry) {
