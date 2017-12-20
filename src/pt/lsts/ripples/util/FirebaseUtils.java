@@ -2,10 +2,13 @@ package pt.lsts.ripples.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import com.firebase.client.Firebase;
 
 import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.SoiPlan;
+import pt.lsts.imc.SoiWaypoint;
 import pt.lsts.ripples.model.HubSystem;
 
 public class FirebaseUtils {
@@ -24,6 +27,25 @@ public class FirebaseUtils {
 		return _firebase;
 	}
 
+	public static void updateFirebase(String vehicle, SoiPlan plan) {
+		Firebase planRef = firebase().child("assets/" + vehicle + "/plan").getRef();
+		
+		if (plan.getWaypoints().isEmpty()) {
+			planRef.setValue(null);		
+		}
+		else {
+			planRef.child("id").setValue("soi_"+plan.getPlanId());
+			Vector<double[]> locs = new Vector<double[]>();
+	        for (SoiWaypoint m : plan.getWaypoints()) {
+	            double lat = m.getLat();
+	            double lon = m.getLon();
+	            double eta = m.getEta();
+	            locs.add(new double[] { lat, lon, eta});
+	        }
+	        planRef.child("path").setValue(locs);
+		}
+	}
+	
 	public static void updateFirebase(HubSystem update) {
 		Map<String, Object> assetState = new LinkedHashMap<String, Object>();
 		Map<String, Object> tmp = new LinkedHashMap<String, Object>();

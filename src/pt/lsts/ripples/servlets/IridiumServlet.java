@@ -110,6 +110,8 @@ public class IridiumServlet extends HttpServlet {
 				resp.setStatus(rock7Resp.getFirst());
 				Logger.getLogger(getClass().getName()).log(Level.INFO,
 						"Sent Iridium message from " + src + " to " + dst);
+				
+				IridiumMsgHandler.setMessage(null, m);
 			}
 			resp.getWriter().write(rock7Resp.getSecond());
 			resp.getWriter().close();

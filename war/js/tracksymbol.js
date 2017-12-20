@@ -63,7 +63,7 @@ L.TrackSymbol = L.Path.extend({
     this._heading = options.heading;
     this._course = options.course;
     this._speed = options.speed;
-    this._leaderTime = options.leaderTime || 60.0;
+    this._leaderTime = options.leaderTime || 1200.0;
     this._minSilouetteZoom = options.minSilouetteZoom || 14;
     this.setGPSRefPos(options.gpsRefPos);
     this._triSymbol = options.defaultSymbol || [0.75,0, -0.25,0.3, -0.25,-0.3];

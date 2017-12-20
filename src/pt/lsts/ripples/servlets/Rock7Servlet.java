@@ -40,10 +40,6 @@ public class Rock7Servlet extends HttpServlet {
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 
-	protected void forward(IridiumMessage msg) {
-
-	}
-
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String data = req.getParameter("data");

@@ -11,7 +11,8 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
-import pt.lsts.imc.SoiState;
+import pt.lsts.imc.SoiPlan;
+import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.SystemPosition;
@@ -25,12 +26,14 @@ import pt.lsts.ripples.model.iridium.Position;
 import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
 import pt.lsts.ripples.servlets.datastore.HistoricDataProcessor;
+import pt.lsts.ripples.util.FirebaseUtils;
 import pt.lsts.ripples.util.IridiumUtils;
 
 public class IridiumMsgHandler {
 
 	public static void setMessage(String imei, IridiumMessage msg) {
 		Integer id = msg.getSource();
+		
 		
 		try {
 			id = IridiumUtils.getImcId(imei);
@@ -41,7 +44,6 @@ public class IridiumMsgHandler {
 		if (id != null)
 			msg.setSource(id);
 		
-		on(msg);
 		switch (msg.message_type) {
 		case IridiumMessage.TYPE_DEVICE_UPDATE:
 			on((DeviceUpdate)msg);			
@@ -63,20 +65,14 @@ public class IridiumMsgHandler {
 		}
 	}
 	
-	public static  void on(IridiumMessage msg) {
-//		for (IMCMessage m : msg.asImc()) {
-//			try {
-//				FirebaseDB.setMessage(m);
-//			}
-//			catch (Exception e) {
-//				Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.SEVERE, "Error posting to Firebase", e);
-//			}
-//		}			
-	}
-	
 	public static  void on(ImcIridiumMessage msg) {
 		IMCMessage m = msg.getMsg();
+		
 		m.setSrc(msg.getSource());
+		
+		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+				"Received IMC msg of type "+m.getClass().getSimpleName()+" from "+msg.getSource());		
+		
 		switch (m.getMgid()) {
 		case LogBookEntry.ID_STATIC:
 			addLogEntry((LogBookEntry)m);
@@ -89,17 +85,36 @@ public class IridiumMsgHandler {
 				e.printStackTrace();
 			}
 			break;
-		case SoiState.ID_STATIC:
-			incoming((SoiState)m);
+		case SoiPlan.ID_STATIC:
+			incoming((SoiPlan)m);
 			break;
 		default:
 			break;
 		}
 	}
 	
-	private static void incoming(SoiState state) {
-		System.out.println("Received the following state from "+state.getSourceName()+":");
-		System.out.println(state.asJSON());				
+	private static void incoming(SoiPlan plan) {
+		HubSystem srcSystem = Store.ofy().load().type(HubSystem.class).id(plan.getSrc()).now();
+		HubSystem dstSystem = Store.ofy().load().type(HubSystem.class).id(plan.getSrc()).now();
+		
+		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+				"SoiPlan "+srcSystem+", "+dstSystem+", "+plan);
+		
+		if (srcSystem != null) {
+			FirebaseUtils.updateFirebase(srcSystem.getName(), plan);
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+					"Received plan for "+srcSystem+": "+plan);
+		}
+		else if (dstSystem != null) {
+			FirebaseUtils.updateFirebase(dstSystem.getName(), plan);
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+					"Received plan for "+dstSystem+": "+plan);
+
+		}
+		else {
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.WARNING,
+					"Could not determine plan's vehicle: "+plan);
+		}		
 	}
 	
 	private static void addLogEntry(LogBookEntry entry) {

@@ -577,7 +577,7 @@ function updateShip(snapshot) {
 	var mmsi = position.mmsi;
 	var heading = position.heading * Math.PI / 180.0;
 	var cog = position.cog * Math.PI / 180.0;
-	if (heading > 360)
+	if (position.heading > 360)
 		heading = cog;
 	var date = snapshot.val().updated_at;
 	var fillColor = '#0000ff';
