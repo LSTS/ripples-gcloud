@@ -75,9 +75,6 @@ public class IridiumMsgHandler {
 		
 		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
 				"Received IMC msg of type "+m.getClass().getSimpleName()+" from "+msg.getSource());		
-		
-		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-				m.getMgid()+" vs "+SoiPlan.ID_STATIC);		
 				
 		switch (m.getMgid()) {
 		case LogBookEntry.ID_STATIC:
@@ -91,9 +88,7 @@ public class IridiumMsgHandler {
 				e.printStackTrace();
 			}
 			break;
-		case SoiCommand.ID_STATIC:
-			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-					"Intercepted SOI Command");					
+		case SoiCommand.ID_STATIC:							
 			incoming((SoiCommand)m);
 			break;
 		default:

@@ -1,5 +1,6 @@
 package pt.lsts.ripples.util;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -36,13 +37,15 @@ public class FirebaseUtils {
 		else {
 			planRef.child("id").setValue("soi_"+plan.getPlanId());
 			Vector<double[]> locs = new Vector<double[]>();
+			Vector<Date> etas = new Vector<Date>();
 	        for (SoiWaypoint m : plan.getWaypoints()) {
 	            double lat = m.getLat();
 	            double lon = m.getLon();
-	            double eta = m.getEta();
-	            locs.add(new double[] { lat, lon, eta});
+	            locs.add(new double[] { lat, lon});
+	            etas.add(new Date(m.getEta() * 1000l));
 	        }
 	        planRef.child("path").setValue(locs);
+	        planRef.child("eta").setValue(etas);
 		}
 	}
 	
