@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
-  <!-- cron>
+  <cron>
     <url>/spots/update</url>
     <description>Update the SPOT device positions</description>
     <schedule>every 2 mins</schedule>
   </cron>
   
-  <cron>
+  <!-- cron>
     <url>/argos/update</url>
     <description>Update the Argos positions</description>
     <schedule>every 2 mins</schedule>

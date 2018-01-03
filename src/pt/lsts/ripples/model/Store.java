@@ -2,6 +2,7 @@ package pt.lsts.ripples.model;
 
 import pt.lsts.ripples.model.log.MissionLog;
 import pt.lsts.ripples.model.map.PointOfInterest;
+import pt.lsts.ripples.model.soi.SoiState;
 
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
@@ -26,6 +27,7 @@ public class Store {
 		ObjectifyService.factory().register(EventSample.class);
 		ObjectifyService.factory().register(Command.class);
 		ObjectifyService.factory().register(DataRoute.class);
+		ObjectifyService.factory().register(SoiState.class);
 	}
 	
 	public static Objectify ofy() {

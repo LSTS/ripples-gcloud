@@ -203,6 +203,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/sms/*</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>SoiServlet</servlet-name>
+		<servlet-class>pt.lsts.ripples.servlets.SoiServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SoiServlet</servlet-name>
+		<url-pattern>/soi/*</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
