@@ -8,6 +8,9 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import pt.lsts.endurance.Asset;
+import pt.lsts.endurance.AssetState;
+import pt.lsts.endurance.Plan;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
@@ -28,6 +31,7 @@ import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.model.iridium.Position;
 import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
+import pt.lsts.ripples.model.soi.SoiState;
 import pt.lsts.ripples.servlets.datastore.HistoricDataProcessor;
 import pt.lsts.ripples.util.FirebaseUtils;
 import pt.lsts.ripples.util.IridiumUtils;
@@ -68,32 +72,37 @@ public class IridiumMsgHandler {
 		}
 	}
 	
-	public static  void on(ImcIridiumMessage msg) {
-		IMCMessage m = msg.getMsg();
-		
-		m.setSrc(msg.getSource());
-		
+	
+	public static void on(IMCMessage msg) {
 		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-				"Received IMC msg of type "+m.getClass().getSimpleName()+" from "+msg.getSource());		
+				"Received IMC msg of type "+msg.getClass().getSimpleName()+" from "+msg.getSourceName());		
 				
-		switch (m.getMgid()) {
+		switch (msg.getMgid()) {
 		case LogBookEntry.ID_STATIC:
-			addLogEntry((LogBookEntry)m);
+			addLogEntry((LogBookEntry)msg);
 			break;
 		case HistoricData.ID_STATIC:
 			try {
-				HistoricDataProcessor.processData(new HistoricData(m));
+				HistoricDataProcessor.processData(new HistoricData(msg));
 			}
 			catch (Exception e) {
 				e.printStackTrace();
 			}
 			break;
 		case SoiCommand.ID_STATIC:							
-			incoming((SoiCommand)m);
+			incoming((SoiCommand)msg);
 			break;
 		default:
 			break;
 		}
+	}
+	
+	public static  void on(ImcIridiumMessage msg) {
+		IMCMessage m = msg.getMsg();
+		
+		m.setSrc(msg.getSource());
+		
+		on(m);
 	}
 	
 	private static void incoming(SoiCommand cmd) {
@@ -119,6 +128,34 @@ public class IridiumMsgHandler {
 		FirebaseUtils.updateFirebase(vehicle.getName(), plan);
 		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
 				"Received plan for "+vehicle+": "+plan);
+			
+		SoiState existing = Store.ofy().load().type(SoiState.class).id(vehicle.getName()).now();
+		if (existing == null) {
+			existing = new SoiState();
+			existing.lastUpdated = cmd.getDate();
+			existing.name = vehicle.getName();
+			
+			Asset state = new Asset(vehicle.getName());
+			
+			state.setState(AssetState.builder()
+					.withLatitude(vehicle.getCoordinates()[0])
+					.withLongitude(vehicle.getCoordinates()[1])
+					.withTimestamp(cmd.getDate())
+					.build());
+			
+			existing.asset = state.toString();
+		}
+		
+		try {
+			Asset state = Asset.parse(existing.asset);
+			state.setPlan(Plan.parse(plan.asJSON()));
+			existing.asset = state.toString();
+			Store.ofy().save().entity(existing).now();
+			Logger.getLogger(IridiumMsgHandler.class.getName()).info("Saved SoiPlan for vehicle "+vehicle.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Logger.getLogger(IridiumMsgHandler.class.getName()).warning("Error saving SoiPlan for vehicle "+vehicle.getName()+": "+e.getMessage());
+		}
 	}
 	
 	private static void addLogEntry(LogBookEntry entry) {

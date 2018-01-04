@@ -47,6 +47,7 @@ public class UpdateSpotsServlet extends HttpServlet {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		URL url = new URL(
+				
 				"https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/0qQz420UTPODTjoHylgIOPa3RqqvOhkMK/message.xml");
 		URLConnection conn = url.openConnection();
 		conn.setUseCaches(false);

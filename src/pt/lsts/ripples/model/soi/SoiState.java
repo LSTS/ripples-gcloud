@@ -18,5 +18,5 @@ public class SoiState {
 	@Index
 	public Date lastUpdated = null;
 	
-	public String assetState;
+	public String asset;
 }

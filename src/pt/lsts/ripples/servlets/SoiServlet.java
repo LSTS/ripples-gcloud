@@ -31,7 +31,7 @@ public class SoiServlet extends HttpServlet {
 		
 		for (SoiState state : states) {
 			if (state.lastUpdated.after(d))
-				toShow.add(state.assetState);
+				toShow.add(state.asset);
 		}
 		
 		resp.setContentType("application/json");
