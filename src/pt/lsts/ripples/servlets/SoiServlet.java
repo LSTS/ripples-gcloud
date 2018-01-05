@@ -71,20 +71,22 @@ public class SoiServlet extends HttpServlet {
 				state = new SoiState();
 				state.name = vehicle;				
 			}
-			
-			Asset asset = Asset.parse(state.asset);
+			Asset asset;
+			if (state.asset != null)
+				asset = Asset.parse(state.asset);
+			else
+				asset = new Asset(vehicle);
 			
 			if (val.get("plan") != null)
-				asset.setPlan(Plan.parse(val.getString("plan", "")));				
+				asset.setPlan(Plan.parse(val.get("plan").toString()));				
 			
 			if (val.get("lastState") != null)
-				asset.setState(AssetState.parse(val.getString("lastState", "")));							
+				asset.setState(AssetState.parse(val.get("lastState").toString()));							
 			
+			state.asset = asset.toString();
 			state.lastUpdated = new Date();
 			
 			Store.ofy().save().entity(state).now();
-			
-			
 			Logger.getLogger(getClass().getSimpleName()).info("Updated state: "+state);
 			
 			resp.setStatus(200);

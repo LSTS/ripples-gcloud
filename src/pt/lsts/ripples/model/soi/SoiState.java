@@ -17,5 +17,5 @@ public class SoiState {
 	
 	public Date lastUpdated = null;
 	
-	public String asset;
+	public String asset = null;
 }
