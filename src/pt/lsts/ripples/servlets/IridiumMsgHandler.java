@@ -105,7 +105,7 @@ public class IridiumMsgHandler {
 		on(m);
 	}
 	
-	private static void incoming(SoiCommand cmd) {
+	public static void incoming(SoiCommand cmd) {
 		HubSystem vehicle = null;
 		
 		if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.REQUEST) {
@@ -150,6 +150,7 @@ public class IridiumMsgHandler {
 			Asset state = Asset.parse(existing.asset);
 			state.setPlan(Plan.parse(plan.asJSON()));
 			existing.asset = state.toString();
+			existing.lastUpdated = cmd.getDate();
 			Store.ofy().save().entity(existing).now();
 			Logger.getLogger(IridiumMsgHandler.class.getName()).info("Saved SoiPlan for vehicle "+vehicle.getName());
 		} catch (Exception e) {

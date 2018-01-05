@@ -66,6 +66,7 @@ public class IridiumServlet extends HttpServlet {
 			line = r.readLine();
 		}
 
+		
 		try {
 			IridiumMessage m = IridiumMessage
 					.deserialize(new HexBinaryAdapter().unmarshal(sb.toString()));
@@ -79,6 +80,8 @@ public class IridiumServlet extends HttpServlet {
 			msg.setUpdated_at(new Date());
 			Store.ofy().save().entity(msg);
 
+			
+			
 			// This message is not to be sent but just posted
 			if (dst == 0 || dst == 65535) {
 				IridiumMsgHandler.setMessage(null, m);
@@ -86,6 +89,9 @@ public class IridiumServlet extends HttpServlet {
 				resp.getWriter().close();
 				return;
 			}
+			
+			//FIXME remove
+			IridiumMsgHandler.setMessage(null, m);
 
 			String imei = findImei(dst);
 
@@ -122,6 +128,8 @@ public class IridiumServlet extends HttpServlet {
 			resp.setStatus(400);
 			e.printStackTrace(resp.getWriter());
 			resp.getWriter().close();
+			
+			
 			return;
 		}
 	}

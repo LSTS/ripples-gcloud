@@ -1,15 +1,23 @@
 package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
+
+import pt.lsts.endurance.Asset;
+import pt.lsts.endurance.AssetState;
+import pt.lsts.endurance.Plan;
 import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.soi.SoiState;
 
@@ -39,12 +47,41 @@ public class SoiServlet extends HttpServlet {
 		resp.getWriter().write("[");
 		
 		if (!toShow.isEmpty())
-			resp.getWriter().write(", "+toShow.get(0));
+			resp.getWriter().write(toShow.get(0));
 		
 		for (int i = 1; i < toShow.size(); i++)
 			resp.getWriter().write(", "+toShow.get(i));
 		
 		resp.getWriter().write("]\n");
 		resp.getWriter().close();
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+		
+		Logger.getLogger(getClass().getSimpleName()).info("Received post request!");
+		
+		try {
+			InputStreamReader reader = new InputStreamReader(req.getInputStream());
+			JsonObject val = Json.parse(reader).asObject();
+			String vehicle = val.getString("name", "");
+			SoiState state = Store.ofy().load().type(SoiState.class).id(vehicle).now();
+			Asset asset = Asset.parse(state.asset);
+			
+			if (val.get("plan") != null)
+				asset.setPlan(Plan.parse(val.getString("plan", "")));				
+			
+			if (val.get("lastState") != null)
+				asset.setState(AssetState.parse(val.getString("lastState", "")));							
+			Store.ofy().save().entity(state).now();
+			
+			Logger.getLogger(getClass().getSimpleName()).info("Updated state: "+state);
+			
+			resp.setStatus(200);
+			reader.close();
+		}
+		catch (Exception e) {
+			throw new ServletException(e);
+		}
 	}
 }

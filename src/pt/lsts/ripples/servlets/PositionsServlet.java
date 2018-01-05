@@ -114,6 +114,8 @@ public class PositionsServlet extends HttpServlet {
 		
 		Store.ofy().save().entity(pos).now();
 		
+		
+		
 		if (!skipFirebase) {
 			try {
 				FirebaseUtils.updateFirebase(sys);
