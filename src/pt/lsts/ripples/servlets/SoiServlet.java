@@ -66,6 +66,12 @@ public class SoiServlet extends HttpServlet {
 			JsonObject val = Json.parse(reader).asObject();
 			String vehicle = val.getString("name", "");
 			SoiState state = Store.ofy().load().type(SoiState.class).id(vehicle).now();
+			
+			if (state == null) {
+				state = new SoiState();
+				state.name = vehicle;				
+			}
+			
 			Asset asset = Asset.parse(state.asset);
 			
 			if (val.get("plan") != null)
@@ -73,7 +79,11 @@ public class SoiServlet extends HttpServlet {
 			
 			if (val.get("lastState") != null)
 				asset.setState(AssetState.parse(val.getString("lastState", "")));							
+			
+			state.lastUpdated = new Date();
+			
 			Store.ofy().save().entity(state).now();
+			
 			
 			Logger.getLogger(getClass().getSimpleName()).info("Updated state: "+state);
 			
