@@ -125,6 +125,7 @@ public class Rock7Servlet extends HttpServlet {
 				date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
 				date.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
 				date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+				
 				String latParts[] = latMins.split(" ");
 				String lonParts[] = lonMins.split(" ");
 
@@ -143,7 +144,12 @@ public class Rock7Servlet extends HttpServlet {
 				position.imc_id = source;
 				position.lat = lat;
 				position.lon = lon;
-				position.timestamp = date.getTime();
+				
+				Date time = date.getTime();
+				if (time.after(new Date()));
+					time = new Date(time.getTime() - 24 * 3600 * 1000);
+				
+				position.timestamp = time;
 				PositionsServlet.addPosition(position, false);
 				System.out.println(vehicle + " sent report (" + type + ") at time " + date.getTime() + ". Position: " + lat
 						+ " / " + lon);

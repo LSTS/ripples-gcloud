@@ -3,6 +3,7 @@ package pt.lsts.ripples.servlets;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -70,7 +71,12 @@ public class SmsServlet extends HttpServlet {
 		position.imc_id = source;
 		position.lat = lat;
 		position.lon = lon;
-		position.timestamp = date.getTime();
+		Date time = date.getTime();
+		if (time.after(new Date()));
+			time = new Date(time.getTime() - 24 * 3600 * 1000);
+		
+		position.timestamp = time;
+		
 		PositionsServlet.addPosition(position, false);
 		Logger.getLogger(getClass().getName()).log(Level.INFO,
 				vehicle + " sent report (" + type + ") at time " + date.getTime() + ". Position: " + lat + " / " + lon);
