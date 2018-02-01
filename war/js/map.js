@@ -3,6 +3,7 @@ var ships = {};
 var updates = {};
 var pois = {};
 var plans = {};
+var etaMarkers = {};
 var tails = {};
 var map, marker;
 var plotlayers = [];
@@ -75,7 +76,6 @@ function loadPoi() {
 				this.closePopup();
 			});
 			marker.on('contextmenu', function(e) {
-				// console.log('contextmenu: '+e.target.options.title);
 				selectedMarker = e.target.options.title;
 			});
 			plotlayers.push(marker);
@@ -202,6 +202,17 @@ var SysIcon = L.Icon.extend({
 	}
 });
 
+var WptIcon = L.Icon.extend({
+	options : {
+		shadowUrl : 'icons/shadow.png',
+		iconSize : [ 12, 12 ],
+		shadowSize : [ 0, 0 ],
+		iconAnchor : [ 6, 6 ],
+		shadowAnchor : [ 6, 6 ],
+		popupAnchor : [ 0, 0 ]
+	}
+});
+
 var transasLayer = L.tileLayer(
 		'http://wms.transas.com/TMS/1.0.0/TX97-transp/{z}/{x}/{y}.png?token=9e53bcb2-01d0-46cb-8aff-512e681185a4',
 		{
@@ -324,6 +335,18 @@ var shipIcon = new SysIcon({
 var usvIcon = new SysIcon({
 	iconUrl : 'icons/ico_usv.png'
 });
+
+var wptGreen = new WptIcon({
+	iconUrl : 'icons/wpt_green.png'
+}); 
+
+var wptRed = new WptIcon({
+	iconUrl : 'icons/wpt_red.png'
+}); 
+
+var wptGray = new WptIcon({
+	iconUrl : 'icons/wpt_gray.png'
+}); 
 
 
 L.control.locate({
@@ -510,8 +533,21 @@ ripplesRef.child('assets').on('child_added', updateAsset)
 ripplesRef.child('ships').on('child_changed', updateShip);
 ripplesRef.child('ships').on('child_added', updateShip);
 
+for (var asset in ripplesRef.child('assets').val()) {
+	updateAsset(asset);
+}
+
+for (var ship in ripplesRef.child('ships').val()) {
+	updateShip(asset);
+}
+
+
 function updateAsset(snapshot) {
 	var position = snapshot.val().position;
+
+	if (position == undefined)
+	   return;
+	
 	var name = snapshot.key();
 	var type = snapshot.val().type;
 	var lat = position.latitude;
@@ -522,7 +558,7 @@ function updateAsset(snapshot) {
 		return;
 	
 	var plan = snapshot.val().plan;
-
+	
 	if (plan == undefined)
 		plans[name] = undefined;
 	else {
@@ -537,6 +573,27 @@ function updateAsset(snapshot) {
 			for (point in plan.path) {
 				plans[name].addLatLng(L.latLng(plan.path[point]));
 			}
+		}
+		// temporal plan
+		if (plan.eta != undefined) {
+			if (etaMarkers[name] != undefined) {
+				etaMarkers[name].forEach(function(m) {
+					map.removeLayer(m);
+				});
+			}
+			etaMarkers[name] = [];
+			plan.eta.forEach(function(eta, index) {
+				var point = plan.path[index];
+				var time = eta;
+				var d = new Date(eta);
+				var etaMarker = L.marker(point, {
+					icon : wptGreen
+				}).bindPopup(name+" ("+(index+1)+")<hr/>"+d.toLocaleString());
+				etaMarkers[name].push(etaMarker);
+				etaMarker.addTo(map);
+			});
+			
+				
 		}
 	}
 
