@@ -605,7 +605,7 @@ function updateAsset(snapshot) {
 		markers[name].setIcon(sysIconFromName(type));
 		markers[name].bindPopup("<b>" + name + "</b><br/>"
 				+ lat.toFixed(6) + ", " + lon.toFixed(6) + "<hr/>"
-				+ new Date().toLocaleString());
+				+ new Date(date).toLocaleString());
 		if ("Gunnerus" === name)
 			markers[name].setIcon(targetIcon);
 	} else {
