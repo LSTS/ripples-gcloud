@@ -35,12 +35,14 @@
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>	
 	<script type='text/javascript' src='https://cdn.firebase.com/js/client/2.4.2/firebase.js'></script>
 	<script type='text/javascript' src='js/tracksymbol.js'></script>
+	<script src="js/leaflet-clonelayer.js"></script>
 	<script src="js/L.Control.Locate.min.js"></script>
 	<script src="js/KML.js"></script>			
 	<script src="js/leaflet.contextmenu.js"></script>
 	<script src="js/Leaflet.Weather.js"></script>
 	<script src="js/Control.OSMGeocoder.js"></script>
 	<script src="js/Leaflet.Coordinates-0.1.5.src.js"></script>
+	
 	<script src="js/L.Control.Layers.Minimap.js"></script>
 	<script src="js/Leaflet.layerscontrol-minimap.js"></script>	
 	<script src="js/leaflet.measure.js"></script>

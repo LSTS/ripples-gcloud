@@ -76,7 +76,7 @@ public class IridiumMsgHandler {
 	public static void on(IMCMessage msg) {
 		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
 				"Received IMC msg of type "+msg.getClass().getSimpleName()+" from "+msg.getSourceName());		
-				
+
 		switch (msg.getMgid()) {
 		case LogBookEntry.ID_STATIC:
 			addLogEntry((LogBookEntry)msg);
@@ -99,8 +99,20 @@ public class IridiumMsgHandler {
 	
 	public static  void on(ImcIridiumMessage msg) {
 		IMCMessage m = msg.getMsg();
-		
 		m.setSrc(msg.getSource());
+		m.setTimestamp(msg.timestampMillis/1000.0);
+		
+		if (m.getDate().after(new Date())) {
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+					"Ignored message from the future: "+m);
+			return;
+		}
+		
+		if (m.getDate().before(new Date(System.currentTimeMillis() - 3600 * 1000))) {
+			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
+					"Ignored message posted more than 1 hour ago: "+m);
+			return;
+		}		
 		
 		on(m);
 	}

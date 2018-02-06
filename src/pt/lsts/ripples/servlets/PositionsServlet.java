@@ -91,10 +91,18 @@ public class PositionsServlet extends HttpServlet {
 				sys.setName(IMCDefinition.getInstance().getResolver()
 						.resolve((int) pos.imc_id));
 			sys.setCreated_at(new Date());
+		}		
+		
+		if (sys.getUpdated_at().after(pos.timestamp)) {
+			System.out.println("Ignoring old position ("+pos.timestamp+") for "+sys.getName()+": "+pos.lat+" / "+pos.lon);
+			return;				
 		}
 		
 		System.out.println("System found for "+pos.imc_id+" is "+sys+" which has "+sys.imcid);
 		System.out.println("Updating "+sys.getName()+" to "+pos.timestamp);
+		
+		
+		
 		sys.setUpdated_at(pos.timestamp);
 		sys.setCoordinates(new double[] { pos.lat,
 				pos.lon });

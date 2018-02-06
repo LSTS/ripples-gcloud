@@ -52,7 +52,7 @@ public class Rock7Servlet extends HttpServlet {
 			transmit_time = dateFormat.parse(req.getParameter("transmit_time"));
 			msg = IridiumMessage.deserialize(dataArr);
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Non standard iridium message has been received.",
+			Logger.getLogger(getClass().getName()).log(Level.INFO, "Non standard iridium message has been received.",
 					e);
 		}
 
@@ -104,14 +104,24 @@ public class Rock7Servlet extends HttpServlet {
 		} 
 		else {
 			try {
+				String hex = data;
+				if (hex.length() == 0) {
+					Logger.getLogger(getClass().getName()).log(Level.INFO, "Received empty message from RockBlock.");
+					resp.getWriter().write("200 OK");
+					resp.setStatus(200);
+					resp.getWriter().close();
+					return;
+				}
+				
 				data = new String(DatatypeConverter.parseHexBinary(data));	
-				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received custom text message from RockBlock: "+data);
+				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received custom text message from RockBlock: "+hex+" / "+data);
 				
 				Matcher matcher = p.matcher(data);
 				if (!matcher.matches()) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Text message not understood: " + data);
 					resp.getWriter().write("Text message not understood: " + data);
-					resp.setStatus(300);
+					resp.setStatus(200);
+					resp.getWriter().write("Text message not understood: " + data);
 					resp.getWriter().close();			
 					return;
 				}

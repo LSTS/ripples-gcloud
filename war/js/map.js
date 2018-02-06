@@ -393,6 +393,7 @@ function updatePositions() {
 				var ic = sysIcon(data[val].imcid);
 				var mins = (new Date() - updated) / 1000 / 60;
 				var ellapsed = Math.floor(mins) + " mins ago";
+				
 				if (mins > 120) {
 					ellapsed = Math.floor(mins / 60) + " hours ago";
 				}
