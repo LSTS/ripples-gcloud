@@ -538,9 +538,6 @@ ripplesRef.child('ships').on('value', updateAsset)
 function updateAsset(snapshot) {
 	var position = snapshot.val().position;
 
-	console.log("updateAsset "+snapshot.key())
-	
-	
 	if (position == undefined)
 	   return;
 	
@@ -579,17 +576,19 @@ function updateAsset(snapshot) {
 			}
 			etaMarkers[name] = [];
 			plan.eta.forEach(function(eta, index) {
-				var point = plan.path[index];
-				var time = eta;
-				var d = new Date(eta);
-				var etaMarker = L.marker(point, {
-					icon : wptGreen
-				}).bindPopup(name+" ("+(index+1)+")<hr/>"+d.toLocaleString());
-				etaMarkers[name].push(etaMarker);
-				etaMarker.addTo(map);
-			});
-			
 				
+				if (eta > 0) {
+					console.log(eta);
+					var point = plan.path[index];
+					var time = eta;
+					var d = new Date(eta);
+					var etaMarker = L.marker(point, {
+						icon : wptGreen
+					}).bindPopup(name+" ("+(index+1)+")<hr/>"+d.toLocaleString());
+					etaMarkers[name].push(etaMarker);
+					etaMarker.addTo(map);
+				}
+			});
 		}
 	}
 
