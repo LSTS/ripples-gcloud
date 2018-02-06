@@ -529,22 +529,18 @@ var assets = {};
 var lastPositions = {};
 var ripplesRef = new Firebase('https://neptus.firebaseio.com/');
 ripplesRef.child('assets').on('child_changed', updateAsset)
+ripplesRef.child('assets').on('value', updateAsset)
 ripplesRef.child('assets').on('child_added', updateAsset)
 ripplesRef.child('ships').on('child_changed', updateShip);
 ripplesRef.child('ships').on('child_added', updateShip);
-
-for (var asset in ripplesRef.child('assets').val()) {
-	updateAsset(asset);
-}
-
-for (var ship in ripplesRef.child('ships').val()) {
-	updateShip(asset);
-}
-
+ripplesRef.child('ships').on('value', updateAsset)
 
 function updateAsset(snapshot) {
 	var position = snapshot.val().position;
 
+	console.log("updateAsset "+snapshot.key())
+	
+	
 	if (position == undefined)
 	   return;
 	
