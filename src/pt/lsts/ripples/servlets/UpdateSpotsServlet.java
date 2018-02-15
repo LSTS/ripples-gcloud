@@ -62,7 +62,7 @@ public class UpdateSpotsServlet extends HttpServlet {
 			NodeList elems = messages.item(i).getChildNodes();
 			String name = null;
 			double lat = 0, lon = 0;
-			long timestamp = System.currentTimeMillis();
+			long timestamp = 0;
 			//String battState = null, msgType = null;
 			for (int j = elems.getLength()-1; j >= 0; j--) {
 				Node nd = elems.item(j);
@@ -95,7 +95,8 @@ public class UpdateSpotsServlet extends HttpServlet {
 			pos.lat = lat;
 			pos.lon = lon;
 			pos.timestamp = new Date(timestamp);
-			if (!positions.containsKey(name) || positions.get(name).timestamp.before(pos.timestamp))
+			
+			if (pos.timestamp.before(new Date()) && !positions.containsKey(name) || positions.get(name).timestamp.before(pos.timestamp))
 				positions.put(name, pos);			
 		}		
 		
