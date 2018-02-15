@@ -98,6 +98,12 @@ public class PositionsServlet extends HttpServlet {
 			return;				
 		}
 		
+		if (sys.getUpdated_at().after(new Date())) {
+			System.out.println("Ignoring position in the future ("+pos.timestamp+") for "+sys.getName()+": "+pos.lat+" / "+pos.lon);
+			return;				
+		}
+		
+		
 		System.out.println("System found for "+pos.imc_id+" is "+sys+" which has "+sys.imcid);
 		System.out.println("Updating "+sys.getName()+" to "+pos.timestamp);
 		
