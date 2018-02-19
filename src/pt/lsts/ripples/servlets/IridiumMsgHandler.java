@@ -160,7 +160,11 @@ public class IridiumMsgHandler {
 		
 		try {
 			Asset state = Asset.parse(existing.asset);
-			state.setPlan(Plan.parse(plan.asJSON()));
+			if (plan == null)
+				state.setPlan(null);
+			else	
+				state.setPlan(Plan.parse(plan.asJSON()));
+			
 			existing.asset = state.toString();
 			existing.lastUpdated = cmd.getDate();
 			Store.ofy().save().entity(existing).now();
