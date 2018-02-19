@@ -156,8 +156,10 @@ public class Rock7Servlet extends HttpServlet {
 				position.lon = lon;
 				
 				Date time = date.getTime();
-				if (time.after(new Date()));
-					time = new Date(time.getTime() - 24 * 3600 * 1000);
+				if (time.after(new Date(System.currentTimeMillis() + 600_000))) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Received a message from the future?");
+					time = new Date(time.getTime() - 24 * 3600 * 1000);					
+				}
 				
 				position.timestamp = time;
 				PositionsServlet.addPosition(position, false);
