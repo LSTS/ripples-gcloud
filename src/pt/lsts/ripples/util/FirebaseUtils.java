@@ -31,7 +31,7 @@ public class FirebaseUtils {
 	public static void updateFirebase(String vehicle, SoiPlan plan) {
 		Firebase planRef = firebase().child("assets/" + vehicle + "/plan").getRef();
 		
-		if (plan.getWaypoints().isEmpty()) {
+		if (plan == null || plan.getWaypoints().isEmpty()) {
 			planRef.setValue(null);		
 		}
 		else {
