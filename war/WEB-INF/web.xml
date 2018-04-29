@@ -10,10 +10,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
 	</filter>
 	<filter-mapping>
-		<filter-name>ObjectifyFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	
+        <filter-name>ObjectifyFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <!-- Next three lines are for request dispatcher actions -->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+    
 	<servlet>
 		<servlet-name>Systems</servlet-name>
 		<servlet-class>pt.lsts.ripples.servlets.SystemsServlet</servlet-class>
@@ -66,6 +70,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	<servlet-mapping>
 		<servlet-name>Iridium Servlet</servlet-name>
 		<url-pattern>/api/v1/iridium/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Iridium Servlet</servlet-name>
+		<url-pattern>/api/v1/irsim/*</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
