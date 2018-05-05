@@ -18,6 +18,7 @@ import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
+import pt.lsts.imc.StateReport;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
@@ -92,6 +93,8 @@ public class IridiumMsgHandler {
 		case SoiCommand.ID_STATIC:							
 			incoming((SoiCommand)msg);
 			break;
+		case StateReport.ID_STATIC:
+			incoming((StateReport)msg);
 		default:
 			break;
 		}
@@ -115,6 +118,20 @@ public class IridiumMsgHandler {
 		}		
 		
 		on(m);
+	}
+	
+	public static void incoming(StateReport state) {
+		SystemPosition position = new SystemPosition();
+		position.imc_id = state.getSrc();
+		position.lat = state.getLatitude();
+		position.lon = state.getLongitude();
+		Date time = state.getDate();
+		if (time.after(new Date()));
+			time = new Date(time.getTime() - 24 * 3600 * 1000);
+		
+		position.timestamp = time;
+		
+		PositionsServlet.addPosition(position, false);
 	}
 	
 	public static void incoming(SoiCommand cmd) {
