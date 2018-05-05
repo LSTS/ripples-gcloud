@@ -40,14 +40,14 @@ public class IridiumMsgHandler {
 
 	public static void setMessage(String imei, IridiumMessage msg) {
 		Integer id = msg.getSource();
-		
-		
 		try {
-			id = IridiumUtils.getImcId(imei);
+			if (imei != null)
+				id = IridiumUtils.getImcId(imei);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		if (id != null)
 			msg.setSource(id);
 		

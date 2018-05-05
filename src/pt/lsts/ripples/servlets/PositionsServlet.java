@@ -78,8 +78,7 @@ public class PositionsServlet extends HttpServlet {
 	public static void addPosition(SystemPosition pos, boolean skipFirebase) {
 		
 		HubSystem sys = Store.ofy().load().type(HubSystem.class).id(pos.imc_id).now();
-		
-		
+				
 		if (sys == null) {
 			sys = new HubSystem();
 			sys.setImcid(pos.imc_id);
@@ -91,8 +90,8 @@ public class PositionsServlet extends HttpServlet {
 				sys.setName(IMCDefinition.getInstance().getResolver()
 						.resolve((int) pos.imc_id));
 			sys.setCreated_at(new Date());
+			sys.setUpdated_at(new Date(0l));
 		}		
-		
 		if (sys.getUpdated_at().after(pos.timestamp)) {
 			System.out.println("Ignoring old position ("+pos.timestamp+") for "+sys.getName()+": "+pos.lat+" / "+pos.lon);
 			return;				

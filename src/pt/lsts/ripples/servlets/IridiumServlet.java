@@ -46,8 +46,7 @@ public class IridiumServlet extends HttpServlet {
 		if (simulation) {
 			Logger.getLogger(getClass().getName()).warning("This request is simulated.");
 		}
-			
-		if (req.getContentType().equals("application/hub")) {
+		if ((""+req.getContentType()).equals("application/hub")) {
 			sendInlineMessage(req, resp, !simulation);
 		} else {
 			Logger.getLogger(getClass().getName()).info(
@@ -135,13 +134,17 @@ public class IridiumServlet extends HttpServlet {
 			}
 		} 
 		catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING,
-					"Error sending Iridium message", e);
-			resp.setStatus(400);
-			e.printStackTrace(resp.getWriter());
-			resp.getWriter().close();
+			try {
+				IridiumUtils.parsePlainTextReport(sb.toString());
+			}
+			catch (Exception ex) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING,
+						"Error sending Iridium message", e);
+				resp.setStatus(400);
+				e.printStackTrace(resp.getWriter());
+				resp.getWriter().close();
 
-
+			}
 			return;
 		}
 

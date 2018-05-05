@@ -2,30 +2,23 @@ package pt.lsts.ripples.servlets;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import com.firebase.client.utilities.Pair;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.ripples.model.Address;
 import pt.lsts.ripples.model.HubIridiumMsg;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.Store;
-import pt.lsts.ripples.model.SystemPosition;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.util.IridiumUtils;
 
@@ -34,7 +27,6 @@ public class Rock7Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private static final HexBinaryAdapter hexAdapter = new HexBinaryAdapter();
-	private static Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
 	static {
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -113,58 +105,7 @@ public class Rock7Servlet extends HttpServlet {
 					return;
 				}
 				
-				data = new String(DatatypeConverter.parseHexBinary(data));	
-				Logger.getLogger(getClass().getName()).log(Level.INFO, "Received custom text message from RockBlock: "+hex+" / "+data);
-				
-				Matcher matcher = p.matcher(data);
-				if (!matcher.matches()) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Text message not understood: " + data);
-					resp.getWriter().write("Text message not understood: " + data);
-					resp.setStatus(200);
-					resp.getWriter().write("Text message not understood: " + data);
-					resp.getWriter().close();			
-					return;
-				}
-				String type = matcher.group(1);
-				String vehicle = matcher.group(2);
-				String timeOfDay = matcher.group(3);
-				String latMins = matcher.group(4);
-				String lonMins = matcher.group(5);
-				GregorianCalendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-				String[] timeParts = timeOfDay.split(":");
-				date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
-				date.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
-				date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
-				
-				String latParts[] = latMins.split(" ");
-				String lonParts[] = lonMins.split(" ");
-
-				double lat = Double.parseDouble(latParts[0]);
-				lat += (lat > 0) ? Double.parseDouble(latParts[1]) / 60.0 : -Double.parseDouble(latParts[1]) / 60.0;
-				double lon = Double.parseDouble(lonParts[0]);
-				lon += (lon > 0) ? Double.parseDouble(lonParts[1]) / 60.0 : -Double.parseDouble(lonParts[1]) / 60.0;
-
-				int source = IMCDefinition.getInstance().getResolver().resolve(vehicle);
-
-				if (source == -1) {
-					System.err.println("Received report from unknown system name: " + vehicle);
-					return;
-				}
-				SystemPosition position = new SystemPosition();
-				position.imc_id = source;
-				position.lat = lat;
-				position.lon = lon;
-				
-				Date time = date.getTime();
-				if (time.after(new Date(System.currentTimeMillis() + 600_000))) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Received a message from the future?");
-					time = new Date(time.getTime() - 24 * 3600 * 1000);					
-				}
-				
-				position.timestamp = time;
-				PositionsServlet.addPosition(position, false);
-				System.out.println(vehicle + " sent report (" + type + ") at time " + date.getTime() + ". Position: " + lat
-						+ " / " + lon);
+				IridiumUtils.parsePlainTextReport(data);
 			}
 			catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Could not parse custom message as text", e);
