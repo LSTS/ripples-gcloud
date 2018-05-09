@@ -8,9 +8,6 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-import pt.lsts.endurance.Asset;
-import pt.lsts.endurance.AssetState;
-import pt.lsts.endurance.Plan;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
@@ -34,7 +31,6 @@ import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
 import pt.lsts.ripples.model.soi.SoiState;
 import pt.lsts.ripples.servlets.datastore.HistoricDataProcessor;
-import pt.lsts.ripples.util.FirebaseUtils;
 import pt.lsts.ripples.util.IridiumUtils;
 
 public class IridiumMsgHandler {
@@ -126,27 +122,25 @@ public class IridiumMsgHandler {
 		position.lat = state.getLatitude();
 		position.lon = state.getLongitude();
 		Date time = state.getDate();
-		if (time.after(new Date()));
-			time = new Date(time.getTime() - 24 * 3600 * 1000);
+		if (time.after(new Date(System.currentTimeMillis()+180_000)));
+			time = new Date();
 		
 		position.timestamp = time;
 		
 		PositionsServlet.addPosition(position, false);
+		SoiState.updateState(state);
 	}
 	
 	public static void incoming(SoiCommand cmd) {
 		HubSystem vehicle = null;
 		
-		if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.REQUEST) {
+		if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.REQUEST)
 			vehicle = Store.ofy().load().type(HubSystem.class).id(cmd.getDst()).now();			
-		}
-		else if (cmd.getCommand() == COMMAND.GET_PLAN && cmd.getType() == TYPE.SUCCESS) {
+		else if (cmd.getCommand() == COMMAND.GET_PLAN && cmd.getType() == TYPE.SUCCESS)
 			vehicle = Store.ofy().load().type(HubSystem.class).id(cmd.getSrc()).now();
-		}
-		else if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.SUCCESS) {
+		else if (cmd.getCommand() == COMMAND.EXEC && cmd.getType() == TYPE.SUCCESS)
 			vehicle = Store.ofy().load().type(HubSystem.class).id(cmd.getSrc()).now();
-		}
-
+		
 		if (vehicle == null) {
 			Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.WARNING,
 					"Command ignored: "+cmd);
@@ -154,42 +148,7 @@ public class IridiumMsgHandler {
 		}
 		
 		SoiPlan plan = cmd.getPlan();
-		FirebaseUtils.updateFirebase(vehicle.getName(), plan);
-		Logger.getLogger(IridiumMsgHandler.class.getName()).log(Level.INFO,
-				"Received plan for "+vehicle+": "+plan);
-			
-		SoiState existing = Store.ofy().load().type(SoiState.class).id(vehicle.getName()).now();
-		if (existing == null) {
-			existing = new SoiState();
-			existing.lastUpdated = cmd.getDate();
-			existing.name = vehicle.getName();
-			
-			Asset state = new Asset(vehicle.getName());
-			
-			state.setState(AssetState.builder()
-					.withLatitude(vehicle.getCoordinates()[0])
-					.withLongitude(vehicle.getCoordinates()[1])
-					.withTimestamp(cmd.getDate())
-					.build());
-			
-			existing.asset = state.toString();
-		}
-		
-		try {
-			Asset state = Asset.parse(existing.asset);
-			if (plan == null)
-				state.setPlan(null);
-			else	
-				state.setPlan(Plan.parse(plan.asJSON()));
-			
-			existing.asset = state.toString();
-			existing.lastUpdated = cmd.getDate();
-			Store.ofy().save().entity(existing).now();
-			Logger.getLogger(IridiumMsgHandler.class.getName()).info("Saved SoiPlan for vehicle "+vehicle.getName());
-		} catch (Exception e) {
-			e.printStackTrace();
-			Logger.getLogger(IridiumMsgHandler.class.getName()).warning("Error saving SoiPlan for vehicle "+vehicle.getName()+": "+e.getMessage());
-		}
+		SoiState.updatePlan(vehicle, plan);
 	}
 	
 	private static void addLogEntry(LogBookEntry entry) {
