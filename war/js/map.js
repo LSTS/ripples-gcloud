@@ -243,7 +243,7 @@ var sss = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '30,38',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',
-	attribution : 'ESA / Copernicus'
+	attribution : 'CMEMS / ESA (previous day forecast)'
 });
 
 var sst = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -254,7 +254,7 @@ var sst = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '0,36',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',
-	attribution : 'ESA / Copernicus'
+	attribution : 'CMEMS / ESA (previous day forecast)'
 });
 
 var sssc = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -265,7 +265,7 @@ var sssc = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-f
 	colorscalerange: '30,38',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',
-	attribution : 'ESA / Copernicus'
+	attribution : 'CMEMS / ESA (previous day forecast)'
 });
 
 var ssv = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -276,7 +276,7 @@ var ssv = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '0,2',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',	
-	attribution : 'ESA / Copernicus'
+	attribution : 'CMEMS / ESA (previous day forecast)'
 });
 
 var zos = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -287,13 +287,25 @@ var zos = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '-1,1',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',	
-	attribution : 'ESA / Copernicus'
+	attribution : 'CMEMS / ESA (previous day forecast)'
+});
+
+var chl = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/dataset-oc-glo-chl-multi-l4-oi_4km_daily-rt-v02?REQUEST=GetMap', {
+	layers: 'CHL',
+	format: 'image/png',
+	styles: 'boxfill/alg2',
+	transparent: 'true',
+	logscale: 'true',
+	colorscalerange: '0.01,10.0',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',	
+	attribution : 'CMEMS / ESA (previous day forecast)'
 });
 
 
 var gmrt = L.tileLayer.wms('https://www.gmrt.org/services/mapserver/wms_merc?service=WMS&version=1.0.0&request=GetMap', {
 	layers: 'gmrt',
-	attribution: 'GEBCO'
+	attribution: 'GEBCO (multiple sources)'
 });
 
 
@@ -312,10 +324,11 @@ var overlays = {
 	"Nautical Charts" : transasLayer,
 	"KML Layer": kmlLayer,
 	"Ship Traffic": densityLayer,
-	"Copernicus Temperature": sst,
-	"Copernicus Salinity": sss,
-	"Copernicus Velocity": ssv,
-	"Copernicus Sea Height": zos	
+	"CMEMS Water Temperature": sst,
+	"CMEMS Water Salinity": sss,
+	"CMEMS Water Velocity": ssv,
+	"CMEMS Surface Height": zos,
+	"CMEMS Chlorophyll": chl,
 	
 }
 
