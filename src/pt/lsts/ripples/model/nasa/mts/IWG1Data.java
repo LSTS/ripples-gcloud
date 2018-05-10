@@ -37,9 +37,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import pt.lsts.ripples.util.MathUtils;
-
 import com.google.gson.annotations.Expose;
+
+import pt.lsts.ripples.util.MathUtils;
 
 /**
  * IWG1 Packet Definitions

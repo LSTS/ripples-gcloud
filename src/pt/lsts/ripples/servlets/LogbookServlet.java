@@ -10,15 +10,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.lsts.ripples.model.Store;
-import pt.lsts.ripples.model.log.ActionItem;
-import pt.lsts.ripples.model.log.LogEntry;
-import pt.lsts.ripples.model.log.MissionLog;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
+import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.log.ActionItem;
+import pt.lsts.ripples.model.log.LogEntry;
+import pt.lsts.ripples.model.log.MissionLog;
 
 public class LogbookServlet extends HttpServlet {
 	private static final long serialVersionUID = 307618046379130819L;

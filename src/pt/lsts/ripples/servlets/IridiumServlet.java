@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+import com.firebase.client.utilities.Pair;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
@@ -29,8 +31,6 @@ import pt.lsts.ripples.model.Store;
 import pt.lsts.ripples.model.iridium.ImcIridiumMessage;
 import pt.lsts.ripples.model.iridium.IridiumMessage;
 import pt.lsts.ripples.util.IridiumUtils;
-
-import com.firebase.client.utilities.Pair;
 
 @SuppressWarnings("serial")
 public class IridiumServlet extends HttpServlet {

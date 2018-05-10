@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.ProfileSample;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
@@ -31,6 +32,7 @@ import pt.lsts.ripples.model.iridium.Position;
 import pt.lsts.ripples.model.log.LogEntry;
 import pt.lsts.ripples.model.log.MissionLog;
 import pt.lsts.ripples.model.soi.SoiState;
+import pt.lsts.ripples.model.soi.VerticalProfileData;
 import pt.lsts.ripples.servlets.datastore.HistoricDataProcessor;
 import pt.lsts.ripples.util.IridiumUtils;
 
@@ -121,6 +123,35 @@ public class IridiumMsgHandler {
 	public static void incoming(VerticalProfile msg) {
 		Logger.getLogger(IridiumMsgHandler.class.getSimpleName()).log(Level.INFO,
 				"Received vertical profile from "+msg.getSourceName()+": "+msg);
+		
+		VerticalProfileData data = new VerticalProfileData();
+		data.imc_id = msg.getSrc();
+		data.latitude = msg.getLat();
+		data.longitude = msg.getLon();
+		data.timestamp = msg.getDate();
+		switch (msg.getParameter()) {
+		case SALINITY:
+			data.sample_type = "Salinity";
+			break;
+		case TEMPERATURE:
+			data.sample_type = "Temperature";
+			break;
+		case CHLOROPHYLL:
+			data.sample_type = "Chorophyll";
+			break;
+		default:
+			Logger.getLogger(IridiumMsgHandler.class.getSimpleName())
+					.warning("Unrecognized data type: " + data.sample_type);
+			break;
+		}
+		
+		for (ProfileSample sample : msg.getSamples()) {
+			data.samples.add(new VerticalProfileData.Sample(sample.getDepth() / 10.0, sample.getAvg()));
+		}
+		
+		Store.ofy().save().entities(data).now();
+		Logger.getLogger(IridiumMsgHandler.class.getSimpleName())
+				.info("Stored a vertical profile from " + msg.getSourceName());
 	}
 	
 	public static void incoming(StateReport state) {

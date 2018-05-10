@@ -580,7 +580,7 @@ function sysIcon(imcId) {
 		case 1:
 			return unknownIcon; // rov
 		case 2:
-			return asvIcon; // asv
+			return usvIcon; // asv
 		case 3:
 			return uavIcon;
 		default:

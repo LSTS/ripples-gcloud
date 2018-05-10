@@ -14,18 +14,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.lsts.ripples.model.Address;
-import pt.lsts.ripples.model.HubSystem;
-import pt.lsts.ripples.model.Store;
-import pt.lsts.ripples.model.SystemPosition;
-import pt.lsts.ripples.servlets.PositionsServlet;
-
 import com.firebase.client.utilities.Pair;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+
+import pt.lsts.ripples.model.Address;
+import pt.lsts.ripples.model.HubSystem;
+import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.SystemPosition;
+import pt.lsts.ripples.servlets.PositionsServlet;
 
 public class WavyPositions extends HttpServlet {
 

@@ -14,13 +14,6 @@ import java.util.regex.Pattern;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.ripples.model.Address;
-import pt.lsts.ripples.model.Credentials;
-import pt.lsts.ripples.model.Store;
-import pt.lsts.ripples.model.SystemPosition;
-import pt.lsts.ripples.servlets.PositionsServlet;
-
 import com.firebase.client.utilities.Pair;
 import com.google.appengine.api.urlfetch.FetchOptions;
 import com.google.appengine.api.urlfetch.HTTPHeader;
@@ -29,6 +22,13 @@ import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.ripples.model.Address;
+import pt.lsts.ripples.model.Credentials;
+import pt.lsts.ripples.model.Store;
+import pt.lsts.ripples.model.SystemPosition;
+import pt.lsts.ripples.servlets.PositionsServlet;
 
 public class IridiumUtils {
 
