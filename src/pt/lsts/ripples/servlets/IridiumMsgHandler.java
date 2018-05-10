@@ -16,6 +16,7 @@ import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.StateReport;
+import pt.lsts.imc.VerticalProfile;
 import pt.lsts.ripples.model.HubSystem;
 import pt.lsts.ripples.model.IridiumSubscription;
 import pt.lsts.ripples.model.Store;
@@ -91,6 +92,8 @@ public class IridiumMsgHandler {
 			break;
 		case StateReport.ID_STATIC:
 			incoming((StateReport)msg);
+		case VerticalProfile.ID_STATIC:
+			incoming((VerticalProfile)msg);
 		default:
 			break;
 		}
@@ -114,6 +117,10 @@ public class IridiumMsgHandler {
 		}		
 		
 		on(m);
+	}
+	public static void incoming(VerticalProfile msg) {
+		Logger.getLogger(IridiumMsgHandler.class.getSimpleName()).log(Level.INFO,
+				"Received vertical profile from "+msg.getSourceName()+": "+msg);
 	}
 	
 	public static void incoming(StateReport state) {

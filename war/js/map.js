@@ -10,9 +10,9 @@ var plotlayers = [];
 var selectedMarker;
 var originLat, originLng, originZoom, currentLat, currentLng, currentZoom;
 
-originLat=41.184774;
-originLng=-8.704476;
-originZoom=12;
+originLat=31.0;
+originLng=-130;
+originZoom=5;
 
 var isMobile = {
 	Android : function() {
@@ -233,6 +233,69 @@ var densityLayer = L.tileLayer(
 			layerVisibility : false
 		});
 
+//http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?FORMAT=image%2Fpng&TRANSPARENT=TRUE&STYLES=boxfill%2Frainbow&LAYERS=thetao&TIME=2018-05-10T12%253A00%253A00.000Z&ELEVATION=-0.49402499198913574&COLORSCALERANGE=-5.15%2C34.85&NUMCOLORBANDS=20&ABOVEMAXCOLOR=0x000000&BELOWMINCOLOR=0x000000&LOGSCALE=false&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG%3A4326&BBOX=-180,-90,-12.475149147727,77.524850852273&WIDTH=256&HEIGHT=256
+
+var sss = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
+	layers: 'so',
+	format: 'image/png',
+	styles: 'boxfill/rainbow',
+	transparent: 'true',
+	colorscalerange: '30,38',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',
+	attribution : 'ESA / Copernicus'
+});
+
+var sst = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
+	layers: 'thetao',
+	format: 'image/png',
+	styles: 'boxfill/sst_36',
+	transparent: 'true',
+	colorscalerange: '0,36',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',
+	attribution : 'ESA / Copernicus'
+});
+
+var sssc = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
+	layers: 'so',
+	format: 'image/png',
+	styles: 'boxfill/rainbow',
+	transparent: 'true',
+	colorscalerange: '30,38',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',
+	attribution : 'ESA / Copernicus'
+});
+
+var ssv = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
+	layers: 'sea_water_velocity',
+	format: 'image/png',
+	styles: 'vector/rainbow',
+	transparent: 'true',
+	colorscalerange: '0,2',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',	
+	attribution : 'ESA / Copernicus'
+});
+
+var zos = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
+	layers: 'zos',
+	format: 'image/png',
+	styles: 'boxfill/rainbow',
+	transparent: 'true',
+	colorscalerange: '-1,1',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',	
+	attribution : 'ESA / Copernicus'
+});
+
+
+var gmrt = L.tileLayer.wms('https://www.gmrt.org/services/mapserver/wms_merc?service=WMS&version=1.0.0&request=GetMap', {
+	layers: 'gmrt',
+	attribution: 'GEBCO'
+});
+
 
 
 var baseLayers = {
@@ -241,18 +304,23 @@ var baseLayers = {
 	"Terrain" : hybrid,
 	"Outdoors" : ThunderForest1,
 	"ESRI Ocean" : Esri_OceanBasemap,
-	"ESRI Aerial" : Esri_WorldImagery
+	"ESRI Aerial" : Esri_WorldImagery,
+	"GMRT": gmrt
 };
 
 var overlays = {
 	"Nautical Charts" : transasLayer,
 	"KML Layer": kmlLayer,
-	"Ship Traffic": densityLayer
+	"Ship Traffic": densityLayer,
+	"Copernicus Temperature": sst,
+	"Copernicus Salinity": sss,
+	"Copernicus Velocity": ssv,
+	"Copernicus Sea Height": zos	
+	
 }
 
-map.addLayer(transasLayer);
-//map.addLayer(kmlLayer);
-//map.addLayer(densityLayer);
+map.addLayer(kmlLayer);
+//map.addLayer(transasLayer);
 
 function create_map(lat,lng,zoom){
 	
@@ -268,7 +336,7 @@ function create_map(lat,lng,zoom){
 		center: [lat,lng],
 		zoom: zoom,
 		zoomSnap: 0.25,
-		layers : [ osmLayer ],
+		layers : [ Esri_WorldImagery ],
 		contextmenu : true,
 		drawControl: true,
 		measureControl: true,
@@ -286,10 +354,13 @@ function create_map(lat,lng,zoom){
 if (isMobile.any()) {
 	//alert('Mobile');
 	L.control.layers(baseLayers, overlays).addTo(map);
-} else {
+} 
+else {
 	//alert('PC');
 	//L.control.weather().addTo(map);
-	L.control.layers.minimap(baseLayers, overlays).addTo(map);
+	L.control.layers(baseLayers, overlays).addTo(map);
+	
+	//L.control.layers.minimap(baseLayers, overlays).addTo(map);
 	var mouse_coordinates = new L.control.coordinates({
 		position:"topleft",
 		labelTemplateLat:"Lat: {y}",
