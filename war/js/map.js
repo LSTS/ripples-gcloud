@@ -7,6 +7,7 @@ var etaMarkers = {};
 var tails = {};
 var map, marker;
 var plotlayers = [];
+var shipsOverlay = L.layerGroup([]);
 var selectedMarker;
 var originLat, originLng, originZoom, currentLat, currentLng, currentZoom;
 
@@ -243,7 +244,8 @@ var sss = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '30,38',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',
-	attribution : 'CMEMS / ESA (previous day forecast)'
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
 });
 
 var sst = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -254,7 +256,8 @@ var sst = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '0,36',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',
-	attribution : 'CMEMS / ESA (previous day forecast)'
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
 });
 
 var sssc = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -265,7 +268,7 @@ var sssc = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-f
 	colorscalerange: '30,38',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',
-	attribution : 'CMEMS / ESA (previous day forecast)'
+	attribution : 'E.U. Copernicus Marine Service Information'
 });
 
 var ssv = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -275,8 +278,9 @@ var ssv = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	transparent: 'true',
 	colorscalerange: '0,2',
 	belowmincolor: 'extend',
-	belowmaxcolor: 'extend',	
-	attribution : 'CMEMS / ESA (previous day forecast)'
+	belowmaxcolor: 'extend',
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
 });
 
 var zos = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-phy-001-024?REQUEST=GetMap', {
@@ -287,7 +291,8 @@ var zos = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-fo
 	colorscalerange: '-1,1',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',	
-	attribution : 'CMEMS / ESA (previous day forecast)'
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
 });
 
 var chl = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/dataset-oc-glo-chl-multi-l4-oi_4km_daily-rt-v02?REQUEST=GetMap', {
@@ -299,16 +304,48 @@ var chl = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/dataset-oc-glo-chl
 	colorscalerange: '0.01,10.0',
 	belowmincolor: 'extend',
 	belowmaxcolor: 'extend',	
-	attribution : 'CMEMS / ESA (previous day forecast)'
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
 });
 
+var waves = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/global-analysis-forecast-wav-001-027?REQUEST=GetMap', {
+	styles: 'boxfill/rainbow',
+	layers:'VHM0',
+	colorscalerange:'0.01,8.0',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',	
+	transparent: 'true',
+	format: 'image/png',
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
+});
+
+var wind = L.tileLayer.wms('http://nrt.cmems-du.eu/thredds/wms/CERSAT-GLO-BLENDED_WIND_L4-V5-OBS_FULL_TIME_SERIE?REQUEST=GetMap', {
+	styles: 'vector/rainbow',
+	layers:'wind',
+	ELEVATION:'10',
+	colorscalerange:'0.0,25.0',
+	belowmincolor: 'extend',
+	belowmaxcolor: 'extend',	
+	transparent: 'true',
+	format: 'image/png',
+	opacity: '0.8',
+	attribution : 'E.U. Copernicus Marine Service Information'
+
+});
 
 var gmrt = L.tileLayer.wms('https://www.gmrt.org/services/mapserver/wms_merc?service=WMS&version=1.0.0&request=GetMap', {
 	layers: 'gmrt',
 	attribution: 'GEBCO (multiple sources)'
 });
 
-
+var argos = L.tileLayer.wms('http://www.ifremer.fr/services/wms/coriolis/co_argo_floats_activity?REQUEST=GetMap', {
+	layers: 'StationProject',
+	format: 'image/png',
+	transparent: 'true',
+	project: '',
+	attribution: 'IFREMER'
+});
 
 var baseLayers = {
 	"Open Street Map" : osmLayer,
@@ -323,13 +360,16 @@ var baseLayers = {
 var overlays = {
 	"Nautical Charts" : transasLayer,
 	"KML Layer": kmlLayer,
-	"Ship Traffic": densityLayer,
+	"AIS Traffic": shipsOverlay,
+	"AIS Density": densityLayer,
 	"CMEMS Water Temperature": sst,
 	"CMEMS Water Salinity": sss,
 	"CMEMS Water Velocity": ssv,
 	"CMEMS Surface Height": zos,
 	"CMEMS Chlorophyll": chl,
-	
+	"CMEMS Waves": waves,
+	"CMEMS Wind": wind,
+	"ARGOS Floats": argos
 }
 
 map.addLayer(kmlLayer);
@@ -594,6 +634,18 @@ function sysIcon(imcId) {
 	}
 }
 
+function addToShipTail(name, lat, lon) {
+	var pos = new L.LatLng(lat, lon);
+
+	if (tails[name] == undefined) {
+		tails[name] = L.polyline({});
+		tails[name].addTo(shipsOverlay);
+	}
+	tails[name].addLatLng(pos);
+	if (tails[name].getLatLngs().length > 120)
+		tails[name].spliceLatLngs(0, 1);	
+}
+
 function addToTail(name, lat, lon) {
 	var pos = new L.LatLng(lat, lon);
 
@@ -754,7 +806,7 @@ function updateShip(snapshot) {
 	if (new Date().getTime() - date > 1000 * 60 * 20)
 		return;
 		
-	addToTail(name, lat, lon);
+	addToShipTail(name, lat, lon);
 
 	var pos = new L.LatLng(lat, lon);
 
@@ -779,7 +831,7 @@ function updateShip(snapshot) {
 			heading: heading,
 			speed: speed
 		});
-		ships[name].addTo(map);
+		ships[name].addTo(shipsOverlay);
 	}
 
 	
