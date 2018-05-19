@@ -60,6 +60,8 @@ public class IridiumServlet extends HttpServlet {
 	private void sendInlineMessage(HttpServletRequest req,
 			HttpServletResponse resp, boolean send) throws IOException {
 
+		
+		
 		StringBuilder sb = new StringBuilder();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				req.getInputStream()));
@@ -84,6 +86,8 @@ public class IridiumServlet extends HttpServlet {
 			msg.setUpdated_at(new Date());
 			Store.ofy().save().entity(msg);
 
+			Logger.getLogger(IridiumServlet.class.getSimpleName()).info("Processing " + m.getClass().getSimpleName()
+					+ " from " + src + " to " + dst);
 			// This message is not to be sent but just posted
 			if (dst == 0 || dst == 65535) {
 				IridiumMsgHandler.setMessage(null, m);
@@ -132,10 +136,11 @@ public class IridiumServlet extends HttpServlet {
 				resp.getWriter().write("Message has not been sent to destination (as requested)");				
 				resp.getWriter().close();
 			}
-		} 
+		}
 		catch (Exception e) {
 			try {
-				IridiumUtils.parsePlainTextReport(sb.toString());
+				e.printStackTrace();
+				IridiumUtils.parsePlainTextReport(sb.toString()+" ("+e.getClass().getSimpleName()+" / "+e.getMessage()+")");
 			}
 			catch (Exception ex) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING,

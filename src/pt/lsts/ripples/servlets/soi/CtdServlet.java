@@ -29,35 +29,35 @@ public class CtdServlet extends HttpServlet {
 				return req.getInputStream();
 			}
 		};
-		
-		String json = bsource.asCharSource(Charsets.UTF_8).read();	
+
+		String json = bsource.asCharSource(Charsets.UTF_8).read();
 		EnvironmentalData[] data = new Gson().fromJson(json, EnvironmentalData[].class);
 		int count = 0;
 		for (EnvironmentalData datum : data) {
-			List<EnvironmentalData> existing = Store.ofy().load().type(EnvironmentalData.class).filter("imc_id ==", datum.imc_id).filter("timestamp ==", datum.timestamp).list();
+			List<EnvironmentalData> existing = Store.ofy().load().type(EnvironmentalData.class)
+					.filter("imc_id ==", datum.imc_id).filter("timestamp ==", datum.timestamp).list();
 			if (existing.isEmpty()) {
 				Store.ofy().save().entity(datum);
 				count++;
 			}
 		}
-		
+
 		resp.setStatus(200);
-		resp.getOutputStream().write(("Stored "+count+" messages.").getBytes());
+		resp.getOutputStream().write(("Stored " + count + " messages.").getBytes());
 	}
-	
+
 	protected void getData(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Date d = new Date(System.currentTimeMillis() - 1000 * 3600 * 24);
-		List<EnvironmentalData> data = Store.ofy().load().type(EnvironmentalData.class)
-				.order("-timestamp").limit(10000).list();			
+		List<EnvironmentalData> data = Store.ofy().load().type(EnvironmentalData.class).order("-timestamp").limit(10000)
+				.list();
 		resp.setContentType("application/json");
 		resp.setStatus(200);
 		resp.getWriter().write(JsonUtils.getGsonInstance().toJson(data));
 		resp.getWriter().close();
 	}
-	
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		getData(req, resp);		
+		getData(req, resp);
 	}
 }

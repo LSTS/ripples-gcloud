@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.firebase.client.Firebase;
 
@@ -29,10 +31,16 @@ public class FirebaseUtils {
 	}
 
 	public static void updateFirebase(String vehicle, SoiPlan plan) {
+		Logger.getLogger(FirebaseUtils.class.getName()).log(Level.INFO,
+				"Sending plan to firebase...");
+		
 		Firebase planRef = firebase().child("assets/" + vehicle + "/plan").getRef();
 		
 		if (plan == null || plan.getWaypoints().isEmpty()) {
 			planRef.setValue(null);		
+			Logger.getLogger(FirebaseUtils.class.getName()).log(Level.INFO,
+					"Erased plan (no waypoints).");
+			
 		}
 		else {
 			planRef.child("id").setValue("soi_"+plan.getPlanId());
@@ -46,6 +54,9 @@ public class FirebaseUtils {
 	        }
 	        planRef.child("path").setValue(locs);
 	        planRef.child("eta").setValue(etas);
+			Logger.getLogger(FirebaseUtils.class.getName()).log(Level.INFO,
+					"Finished updating plan.");
+
 		}
 	}
 	
