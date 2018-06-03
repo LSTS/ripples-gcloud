@@ -94,6 +94,7 @@ public class IridiumMsgHandler {
 			break;
 		case StateReport.ID_STATIC:
 			incoming((StateReport)msg);
+			break;
 		case VerticalProfile.ID_STATIC:
 			incoming((VerticalProfile)msg);
 		default:
