@@ -38,6 +38,8 @@ public class Rock7Servlet extends HttpServlet {
 		String imei = req.getParameter("imei");
 		Date transmit_time = new Date();
 		
+		Logger.getLogger(getClass().getName()).info("Received message from rockblock ["+transmit_time+" / "+imei+"] "+data);
+		
 		try {
 			transmit_time = dateFormat.parse(req.getParameter("transmit_time"));	
 		}
