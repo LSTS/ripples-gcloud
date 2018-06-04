@@ -37,11 +37,28 @@ public class Rock7Servlet extends HttpServlet {
 		String data = req.getParameter("data");
 		String imei = req.getParameter("imei");
 		Date transmit_time = new Date();
+		
+		try {
+			transmit_time = dateFormat.parse(req.getParameter("transmit_time"));	
+		}
+		catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error parsing message's date: "+req.getParameter("transmit_time"),
+					e);
+		}
 
+		Date limit = new Date(System.currentTimeMillis() - 3600_000);
+		if (transmit_time.before(limit)) {
+			double age = (System.currentTimeMillis() - transmit_time.getTime()) / 1000.0;
+			Logger.getLogger(getClass().getSimpleName()).warning("Discarding old message ("+String.format("%.1f", age)+" seconds old.");
+			resp.getWriter().write("200 OK");
+			resp.setStatus(200);
+			resp.getWriter().close();
+			return;
+		}
+		
 		byte[] dataArr = hexAdapter.unmarshal(data);
 		IridiumMessage msg = null;
 		try {
-			transmit_time = dateFormat.parse(req.getParameter("transmit_time"));
 			msg = IridiumMessage.deserialize(dataArr);
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.INFO, "Non standard iridium message has been received.",
@@ -54,9 +71,10 @@ public class Rock7Servlet extends HttpServlet {
 			m.setType(msg.getMessageType());
 			m.setCreated_at(transmit_time);
 			m.setUpdated_at(new Date());
+			
 			Store.ofy().save().entity(m);
 			Logger.getLogger(getClass().getName()).log(Level.INFO, "Received message from RockBlock");
-
+			
 			IridiumMsgHandler.setMessage(imei, msg);
 
 			HubSystem system = Store.ofy().load().type(HubSystem.class).id(msg.getSource()).now();
@@ -98,21 +116,19 @@ public class Rock7Servlet extends HttpServlet {
 			try {
 				String hex = data;
 				if (hex.length() == 0) {
-					Logger.getLogger(getClass().getName()).log(Level.INFO, "Received empty message from RockBlock.");
+					Logger.getLogger(getClass().getName()).log(Level.INFO, "Received empty message from RockBlock / "+imei);
 					resp.getWriter().write("200 OK");
 					resp.setStatus(200);
 					resp.getWriter().close();
 					return;
 				}
-				
 				IridiumUtils.parsePlainTextReport(data);
 			}
 			catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Could not parse custom message as text", e);
 			}
-
 		}
-
+		
 		resp.getWriter().write("200 OK");
 		resp.setStatus(200);
 		resp.getWriter().close();

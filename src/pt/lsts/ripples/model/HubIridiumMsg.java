@@ -52,6 +52,7 @@ public class HubIridiumMsg {
     @Index
     int type;
     String msg;
+    @Index
     Date created_at;
     @Index
     Date updated_at;

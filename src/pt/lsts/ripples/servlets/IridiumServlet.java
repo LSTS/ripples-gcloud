@@ -281,7 +281,7 @@ public class IridiumServlet extends HttpServlet {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		sb.append("<html>\n<body>\n<table border=1><tr><th>Date</th><th>Type</th><th>Source</th><th>Destination</th><th>Data</th></tr>\n");
+		sb.append("<html>\n<body>\n<table border=1><tr><th>Updated_at</th><th>Created_at</th><th>Type</th><th>Source</th><th>Destination</th><th>Data</th></tr>\n");
 
 		for (int i = 0; i < msgs.size(); i++) {
 
@@ -312,12 +312,14 @@ public class IridiumServlet extends HttpServlet {
 			int dst = msg.getDestination();
 			int src = msg.getSource();
 
-			String date = sdf.format(m.getCreated_at());
+			String updated = sdf.format(m.getUpdated_at());
+			String created = sdf.format(m.getCreated_at());
+			
 
 			String source = IMCDefinition.getInstance().getResolver().resolve(src);
 			String dest = IMCDefinition.getInstance().getResolver().resolve(dst);
 			String data = "<a href='"+m.getId()+"'>Data</a>";
-			sb.append("<tr><td>"+date+"</td><td>"+type+"</td><td>"+source+"</td><td>"+dest+"</td><td>"+data+"</td></tr>\n");
+			sb.append("<tr><td>"+updated+"</td><td>"+created+"<td>"+type+"</td><td>"+source+"</td><td>"+dest+"</td><td>"+data+"</td></tr>\n");
 
 		}
 		sb.append("</table>\n");

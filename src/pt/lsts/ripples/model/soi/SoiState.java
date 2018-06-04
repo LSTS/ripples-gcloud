@@ -68,12 +68,13 @@ public class SoiState {
 	}
 
 	public static void updatePlan(HubSystem vehicle, SoiPlan plan) {
+		SoiState existing = Store.ofy().load().type(SoiState.class).id(vehicle.getName()).now();
+
 		FirebaseUtils.updateFirebase(vehicle.getName(), plan);
 
 		Logger.getLogger(SoiState.class.getName()).log(Level.INFO,
 				"Received plan for " + vehicle + ": " + plan);
 
-		SoiState existing = Store.ofy().load().type(SoiState.class).id(vehicle.getName()).now();
 		if (existing == null) {
 			existing = new SoiState();
 			existing.lastUpdated = plan.getDate();
