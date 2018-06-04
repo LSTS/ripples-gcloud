@@ -26,9 +26,9 @@ public class SoiServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private void sendProfiles(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void sendProfiles(int hours, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		Date d = new Date(System.currentTimeMillis() - 3600 * 4 * 1000);
+		Date d = new Date(System.currentTimeMillis() - 3600 * hours * 1000);
 
 		List<VerticalProfileData> profiles = Store.ofy().load().type(VerticalProfileData.class)
 				.filter("timestamp >=", d).order("timestamp").list();
@@ -53,10 +53,12 @@ public class SoiServlet extends HttpServlet {
 		Date d = new Date(System.currentTimeMillis() - 3600 * 4 * 1000);
 
 		if ("/profiles".equals(req.getPathInfo())) {
-			sendProfiles(req, resp);
+			sendProfiles(4, req, resp);
 			return;
 		}
-
+		
+		boolean debug = "/debug".equals(req.getPathInfo());
+		
 		ArrayList<String> toShow = new ArrayList<String>();
 
 		List<SoiState> states = Store.ofy().load().type(SoiState.class).list();
@@ -65,11 +67,22 @@ public class SoiServlet extends HttpServlet {
 			if (state.lastUpdated.after(d))
 				toShow.add(state.asset);
 		}
-
-		resp.setContentType("application/json");
-		resp.setStatus(200);
-		resp.getWriter().write("[");
-
+		
+		if (debug) {
+			resp.setContentType("text/plain");
+			resp.setStatus(200);
+			
+			for (SoiState state : states) {
+				resp.getWriter().write(state.asset.toString()+" :: "+state.lastUpdated+" vs "+d+" \n\n");
+			}
+			resp.getWriter().close();
+		}
+		else {
+			resp.setContentType("application/json");
+			resp.setStatus(200);
+			resp.getWriter().write("[");
+		}
+		
 		if (!toShow.isEmpty())
 			resp.getWriter().write(toShow.get(0));
 

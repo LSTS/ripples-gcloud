@@ -36,6 +36,8 @@ public class SoiState {
 	public static void updateState(StateReport msg) {
 		HubSystem vehicle = Store.ofy().load().type(HubSystem.class).id(msg.getSrc()).now();
 
+		Date time = new Date ((long)(1000.0 * msg.getStime()));
+		
 		SoiState existing = Store.ofy().load().type(SoiState.class).id(vehicle.getName()).now();
 		Asset state = new Asset(vehicle.getName());
 		if (existing == null) {
@@ -54,13 +56,13 @@ public class SoiState {
 		state.setState(AssetState.builder()
 				.withLatitude(msg.getLatitude())
 				.withLongitude(msg.getLongitude())
-				.withTimestamp(msg.getDate())
+				.withTimestamp(time)
 				.withHeading(msg.getHeading() / (65535 * 360.0))
 				.withFuel(msg.getFuel()/255.0)				
 				.build());
 		
 		existing.asset = state.toString();
-		existing.lastUpdated = msg.getDate();
+		existing.lastUpdated = time;
 		Store.ofy().save().entities(existing).now();
 		
 		Logger.getLogger(SoiState.class.getName()).log(Level.INFO,

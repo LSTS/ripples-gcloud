@@ -160,9 +160,7 @@ public class IridiumMsgHandler {
 		position.imc_id = state.getSrc();
 		position.lat = state.getLatitude();
 		position.lon = state.getLongitude();
-		Date time = state.getDate();
-		if (time.after(new Date(System.currentTimeMillis()+180_000)));
-			time = new Date();
+		Date time = new Date((long)(1000.0*state.getStime()));
 		
 		position.timestamp = time;
 		
