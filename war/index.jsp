@@ -7,6 +7,6 @@
 </head>
 <body>
    <p>The page has moved to
-   <a href="http://falkor.lsts.pt/ripples.html">falkor.lsts.pt</a>.</p>
+   <a href="https://falkor.lsts.pt/ripples.html">falkor.lsts.pt</a>.</p>
 </body>
 </html>
