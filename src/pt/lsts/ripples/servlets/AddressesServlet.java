@@ -85,7 +85,7 @@ public class AddressesServlet extends HttpServlet {
 		addrs.put("+351915733603", 0x8500+14l);
 		addrs.put("+351915733713", 0x8500+15l);
 		addrs.put("+351964660645", 0x8500+16l);
-		addrs.put("+351915733584", 0x8500+17l);
+		addrs.put("+351915733646", 0x8500+17l);
 		addrs.put("+351915733635", 0x8500+18l);
 		addrs.put("+351915733612", 0x8500+19l);
 		addrs.put("+351915733481", 0x8500+20l);
@@ -98,6 +98,10 @@ public class AddressesServlet extends HttpServlet {
 		addrs.put("+351915733619", 0x8500+27l);
 		addrs.put("+351915733474", 0x8500+28l);
 		addrs.put("+351915733621", 0x8500+29l);
+		addrs.put("+351915733584", 0x8500+30l);
+		addrs.put("+351915733747", 0x8500+40l);
+		addrs.put("+351915733695", 0x8500+41l);
+		
 		int count = 0;
 		for (Entry<String, Long> addr : addrs.entrySet()) {
 			Address existing = Store.ofy().load().type(Address.class).id(addr.getValue())
