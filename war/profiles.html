@@ -1,0 +1,52 @@
+<head>
+  <!-- Plotly.js -->
+  <script src="js/plotly-latest.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+</head>
+
+<body>
+  
+  <div id="plot"></div>
+  <script>
+
+    $.ajax({
+		cache : false,
+		url : "/soi/profiles",
+		dataType : "json",
+		success : function(result) {
+
+            var traces = [];
+
+            result.forEach(addTrace);
+
+            function addTrace(value, index, array) {
+              var date = new Date(value['timestamp'] * 1000);
+              var name = value['source'] + " :: " + date;
+              var vals = [];
+              var depths = [];
+              value['samples'].forEach(function(val, array, index) {
+                 vals.push(val['value']);
+                 depths.push(-val['depth']);
+              });
+              var trace = {
+                x : vals,
+                y : depths,
+                mode: 'lines',
+                name: name
+              };
+              
+              traces.push(trace);
+            }
+
+            var layout = {
+              title:'Uploaded profiles'
+            };
+
+            console.log(traces);
+
+            Plotly.newPlot('plot', traces, layout);
+  }});
+
+  </script>
+</body>
+
